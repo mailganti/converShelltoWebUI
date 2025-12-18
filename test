@@ -37,3 +37,35 @@ async def check_proxy_auth(request: Request, call_next):
     
     response = await call_next(request)
     return response
+
+
+
+
+
+
+async def get_current_user(request: Request) -> Optional[DualAuthUser]:
+    """
+    Extract authenticated user from proxy headers.
+    Returns None if not authenticated (use require_auth for mandatory auth).
+    """
+    # Get auth headers
+    identity = request.headers.get(AUTH_CONFIG.AUTH_USER_HEADER)
+    auth_method = request.headers.get(AUTH_CONFIG.AUTH_METHOD_HEADER, "unknown")
+    cert_dn = request.headers.get(AUTH_CONFIG.CERT_DN_HEADER)
+
+    if not identity:
+        return None
+
+    # Validate trusted proxy
+    if not is_trusted_proxy(request):
+        logger.warning(f"Auth header from untrusted source: {request.client.host}")
+        return None
+
+    # Parse identity
+    username, domain = parse_identity(identity)
+
+    if not username:
+        return None
+
+    # Build display name
+    display_name = None
