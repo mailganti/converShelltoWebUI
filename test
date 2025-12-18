@@ -23,3 +23,17 @@ async def test():
     w.close()
 
 asyncio.run(test())
+
+
+
+
+@app.middleware("http")
+async def check_proxy_auth(request: Request, call_next):
+    # If proxy already authenticated, set user in state
+    proxy_user = request.headers.get("X-Authenticated-User")
+    if proxy_user:
+        request.state.user = proxy_user
+        request.state.authenticated = True
+    
+    response = await call_next(request)
+    return response
