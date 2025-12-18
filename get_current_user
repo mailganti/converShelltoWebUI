@@ -1,0 +1,42 @@
+async def get_current_user(request: Request) -> Optional[DualAuthUser]:
+    """
+    Extract authenticated user from proxy headers.
+    Returns None if not authenticated (use require_auth for mandatory auth).
+    """
+    # Get auth headers
+    identity = request.headers.get(AUTH_CONFIG.AUTH_USER_HEADER)
+    auth_method = request.headers.get(AUTH_CONFIG.AUTH_METHOD_HEADER, "unknown")
+    cert_dn = request.headers.get(AUTH_CONFIG.CERT_DN_HEADER)
+
+    if not identity:
+        return None
+
+    # Validate trusted proxy
+    if not is_trusted_proxy(request):
+        logger.warning(f"Auth header from untrusted source: {request.client.host}")
+        return None
+
+    # Parse identity
+    username, domain = parse_identity(identity)
+
+    if not username:
+        return None
+
+    # Build display name
+    display_name = None
+    if cert_dn:
+        display_name = extract_cn_from_dn(cert_dn)
+    if not display_name:
+        # Convert username to display name (john.smith -> John Smith)
+        display_name = username.replace('.', ' ').replace('_', ' ').title()
+
+    return DualAuthUser(
+        username=username,
+        domain=domain,
+        full_identity=identity,
+        auth_method=auth_method,
+        display_name=display_name,
+        cert_dn=cert_dn,
+        groups=[]  # Would need LDAP lookup to populate
+    )
+
