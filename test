@@ -1,0 +1,25 @@
+import asyncio
+import ssl
+
+async def test():
+    # Connect to backend directly
+    r, w = await asyncio.open_connection('localhost', 8000)
+    
+    # Send request
+    req = b"GET / HTTP/1.1\r\nHost: localhost:8000\r\nConnection: close\r\n\r\n"
+    w.write(req)
+    await w.drain()
+    
+    # Read response
+    response = b""
+    while True:
+        chunk = await r.read(4096)
+        if not chunk:
+            break
+        response += chunk
+    
+    print(f"Got {len(response)} bytes")
+    print(response[:500].decode('utf-8', errors='replace'))
+    w.close()
+
+asyncio.run(test())
