@@ -1,3 +1,17 @@
+
+
+def extract_cert_user(self, ssl_obj) -> Optional[dict]:
+    try:
+        if not ssl_obj:
+            self.logger.debug("No SSL object")
+            return None
+        cert = ssl_obj.getpeercert()
+        self.logger.info(f"Certificate: {cert}")  # ADD THIS LINE
+        if not cert:
+            self.logger.debug("No peer cert")
+            return None
+Restart proxy and check log - what does the certificate contain?
+
 ==========================================
 Orchestration Controller Startup
 ==========================================
