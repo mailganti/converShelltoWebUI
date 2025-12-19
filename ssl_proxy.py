@@ -600,6 +600,10 @@ class ProxyServer:
                     bheaders['X-Forwarded-For'] = addr[0] if addr else ''
                     bheaders['X-Forwarded-Proto'] = 'https'
                 
+                # Check WebSocket first
+                is_ws = (backend.websocket and
+                        'websocket' in headers.get('upgrade', '').lower())
+                
                 # Remove hop headers (but keep connection for HTTP/1.1)
                 for h in ['keep-alive', 'upgrade', 'proxy-authorization', 'authorization']:
                     bheaders.pop(h, None)
@@ -607,10 +611,6 @@ class ProxyServer:
                 # Ensure connection header for HTTP/1.1
                 if not is_ws:
                     bheaders['connection'] = 'close'
-                
-                # Check WebSocket
-                is_ws = (backend.websocket and
-                        'websocket' in headers.get('upgrade', '').lower())
                 
                 if is_ws:
                     # Keep upgrade headers for WebSocket
