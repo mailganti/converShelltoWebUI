@@ -1,0 +1,103 @@
+# ============================================================================
+# Multi-Backend SSL Proxy Configuration
+# ============================================================================
+# All proxy settings are configured here - no need to edit the Python script
+
+# ============================================================================
+# Server Settings
+# ============================================================================
+server:
+  host: "10.28.203.100"
+  port: 7585
+  
+# ============================================================================
+# SSL/TLS Configuration
+# ============================================================================
+ssl:
+  cert: "${BASE_DIR}/controller/certs/cert.pem"
+  key: "${BASE_DIR}/controller/certs/key.pem"
+  ca: "${BASE_DIR}/controller/certs/certChain.pem"
+  verify_client: true           # Set to false to disable client cert verification
+
+# ============================================================================
+# Authentication Settings
+# ============================================================================
+auth:
+  # Header names sent to backend (must match your FastAPI app expectations)
+  headers:
+    cert_cn: "X-Client-Cert-CN"
+    cert_dn: "X-Client-Cert-DN"
+    auth_method: "X-Auth-Method"
+  
+  # Default domain for Smart Card auth (optional)
+  default_domain: ""
+  
+  # Windows Native Auth (NTLM/Kerberos) fallback
+  ntlm:
+    enabled: true
+    domain: ""
+    service_name: "HTTP"
+  
+  # Session settings
+  session_timeout: 3600         # 1 hour
+
+# ============================================================================
+# Logging Settings
+# ============================================================================
+logging:
+  level: "DEBUG"                # DEBUG, INFO, WARNING, ERROR
+  file: "${BASE_DIR}/logs/proxy.log"
+  access_log: "${BASE_DIR}/logs/proxy_access.log"
+  format: "%(asctime)s [%(levelname)s] %(message)s"
+
+# ============================================================================
+# Backend Services
+# ============================================================================
+# Backends are matched by path prefix (longest match wins)
+# 
+# Options:
+#   name: Display name for logging
+#   host: Backend hostname/IP
+#   port: Backend port
+#   path_prefix: URL path prefix to match
+#   strip_prefix: Remove prefix before forwarding (true/false)
+#   websocket: Enable WebSocket support (true/false)
+#   timeout: Request timeout in seconds
+#   auth_required: Require authentication (true/false)
+
+backends:
+  orchestration:
+    name: "Orchestration Dashboard"
+    host: "10.28.203.100"
+    port: 7605
+    path_prefix: "/"
+    strip_prefix: false
+    websocket: true
+    timeout: 300
+    auth_required: true
+
+  deploy-console:
+    name: "Deployment Console"
+    host: "10.28.203.100"
+    port: 7600
+    path_prefix: "/deploy"
+    strip_prefix: true
+    websocket: true
+    timeout: 3600               # Long timeout for script execution
+    auth_required: true
+
+# Default backend when no path matches (use backend key name)
+default_backend: "orchestration"
+
+# ============================================================================
+# Advanced Settings (usually don't need to change)
+# ============================================================================
+advanced:
+  # Buffer sizes
+  read_buffer: 65536
+  
+  # Health check settings
+  health_check:
+    enabled: true
+    interval: 30
+    path: "/health"
