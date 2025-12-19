@@ -1,4 +1,13 @@
 
+
+@app.get("/debug-headers")
+async def debug_headers(request: Request):
+    return {
+        "client_host": request.client.host if request.client else "unknown",
+        "all_headers": dict(request.headers),
+    }
+
+
 @app.get("/debug-headers")
 async def debug_headers(request: Request):
     return {
