@@ -1,3 +1,14 @@
+
+@app.get("/debug-headers")
+async def debug_headers(request: Request):
+    return {
+        "client_host": request.client.host,
+        "all_headers": dict(request.headers),
+        "expected_user_header": AUTH_CONFIG.AUTH_USER_HEADER,
+        "expected_method_header": AUTH_CONFIG.AUTH_METHOD_HEADER,
+    }
+
+
 import asyncio
 import ssl
 
