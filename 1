@@ -1,3 +1,41 @@
+============================================================
+Multi-Backend SSL Proxy
+============================================================
+Listening: https://10.28.203.100:7585
+Client certs: Optional
+NTLM fallback: True
+------------------------------------------------------------
+Backends:
+  /               -> 10.28.203.100:7605 [WS, Auth]
+  /deploy         -> 10.28.203.100:7600 [WS, Auth]
+============================================================
+
+Shutting down...
+10:47:38 [INFO] Smart Card auth: Rajesh Mudiganti (affiliate)
+10:47:38 [INFO] ('10.24.29.187', 53456) GET / -> orchestration
+10:47:49 [INFO] Smart Card auth: Rajesh Mudiganti (affiliate)
+10:47:49 [INFO] ('10.24.29.187', 48714) GET /debug-cert -> orchestration
+10:48:38 [INFO] Smart Card auth: Rajesh Mudiganti (affiliate)
+10:48:38 [INFO] ('10.24.29.187', 41534) GET / -> orchestration
+10:52:49 [INFO] Smart Card auth: Rajesh Mudiganti (affiliate)
+10:52:49 [INFO] ('10.24.29.187', 31630) GET /debug-cert -> orchestration
+11:02:49 [INFO] Smart Card auth: Rajesh Mudiganti (affiliate)
+11:02:49 [INFO] ('10.24.29.187', 46982) GET /debug-cert -> orchestration
+============================================================
+Multi-Backend SSL Proxy
+============================================================
+Listening: https://10.28.203.100:7585
+Client certs: Optional
+NTLM fallback: True
+------------------------------------------------------------
+Backends:
+  /               -> 10.28.203.100:7605 [WS, Auth]
+  /deploy         -> 10.28.203.100:7600 [WS, Auth]
+============================================================
+
+
+
+
 grep -A 30 "getpeercert\|extract.*cert\|client.*cert"
 
 def extract_cert_user(self, ssl_obj) -> Optional[dict]:
