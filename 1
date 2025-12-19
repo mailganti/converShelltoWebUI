@@ -1,4 +1,83 @@
 
+203.100:7605/
+* Uses proxy env variable https_proxy == 'http://access.lb.ssa.gov:80'
+*   Trying 10.60.35.11...
+* TCP_NODELAY set
+* Connected to access.lb.ssa.gov (10.60.35.11) port 80 (#0)
+* allocate connect buffer!
+* Establish HTTP proxy tunnel to 10.28.203.100:7605
+> CONNECT 10.28.203.100:7605 HTTP/1.1
+> Host: 10.28.203.100:7605
+> User-Agent: curl/7.61.1
+> Proxy-Connection: Keep-Alive
+>
+< HTTP/1.0 200 Connection Established
+<
+* Proxy replied 200 to CONNECT request
+* CONNECT phase completed!
+* ALPN, offering h2
+* ALPN, offering http/1.1
+* successfully set certificate verify locations:
+*   CAfile: /etc/pki/tls/certs/ca-bundle.crt
+  CApath: none
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+* CONNECT phase completed!
+* CONNECT phase completed!
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+* TLSv1.3 (IN), TLS handshake, [no content] (0):
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+* TLSv1.3 (IN), TLS handshake, [no content] (0):
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+* TLSv1.3 (IN), TLS handshake, [no content] (0):
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+* TLSv1.3 (IN), TLS handshake, [no content] (0):
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+* TLSv1.3 (OUT), TLS handshake, [no content] (0):
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
+* ALPN, server accepted to use h2
+* Server certificate:
+*  subject: C=US; ST=MD; L=WOODLAWN; O=U.S. Government; OU=SSA; OU=Devices; CN=ssoars-d.ba.ssa.gov
+*  start date: Nov 18 14:41:06 2025 GMT
+*  expire date: Dec 13 14:41:06 2026 GMT
+*  subjectAltName: host "10.28.203.100" matched cert's IP address!
+*  issuer: DC=gov; DC=ssa; DC=ad; DC=ba; CN=Social Security Administration Intermediate CA1
+*  SSL certificate verify ok.
+* Using HTTP2, server supports multi-use
+* Connection state changed (HTTP/2 confirmed)
+* Copying HTTP/2 data in stream buffer to connection buffer after upgrade: len=0
+* TLSv1.3 (OUT), TLS app data, [no content] (0):
+* TLSv1.3 (OUT), TLS app data, [no content] (0):
+* TLSv1.3 (OUT), TLS app data, [no content] (0):
+* Using Stream ID: 1 (easy handle 0x5644aac192c0)
+* TLSv1.3 (OUT), TLS app data, [no content] (0):
+> GET / HTTP/2
+> Host: 10.28.203.100:7605
+> User-Agent: curl/7.61.1
+> Accept: */*
+> X-Client-Cert-CN: Rajesh Mudiganti(affiliate)
+> X-Auth-Method: smartcard
+>
+* TLSv1.3 (IN), TLS handshake, [no content] (0):
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+* TLSv1.3 (IN), TLS handshake, [no content] (0):
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+* TLSv1.3 (IN), TLS app data, [no content] (0):
+* Connection state changed (MAX_CONCURRENT_STREAMS == 100)!
+* TLSv1.3 (OUT), TLS app data, [no content] (0):
+* TLSv1.3 (IN), TLS app data, [no content] (0):
+< HTTP/2 302
+< content-length: 0
+< location: /dashboard
+< set-cookie: orchestration_session=gES9sNCUPOhANxukCqYXmQBeJkNUZ9h_j-CIjlIypak; HttpOnly; Max-Age=86400; Path=/; SameSite=lax; Secure
+< date: Fri, 19 Dec 2025 19:14:34 GMT
+< server: hypercorn-h2
+<
+* TLSv1.3 (IN), TLS app data, [no content] (0):
+
+
+
 
 curl -v -H "X-Client-Cert-CN: John Snow (affiliate)" -H "X-Auth-Method: smartcard" http://10.28.203.100:7605/
 
