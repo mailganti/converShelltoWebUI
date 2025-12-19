@@ -1,0 +1,47 @@
+==========================================
+Orchestration Controller Startup
+==========================================
+Base Directory : /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system
+Logs Directory : /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/logs
+Port           : 7585
+Controller URL :
+
+[1/3] Stopping old processes...
+✅ Old processes stopped
+
+[2/3] Checking SSL certificates...
+✅ Server certificate: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/certs/cert.pem
+✅ Server key:         /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/certs/key.pem
+✅ CA certificate:     /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/certs/certChain.pem
+
+[3/3] Starting Hypercorn server...
+
+==========================================
+  Hypercorn HTTPS Server
+==========================================
+Host: 10.28.203.100
+Port: 7585
+Auth: Client Certificate (Smartcard)
+==========================================
+
+✅ Access at: /login.html
+
+⚠️  Use HTTPS (not HTTP)!
+⚠️  Use Hypercorn (not Uvicorn)!
+
+==========================================
+
+Starting server...
+
+(newPython) ds-d1-ebs-01:/ADMIN/Oracle/Toolkits/Clone/tools/python/ssaAgent/orchestration-system/startStop
+EBSapp[1]:FS_UNSET:$ tail ../logs/proxy.log
+22:09:19 [INFO] Cert auth:
+22:09:19 [INFO] ('172.27.93.75', 54646) GET /debug-headers -> orchestration
+22:17:38 [INFO] Cert auth:
+22:17:38 [INFO] ('172.27.93.75', 60782) GET /debug-headers -> orchestration
+22:17:39 [INFO] Cert auth:
+22:17:39 [INFO] ('172.27.93.75', 49415) GET /debug-headers -> orchestration
+22:17:44 [INFO] Cert auth:
+22:17:44 [INFO] ('172.27.93.75', 56865) GET /debug-headers -> orchestration
+22:18:14 [INFO] Cert auth:
+22:18:14 [INFO] ('172.27.93.75', 50529) GET /debug-headers -> orchestration
