@@ -600,9 +600,13 @@ class ProxyServer:
                     bheaders['X-Forwarded-For'] = addr[0] if addr else ''
                     bheaders['X-Forwarded-Proto'] = 'https'
                 
-                # Remove hop headers
-                for h in ['connection', 'keep-alive', 'upgrade', 'proxy-authorization', 'authorization']:
+                # Remove hop headers (but keep connection for HTTP/1.1)
+                for h in ['keep-alive', 'upgrade', 'proxy-authorization', 'authorization']:
                     bheaders.pop(h, None)
+                
+                # Ensure connection header for HTTP/1.1
+                if not is_ws:
+                    bheaders['connection'] = 'close'
                 
                 # Check WebSocket
                 is_ws = (backend.websocket and
@@ -621,9 +625,14 @@ class ProxyServer:
                 req = build_request(method, bpath, bheaders, body)
                 self.logger.debug(f"[8] Sending request to backend: {method} {bpath}")
                 self.logger.debug(f"[8] Headers: {list(bheaders.keys())}")
+                
+                # Log the actual request (first 500 bytes)
+                req_preview = req[:500].decode('utf-8', errors='replace')
+                self.logger.debug(f"[8] Request:\n{req_preview}")
+                
                 bw.write(req)
                 await bw.drain()
-                self.logger.debug(f"[8] Request sent, waiting for response...")
+                self.logger.debug(f"[8] Request sent ({len(req)} bytes), waiting for response...")
                 
                 if is_ws:
                     # Forward WebSocket upgrade response
@@ -638,17 +647,25 @@ class ProxyServer:
                     # Forward HTTP response
                     first_chunk = True
                     total_bytes = 0
+                    self.logger.debug(f"[9] Reading response from backend...")
                     while True:
-                        chunk = await asyncio.wait_for(
-                            br.read(self.config.read_buffer),
-                            timeout=backend.timeout
-                        )
+                        try:
+                            chunk = await asyncio.wait_for(
+                                br.read(self.config.read_buffer),
+                                timeout=backend.timeout
+                            )
+                        except Exception as read_err:
+                            self.logger.error(f"[9] Read error: {read_err}")
+                            break
+                            
                         if not chunk:
+                            self.logger.debug(f"[9] Backend closed connection (EOF)")
                             break
                         if first_chunk:
                             # Log first line of response
                             first_line = chunk.split(b'\r\n')[0].decode('utf-8', errors='replace')
                             self.logger.debug(f"[9] Response: {first_line}")
+                            self.logger.debug(f"[9] First chunk size: {len(chunk)} bytes")
                             first_chunk = False
                         total_bytes += len(chunk)
                         writer.write(chunk)
