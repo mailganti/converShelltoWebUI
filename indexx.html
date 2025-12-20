@@ -1,0 +1,1292 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orchestration Control Panel</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-base: #020617;
+            --bg-panel: #020617;
+            --bg-input: rgba(2, 6, 23, 0.9);
+            --border-panel: rgba(100, 116, 139, 0.6);
+            --border-input: rgba(100, 116, 139, 0.6);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --sky-400: #38bdf8;
+            --sky-500: #0ea5e9;
+            --emerald-200: #a7f3d0;
+            --emerald-300-70: rgba(110, 231, 183, 0.7);
+            --emerald-bg: rgba(16, 185, 129, 0.15);
+            --emerald-bg-20: rgba(16, 185, 129, 0.2);
+            --amber-200: #fde68a;
+            --amber-300-70: rgba(252, 211, 77, 0.7);
+            --amber-bg: rgba(245, 158, 11, 0.1);
+            --rose-200: #fecaca;
+            --rose-300-70: rgba(252, 165, 165, 0.7);
+            --rose-bg: rgba(244, 63, 94, 0.1);
+            --indigo-100: #e0e7ff;
+            --indigo-400-90: rgba(129, 140, 248, 0.9);
+            --indigo-bg: rgba(67, 56, 202, 0.6);
+            --indigo-800-70: rgba(55, 48, 163, 0.7);
+            --slate-bg-70: rgba(2, 6, 23, 0.7);
+            --slate-bg-90: rgba(2, 6, 23, 0.9);
+            --slate-bg-80: rgba(2, 6, 23, 0.8);
+            --slate-500-20: rgba(100, 116, 139, 0.2);
+            --slate-500-50: rgba(100, 116, 139, 0.5);
+            --slate-500-60: rgba(100, 116, 139, 0.6);
+            --slate-500-70: rgba(100, 116, 139, 0.7);
+            --slate-500-80: rgba(100, 116, 139, 0.8);
+            --slate-300-80: rgba(203, 213, 225, 0.8);
+            --slate-400-70: rgba(148, 163, 184, 0.7);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: radial-gradient(circle at top, #1d243b 0%, #020617 45%, #020617 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.5); border-radius: 999px; }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem 1.25rem 2rem; }
+
+        /* Header */
+        .header { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+        .header-left { display: flex; align-items: center; gap: 0.75rem; }
+
+        .logo {
+            width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+            background: radial-gradient(circle at 25% 25%, #38bdf8, #0f172a 60%, #020617 100%);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 0 1px rgba(56,189,248,0.6), 0 14px 30px rgba(8,47,73,0.8);
+        }
+        .logo span { font-size: 13px; font-weight: 700; letter-spacing: 0.14em; color: white; }
+
+        .header-title h1 { font-size: 22px; font-weight: 600; display: inline; }
+        .header-badge {
+            font-size: 11px; font-weight: 500; padding: 0.25rem 0.75rem; border-radius: 9999px;
+            background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-panel);
+            color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.16em;
+            margin-left: 0.5rem; vertical-align: middle;
+        }
+        .header-title p { font-size: 14px; color: var(--text-secondary); margin-top: 0.125rem; }
+
+        /* User Info */
+        .user-info {
+            display: flex; align-items: center; gap: 0.5rem; border-radius: 9999px;
+            border: 1px solid var(--slate-500-80);
+            background: radial-gradient(circle at 0 0, rgba(56,189,248,0.35), transparent 55%);
+            padding: 6px 12px 6px 10px; box-shadow: 0 10px 30px rgba(15,23,42,0.6);
+        }
+        .user-icon {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--sky-400), var(--sky-500));
+            display: flex; align-items: center; justify-content: center;
+        }
+        .user-icon svg { width: 16px; height: 16px; color: var(--bg-base); }
+        .user-details { display: flex; flex-direction: column; }
+        .user-name { font-size: 12px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+        .user-auth-method { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+        .user-role-badge {
+            font-size: 9px; font-weight: 600; padding: 1px 6px; border-radius: 4px;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .user-role-badge.admin { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .user-role-badge.approver { background: rgba(14, 165, 233, 0.2); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.3); }
+        .user-role-badge.operator { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .user-role-badge.user { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); }
+
+        .refresh-btn {
+            display: flex; align-items: center; justify-content: center; border-radius: 9999px;
+            border: 1px solid var(--slate-500-80); background: var(--slate-bg-90);
+            padding: 0.25rem 0.625rem; color: var(--text-primary); cursor: pointer; transition: border-color 0.2s;
+        }
+        .refresh-btn:hover { border-color: var(--slate-300-80); }
+        .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .refresh-btn svg { width: 16px; height: 16px; }
+        .refresh-btn.spinning svg { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Main Grid */
+        .main-grid { display: grid; grid-template-columns: minmax(0, 2.3fr) minmax(0, 1.6fr); gap: 1rem; }
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+        /* Panels */
+        .panel {
+            border-radius: 1rem; border: 1px solid var(--border-panel);
+            background: radial-gradient(circle at 0 0, rgba(148,163,184,0.09), transparent 55%), var(--bg-panel);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 1rem;
+        }
+        .panel-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+        .panel-title { font-size: 14px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); }
+        .panel-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 0.25rem; }
+
+        .btn {
+            border-radius: 9999px; border: 1px solid var(--slate-500-80); background: var(--slate-bg-90);
+            padding: 0.375rem 0.75rem; font-size: 12px; color: var(--text-primary); cursor: pointer; transition: border-color 0.2s;
+        }
+        .btn:hover { border-color: var(--slate-300-80); }
+        .btn-primary {
+            border: none; background: linear-gradient(to top right, var(--sky-400), var(--sky-500));
+            color: var(--bg-base); font-weight: 500; box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+        }
+        .btn-primary:hover { filter: brightness(1.1); }
+
+        /* KPI Cards */
+        .kpi-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+        .kpi-card { flex: 1; border-radius: 0.75rem; border: 1px solid var(--slate-500-50); background: var(--slate-bg-90); padding: 0.625rem; }
+        .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-secondary); }
+        .kpi-value { font-size: 15px; font-weight: 600; }
+
+        /* Tables */
+        .table-container { max-height: 260px; overflow: auto; border-radius: 0.5rem; border: 1px solid #0f172a; margin-bottom: 1rem; }
+        .table-container.short { max-height: 180px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        thead tr { background: var(--slate-bg-90); }
+        th { padding: 0.375rem 0.5rem; font-size: 11px; font-weight: 600; text-transform: uppercase; text-align: left; color: var(--text-secondary); }
+        th.text-right { text-align: right; }
+        tbody tr { border-bottom: 1px solid #0f172a; }
+        tbody tr:nth-child(odd) { background: var(--slate-bg-70); }
+        tbody tr:nth-child(even) { background: var(--slate-bg-90); }
+        tbody tr.selected { background: var(--indigo-bg); outline: 1px solid rgba(59, 130, 246, 0.8); }
+        tbody tr:hover { background: rgba(56, 189, 248, 0.05); }
+        td { padding: 0.375rem 0.5rem; }
+        td.text-right { text-align: right; }
+        .empty-row { text-align: center; color: var(--text-secondary); padding: 1.25rem 0.5rem !important; }
+
+        /* Badges */
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 11px; text-transform: uppercase; border: 1px solid; }
+        .badge-pending { background: var(--amber-bg); color: var(--amber-200); border-color: var(--amber-300-70); }
+        .badge-approved { background: var(--emerald-bg); color: var(--emerald-200); border-color: var(--emerald-300-70); }
+        .badge-executed, .badge-online { background: var(--emerald-bg); color: var(--emerald-200); border-color: var(--emerald-300-70); }
+        .badge-failed, .badge-offline { background: var(--rose-bg); color: var(--rose-200); border-color: var(--rose-300-70); }
+        .badge-denied { background: var(--rose-bg); color: var(--rose-200); border-color: var(--rose-300-70); }
+        .badge-executing { background: var(--amber-bg); color: var(--amber-200); border-color: var(--amber-300-70); animation: pulse 1.5s infinite; }
+        .badge-logs { background: var(--indigo-bg); color: var(--indigo-100); border-color: var(--indigo-400-90); font-size: 10px; margin-right: 0.375rem; }
+        .script-badge { font-family: monospace; font-size: 11px; padding: 2px 8px; border-radius: 0.375rem; background: var(--slate-bg-80); border: 1px solid var(--slate-500-70); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        /* Action Buttons */
+        .action-btn { border-radius: 9999px; padding: 3px 8px; font-size: 10px; cursor: pointer; transition: all 0.2s; margin-left: 0.25rem; }
+        .action-btn-secondary { border: 1px solid var(--slate-500-80); background: var(--slate-bg-90); color: var(--text-primary); }
+        .action-btn-secondary:hover { border-color: var(--slate-300-80); }
+        .action-btn-primary { border: none; background: linear-gradient(to top right, var(--sky-400), var(--sky-500)); color: var(--bg-base); box-shadow: 0 0 15px rgba(56, 189, 248, 0.25); }
+        .action-btn-primary:hover { filter: brightness(1.1); }
+        .action-btn-danger { border: 1px solid rgba(244, 63, 94, 0.5); background: var(--rose-bg); color: var(--rose-200); }
+        .action-btn-danger:hover { border-color: var(--rose-300-70); background: rgba(244, 63, 94, 0.2); }
+
+        /* Forms */
+        .form-section { border-top: 1px solid #0f172a; padding-top: 1rem; }
+        .form-title { font-size: 14px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 0.5rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .form-grid.single { grid-template-columns: 1fr; }
+        .form-group.full { grid-column: span 2; }
+        .form-label { font-size: 11px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 0.25rem; }
+        .form-input {
+            width: 100%; border-radius: 0.5rem; border: 1px solid var(--border-input); background: var(--slate-bg-90);
+            padding: 0.375rem 0.625rem; font-size: 12px; color: var(--text-primary); outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus { border-color: var(--sky-400); box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+        .form-input::placeholder { color: var(--text-muted); }
+        select.form-input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.5rem center; padding-right: 1.5rem; }
+        select.form-input option { background: #0f172a; color: var(--text-primary); }
+
+        /* Agent Selector */
+        .agent-selector { max-height: 140px; overflow: auto; border-radius: 0.5rem; border: 1px solid var(--border-input); background: var(--slate-bg-90); padding: 0.5rem; }
+        .agent-option { display: flex; align-items: center; padding: 0.25rem 0.375rem; border-radius: 0.375rem; cursor: pointer; transition: background 0.2s; }
+        .agent-option:hover { background: rgba(56, 189, 248, 0.1); }
+        .agent-option input[type="checkbox"] { margin-right: 0.5rem; accent-color: var(--sky-400); cursor: pointer; }
+        .agent-option-name { flex: 1; font-size: 12px; }
+        .agent-option-status { font-size: 10px; padding: 1px 8px; border-radius: 9999px; }
+        .agent-option-status.online { background: var(--emerald-bg-20); color: var(--emerald-200); }
+        .agent-option-status.offline { background: var(--slate-500-20); color: var(--text-secondary); }
+        .form-hint { font-size: 10px; color: var(--text-secondary); margin-top: 0.25rem; }
+
+        /* Logs Panel */
+        .logs-panel { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--indigo-800-70); }
+        .logs-toggle { display: flex; align-items: center; gap: 0.5rem; background: none; border: none; color: var(--text-primary); font-size: 11px; cursor: pointer; }
+        .logs-toggle-icon { font-size: 11px; }
+        .logs-toggle-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--text-secondary); }
+        .logs-toggle-id { font-family: monospace; font-size: 11px; padding: 2px 8px; border-radius: 9999px; background: var(--slate-bg-80); border: 1px solid var(--slate-500-70); }
+        .logs-content { margin-top: 0.5rem; padding-left: 0.25rem; }
+        .logs-content.hidden { display: none; }
+        .logs-path { font-size: 11px; color: var(--text-secondary); word-break: break-all; margin-bottom: 0.5rem; }
+        .logs-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+
+        /* Activity Log */
+        .activity-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.375rem; }
+        .activity-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-secondary); }
+        .activity-clear { border-radius: 9999px; border: 1px solid var(--border-panel); background: transparent; padding: 0.25rem 0.75rem; font-size: 11px; color: var(--text-secondary); cursor: pointer; transition: border-color 0.2s; }
+        .activity-clear:hover { border-color: var(--slate-300-80); }
+        .activity-log {
+            width: 100%; min-height: 120px; resize: vertical; border-radius: 0.75rem; border: 1px solid #0f172a;
+            background: radial-gradient(circle at top left, rgba(15,118,110,0.25), #020617 40%);
+            padding: 0.5rem 0.625rem; font-family: monospace; font-size: 12px; color: var(--text-primary);
+            box-shadow: 0 16px 35px rgba(15,23,42,0.9);
+        }
+
+        /* Fixed Activity Footer */
+        .activity-footer {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: linear-gradient(to top, rgba(2, 6, 23, 0.98), rgba(2, 6, 23, 0.95));
+            border-top: 1px solid var(--border-panel);
+            padding: 0.5rem 1.5rem; z-index: 100;
+            backdrop-filter: blur(8px);
+            transition: transform 0.3s ease;
+        }
+        .activity-footer.collapsed { transform: translateY(calc(100% - 36px)); }
+        .activity-footer-header {
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; padding-bottom: 0.5rem;
+        }
+        .activity-footer-title {
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em;
+            color: var(--text-secondary); display: flex; align-items: center; gap: 8px;
+        }
+        .activity-footer-toggle { font-size: 10px; color: var(--text-muted); }
+        .activity-footer-actions { display: flex; gap: 8px; align-items: center; }
+        .activity-footer .activity-log { min-height: 80px; max-height: 150px; resize: none; }
+        .footer-spacer { height: 140px; }
+        .footer-spacer.collapsed { height: 50px; }
+
+        /* Auto-refresh indicator */
+        .refresh-indicator {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 10px; color: var(--text-muted);
+        }
+        .refresh-indicator-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--emerald-300-70);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .refresh-countdown { font-family: monospace; min-width: 20px; }
+
+        /* Filter controls */
+        .filter-bar {
+            display: flex; gap: 8px; align-items: center; margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .filter-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        .filter-btn {
+            padding: 4px 10px; border-radius: 12px; font-size: 11px;
+            border: 1px solid var(--border-panel); background: transparent;
+            color: var(--text-secondary); cursor: pointer; transition: all 0.15s ease;
+        }
+        .filter-btn:hover { border-color: var(--sky-400); color: var(--text-primary); }
+        .filter-btn.active { background: rgba(14, 165, 233, 0.2); border-color: var(--sky-400); color: var(--sky-400); }
+        .filter-count { font-size: 10px; opacity: 0.7; margin-left: 4px; }
+
+        /* Keyboard hint */
+        .kbd {
+            display: inline-block; padding: 2px 6px; font-size: 10px;
+            font-family: monospace; background: var(--slate-bg-80);
+            border: 1px solid var(--border-panel); border-radius: 4px;
+            color: var(--text-muted); margin-left: 6px;
+        }
+        .tab-btn .kbd { opacity: 0; transition: opacity 0.2s; }
+        .tab-nav:hover .tab-btn .kbd { opacity: 1; }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.2s ease;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal {
+            background: var(--bg-panel); border: 1px solid var(--border-panel);
+            border-radius: 12px; width: 90%; max-width: 440px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); transform: scale(0.95); transition: transform 0.2s ease;
+        }
+        .modal-overlay.active .modal { transform: scale(1); }
+        .modal-header {
+            padding: 20px 24px; border-bottom: 1px solid var(--border-panel);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .modal-icon { font-size: 24px; }
+        .modal-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+        .modal-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        .modal-body { padding: 20px 24px; }
+        .modal-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .modal-input {
+            width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-input);
+            background: var(--bg-input); color: var(--text-primary); font-size: 14px;
+            resize: vertical; min-height: 80px; font-family: inherit;
+        }
+        .modal-input:focus { outline: none; border-color: var(--sky-400); }
+        .modal-input::placeholder { color: var(--text-muted); }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-panel); display: flex; gap: 12px; justify-content: flex-end; }
+        .modal-btn {
+            padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 500;
+            cursor: pointer; transition: all 0.15s ease; border: 1px solid transparent;
+        }
+        .modal-btn-cancel { background: transparent; border-color: var(--border-input); color: var(--text-secondary); }
+        .modal-btn-cancel:hover { border-color: var(--text-muted); color: var(--text-primary); }
+        .modal-btn-danger { background: rgba(244, 63, 94, 0.2); border-color: rgba(244, 63, 94, 0.4); color: var(--rose-200); }
+        .modal-btn-danger:hover { background: rgba(244, 63, 94, 0.3); border-color: rgba(244, 63, 94, 0.6); }
+        .modal-workflow-id { font-family: monospace; color: var(--sky-400); background: var(--slate-bg-70); padding: 2px 8px; border-radius: 4px; }
+
+        /* Tab styles */
+        .tabs-container { padding: 0 1.5rem; }
+        .tab-nav {
+            display: flex; gap: 4px; border-bottom: 1px solid var(--border-panel);
+            margin-bottom: 1rem; padding: 0;
+        }
+        .tab-btn {
+            padding: 12px 24px; background: transparent; border: none;
+            color: var(--text-secondary); font-size: 13px; font-weight: 500;
+            cursor: pointer; position: relative; transition: all 0.2s ease;
+            border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 8px;
+        }
+        .tab-btn:hover { color: var(--text-primary); background: rgba(100, 116, 139, 0.1); }
+        .tab-btn.active {
+            color: var(--sky-400); background: rgba(14, 165, 233, 0.1);
+        }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+            height: 2px; background: var(--sky-400);
+        }
+        .tab-btn-icon { font-size: 14px; }
+        .tab-badge {
+            font-size: 10px; padding: 2px 6px; border-radius: 10px;
+            background: rgba(100, 116, 139, 0.3); color: var(--text-secondary);
+        }
+        .tab-btn.active .tab-badge { background: rgba(14, 165, 233, 0.3); color: var(--sky-400); }
+        .tab-badge.pending { background: rgba(251, 191, 36, 0.2); color: var(--amber-200); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-panel {
+            background: var(--bg-panel); border: 1px solid var(--border-panel);
+            border-radius: 0.75rem; padding: 1.25rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+        .tab-section { margin-bottom: 1.5rem; }
+        .tab-section:last-child { margin-bottom: 0; }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-panel);
+        }
+        .section-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+        .section-subtitle { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo"><span>ORC</span></div>
+                <div class="header-title">
+                    <div>
+                        <h1>Orchestration</h1>
+                        <span class="header-badge">Control Panel</span>
+                    </div>
+                    <p>Secure workflow approvals &amp; remote agent execution.</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role-badge" id="userRole"></span>
+                    <span class="user-auth-method" id="authMethod">Authenticating...</span>
+                </div>
+                <button class="refresh-btn" id="refreshBtn" onclick="loadData()" title="Refresh Data">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                        <path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="tabs-container">
+            <!-- Tab Navigation -->
+            <nav class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('workflows')" id="tabBtnWorkflows">
+                    <span class="tab-btn-icon">📋</span>Workflows<span class="tab-badge" id="tabBadgeWorkflows">0</span><span class="kbd">1</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('agents')" id="tabBtnAgents">
+                    <span class="tab-btn-icon">🖥️</span>Agents<span class="tab-badge" id="tabBadgeAgents">0</span><span class="kbd">2</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('scripts')" id="tabBtnScripts">
+                    <span class="tab-btn-icon">📜</span>Scripts<span class="tab-badge" id="tabBadgeScripts">0</span><span class="kbd">3</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('reports')" id="tabBtnReports">
+                    <span class="tab-btn-icon">📜</span>Reports<span class="tab-badge" id="tabBadgeReports">0</span><span class="kbd">3</span>
+                </button>
+		
+                <div style="flex: 1;"></div>
+                <div class="refresh-indicator">
+                    <span class="refresh-indicator-dot"></span>
+                    <span>Auto-refresh in <span class="refresh-countdown" id="refreshCountdown">30</span>s</span>
+                </div>
+            </nav>
+
+            <!-- Workflows Tab -->
+            <div class="tab-content active" id="tab-workflows">
+                <div class="tab-panel">
+                    <div class="tab-section">
+                        <div class="section-header">
+                            <div>
+                                <div class="section-title">Workflow Queue</div>
+                                <div class="section-subtitle">Create, review and execute approved runs.</div>
+                            </div>
+                            <button class="btn" onclick="loadData()">Refresh</button>
+                        </div>
+
+                        <div class="kpi-row">
+                            <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value" id="kpiTotal">0</div></div>
+                            <div class="kpi-card"><div class="kpi-label">Pending</div><div class="kpi-value" id="kpiPending">0</div></div>
+                            <div class="kpi-card"><div class="kpi-label">Approved</div><div class="kpi-value" id="kpiApproved">0</div></div>
+                            <div class="kpi-card"><div class="kpi-label">Executed</div><div class="kpi-value" id="kpiExecuted">0</div></div>
+                        </div>
+
+                        <div class="filter-bar">
+                            <span class="filter-label">Filter:</span>
+                            <button class="filter-btn active" onclick="filterWorkflows('all')">All</button>
+                            <button class="filter-btn" onclick="filterWorkflows('pending')">Pending</button>
+                            <button class="filter-btn" onclick="filterWorkflows('approved')">Approved</button>
+                            <button class="filter-btn" onclick="filterWorkflows('executed')">Executed</button>
+                            <button class="filter-btn" onclick="filterWorkflows('denied')">Denied</button>
+                            <button class="filter-btn" onclick="filterWorkflows('failed')">Failed</button>
+                        </div>
+
+                        <div class="table-container">
+                            <table>
+                                <thead><tr><th>ID</th><th>Script</th><th>Status</th><th>Created</th><th class="text-right">Actions</th></tr></thead>
+                                <tbody id="workflowsTable"><tr><td colspan="5" class="empty-row">No workflows found</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-section">
+                        <div class="form-section" style="margin-top: 0;">
+                            <div class="form-title">New Workflow</div>
+                            <div class="form-grid">
+                                <div class="form-group"><div class="form-label">Script ID</div><select class="form-input" id="wfScriptId"><option value="">Loading scripts...</option></select></div>
+                                <div class="form-group"><div class="form-label">Requestor</div><input type="text" class="form-input" id="wfRequestor" value="" readonly></div>
+                                <div class="form-group"><div class="form-label">Requestor Email</div><input type="email" class="form-input" id="wfRequestorEmail" placeholder="your.email@company.com"></div>
+                                <div class="form-group"><div class="form-label">Approver</div><select class="form-input" id="wfApproverEmail" required><option value="">Loading approvers...</option></select></div>
+                                <div class="form-group full">
+                                    <div class="form-label">Target Agents (<span id="selectedCount">0</span> selected)</div>
+                                    <div class="agent-selector" id="agentSelector"><div style="padding: 0.25rem; text-align: center; color: var(--text-secondary); font-size: 11px;">No agents registered. Register an agent first →</div></div>
+                                    <div class="form-hint">Select one or more agents to execute this workflow</div>
+                                </div>
+                                <div class="form-group full"><div class="form-label">Reason</div><input type="text" class="form-input" id="wfReason" placeholder="Describe why this run is needed"></div>
+                            </div>
+                            <button class="btn btn-primary" onclick="createWorkflow()">Create Workflow</button>
+                            <div class="logs-panel hidden" id="logsPanel">
+                                <button class="logs-toggle" onclick="toggleLogs()">
+                                    <span class="logs-toggle-icon" id="logsIcon">▼</span>
+                                    <span class="logs-toggle-label">Logs for</span>
+                                    <span class="logs-toggle-id" id="logsWorkflowId"></span>
+                                </button>
+                                <div class="logs-content" id="logsContent">
+                                    <div class="logs-path" id="logsPath"></div>
+                                    <div class="logs-actions">
+                                        <button class="btn btn-primary" id="btnViewHtml" onclick="viewHtmlLog()" style="display:none;">View HTML</button>
+                                        <button class="btn" id="btnViewText" onclick="viewTextLog()" style="display:none;">View Text</button>
+                                        <button class="btn" onclick="viewLiveLogs()">Live Tail</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agents Tab -->
+            <div class="tab-content" id="tab-agents">
+                <div class="tab-panel">
+                    <div class="tab-section">
+                        <div class="section-header">
+                            <div>
+                                <div class="section-title">Registered Agents</div>
+                                <div class="section-subtitle">Online agents able to execute allowed scripts.</div>
+                            </div>
+                            <button class="btn" onclick="loadData()">Refresh</button>
+                        </div>
+
+                        <div class="kpi-row">
+                            <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value" id="kpiAgentsTotal">0</div></div>
+                            <div class="kpi-card"><div class="kpi-label">Online</div><div class="kpi-value" style="color: var(--emerald-200);" id="kpiAgentsOnline">0</div></div>
+                            <div class="kpi-card"><div class="kpi-label">Offline</div><div class="kpi-value" style="color: var(--rose-200);" id="kpiAgentsOffline">0</div></div>
+                        </div>
+
+                        <div class="filter-bar">
+                            <span class="filter-label">Filter:</span>
+                            <button class="filter-btn active" onclick="filterAgents('all')">All</button>
+                            <button class="filter-btn" onclick="filterAgents('online')">Online</button>
+                            <button class="filter-btn" onclick="filterAgents('offline')">Offline</button>
+                        </div>
+
+                        <div class="table-container">
+                            <table>
+                                <thead><tr><th>Name</th><th>Host</th><th>Port</th><th>Status</th><th>Last Seen</th></tr></thead>
+                                <tbody id="agentsTable"><tr><td colspan="5" class="empty-row">No agents registered</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-section">
+                        <div class="form-section" style="margin-top: 0;">
+                            <div class="form-title">Register New Agent</div>
+                            <div class="form-grid single">
+                                <div class="form-group"><div class="form-label">Agent Name</div><input type="text" class="form-input" id="agentName" placeholder="server1"></div>
+                                <div class="form-group"><div class="form-label">Host</div><input type="text" class="form-input" id="agentHost" placeholder="192.168.1.100"></div>
+                                <div class="form-group"><div class="form-label">Port</div><input type="number" class="form-input" id="agentPort" value="8001"></div>
+                            </div>
+                            <button class="btn btn-primary" onclick="registerAgent()">Register Agent</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scripts Tab -->
+            <div class="tab-content" id="tab-scripts">
+                <div class="tab-panel">
+                    <div class="tab-section">
+                        <div class="section-header">
+                            <div>
+                                <div class="section-title">Registered Scripts</div>
+                                <div class="section-subtitle">Scripts available for workflow execution.</div>
+                            </div>
+                            <button class="btn" onclick="loadScripts()">Refresh</button>
+                        </div>
+
+                        <div class="kpi-row">
+                            <div class="kpi-card"><div class="kpi-label">Total Scripts</div><div class="kpi-value" id="kpiScriptsTotal">0</div></div>
+                            <div class="kpi-card"><div class="kpi-label">Avg Timeout</div><div class="kpi-value" id="kpiScriptsTimeout">0s</div></div>
+                        </div>
+
+                        <div class="table-container">
+                            <table>
+                                <thead><tr><th>Script ID</th><th>Path</th><th>Description</th><th>Timeout</th></tr></thead>
+                                <tbody id="scriptsTable"><tr><td colspan="4" class="empty-row">No scripts registered</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-section">
+                        <div class="form-section" style="margin-top: 0;">
+                            <div class="form-title">Register New Script</div>
+                            <div class="form-grid">
+                                <div class="form-group"><div class="form-label">Script ID</div><input type="text" class="form-input" id="scriptId" placeholder="my-script"></div>
+                                <div class="form-group"><div class="form-label">Script Path</div><input type="text" class="form-input" id="scriptPath" placeholder="/opt/scripts/my-script.sh"></div>
+                                <div class="form-group"><div class="form-label">Timeout (sec)</div><input type="number" class="form-input" id="scriptTimeout" value="300" min="1" max="3600"></div>
+                                <div class="form-group full"><div class="form-label">Description</div><input type="text" class="form-input" id="scriptDescription" placeholder="What this script does"></div>
+                            </div>
+                            <button class="btn btn-primary" onclick="registerScript()">Register Script</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Fixed Activity Log Footer -->
+        <div class="activity-footer" id="activityFooter">
+            <div class="activity-footer-header" onclick="toggleActivityFooter()">
+                <div class="activity-footer-title">
+                    <span>📝 Activity Log</span>
+                    <span class="activity-footer-toggle" id="footerToggle">▼ Click to expand</span>
+                </div>
+                <div class="activity-footer-actions">
+                    <button class="activity-clear" onclick="event.stopPropagation(); clearLogs()">Clear</button>
+                </div>
+            </div>
+            <textarea class="activity-log" id="activityLog" readonly></textarea>
+        </div>
+        <div class="footer-spacer" id="footerSpacer"></div>
+    </div>
+
+    <!-- Deny Modal -->
+    <div class="modal-overlay" id="denyModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-icon">⚠️</span>
+                <div>
+                    <div class="modal-title">Deny Workflow</div>
+                    <div class="modal-subtitle">This action cannot be undone</div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 16px; font-size: 13px; color: var(--text-secondary);">
+                    You are about to deny workflow <span class="modal-workflow-id" id="denyWorkflowId"></span>
+                </div>
+                <div class="modal-label">Reason for denial</div>
+                <textarea class="modal-input" id="denyReason" placeholder="Please provide a reason for denying this workflow..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-cancel" onclick="closeDenyModal()">Cancel</button>
+                <button class="modal-btn modal-btn-danger" onclick="confirmDeny()">Deny Workflow</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let currentUser = null, workflows = [], agents = [], scripts = [], selectedAgents = [], logs = [], logfiles = {}, selectedWorkflow = null, logsExpanded = true, loading = false;
+        let currentTab = 'workflows';
+        let workflowFilter = 'all', agentFilter = 'all';
+        let refreshCountdown = 30;
+        let countdownInterval = null;
+        let activityFooterExpanded = true;
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                const isActive = btn.id === `tabBtn${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`;
+                btn.classList.toggle('active', isActive);
+            });
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.toggle('active', content.id === `tab-${tabName}`);
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Don't trigger if typing in an input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+            
+            if (e.key === '1') switchTab('workflows');
+            else if (e.key === '2' && hasRole('admin')) switchTab('agents');
+            else if (e.key === '3' && hasRole('admin')) switchTab('scripts');
+            else if (e.key === 'r' || e.key === 'R') { loadData(); loadScripts(); }
+        });
+
+        // Activity footer toggle
+        function toggleActivityFooter() {
+            activityFooterExpanded = !activityFooterExpanded;
+            document.getElementById('activityFooter').classList.toggle('collapsed', !activityFooterExpanded);
+            document.getElementById('footerSpacer').classList.toggle('collapsed', !activityFooterExpanded);
+            document.getElementById('footerToggle').textContent = activityFooterExpanded ? '▼ Click to collapse' : '▲ Click to expand';
+        }
+
+        // Filter functions
+        function filterWorkflows(status) {
+            workflowFilter = status;
+            document.querySelectorAll('#tab-workflows .filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase().includes(status) || (status === 'all' && btn.textContent === 'All'));
+            });
+            renderWorkflows();
+        }
+
+        function filterAgents(status) {
+            agentFilter = status;
+            document.querySelectorAll('#tab-agents .filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase() === status);
+            });
+            renderAgents();
+        }
+
+        // Auto-refresh countdown
+        function startCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            refreshCountdown = 30;
+            updateCountdownDisplay();
+            countdownInterval = setInterval(() => {
+                refreshCountdown--;
+                updateCountdownDisplay();
+                if (refreshCountdown <= 0) {
+                    loadData();
+                    refreshCountdown = 30;
+                }
+            }, 1000);
+        }
+
+        function updateCountdownDisplay() {
+            const el = document.getElementById('refreshCountdown');
+            if (el) el.textContent = refreshCountdown;
+        }
+
+        function updateTabBadges() {
+            const pendingCount = workflows.filter(w => w.status === 'pending').length;
+            const onlineAgents = agents.filter(a => a.status === 'online').length;
+            
+            document.getElementById('tabBadgeWorkflows').textContent = workflows.length;
+            document.getElementById('tabBadgeWorkflows').classList.toggle('pending', pendingCount > 0);
+            if (pendingCount > 0) {
+                document.getElementById('tabBadgeWorkflows').textContent = `${pendingCount} pending`;
+            }
+            
+            document.getElementById('tabBadgeAgents').textContent = agents.length > 0 ? `${onlineAgents}/${agents.length}` : '0';
+            document.getElementById('tabBadgeScripts').textContent = scripts.length;
+        }
+
+        // Update Agents KPIs
+        function updateAgentsKPIs() {
+            const total = agents.length;
+            const online = agents.filter(a => a.status === 'online').length;
+            const offline = total - online;
+            
+            document.getElementById('kpiAgentsTotal').textContent = total;
+            document.getElementById('kpiAgentsOnline').textContent = online;
+            document.getElementById('kpiAgentsOffline').textContent = offline;
+        }
+
+        // Update Scripts KPIs
+        function updateScriptsKPIs() {
+            const total = scripts.length;
+            const avgTimeout = total > 0 
+                ? Math.round(scripts.reduce((sum, s) => sum + (s.timeout || 300), 0) / total)
+                : 0;
+            
+            document.getElementById('kpiScriptsTotal').textContent = total;
+            document.getElementById('kpiScriptsTimeout').textContent = `${avgTimeout}s`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { 
+            loadUserInfo(); 
+            loadScripts(); 
+            loadApprovers(); 
+            loadData(); 
+            startCountdown();
+        });
+
+        async function loadUserInfo() {
+            try {
+                const res = await fetch('/whoami', { credentials: 'include' });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.logged_in && data.user) {
+                        currentUser = data.user;
+                        const displayName = data.user.full_name || data.user.username || 'Unknown User';
+                        document.getElementById('userName').textContent = displayName;
+                        const method = data.user.auth_method || 'smartcard';
+                        const methodLabels = { 'smartcard': '🔐 Smart Card', 'cert': '🔐 Smart Card', 'wna': '🪟 Windows Auth', 'password': '🔑 Password' };
+                        document.getElementById('authMethod').textContent = methodLabels[method] || method;
+                        document.getElementById('wfRequestor').value = data.user.username || displayName;
+                        // Auto-populate requestor email if available
+                        if (data.user.email) {
+                            document.getElementById('wfRequestorEmail').value = data.user.email;
+                        }
+                        // Apply role-based visibility
+                        applyRoleVisibility();
+                        addLog(`Authenticated as ${displayName} (${currentUser.role || 'user'})`, 'success');
+                    } else {
+                        window.location.href = '/login.html';
+                    }
+                } else {
+                    window.location.href = '/login.html';
+                }
+            } catch (err) {
+                document.getElementById('userName').textContent = 'Auth Error';
+                document.getElementById('authMethod').textContent = 'Connection Failed';
+                addLog(`Authentication error: ${err.message}`, 'error');
+            }
+        }
+
+        // Role-based visibility
+        // Roles: admin (all access), approver (workflows + activity log), operator (workflows + activity log), user (workflows only)
+        function hasRole(...roles) {
+            if (!currentUser) return false;
+            const userRole = (currentUser.role || 'user').toLowerCase();
+            // Admin always has access to everything
+            if (userRole === 'admin') return true;
+            return roles.map(r => r.toLowerCase()).includes(userRole);
+        }
+
+        function applyRoleVisibility() {
+            const userRole = (currentUser?.role || 'user').toLowerCase();
+            
+            // Set role badge in header
+            const roleBadge = document.getElementById('userRole');
+            if (roleBadge) {
+                roleBadge.textContent = userRole;
+                roleBadge.className = `user-role-badge ${userRole}`;
+            }
+            
+            // Agents tab - Admin only
+            const agentsTab = document.getElementById('tabBtnAgents');
+            if (agentsTab) {
+                agentsTab.style.display = hasRole('admin') ? '' : 'none';
+            }
+            
+            // Scripts tab - Admin only
+            const scriptsTab = document.getElementById('tabBtnScripts');
+            if (scriptsTab) {
+                scriptsTab.style.display = hasRole('admin') ? '' : 'none';
+            }
+            
+            // Activity Log footer - Admin, Approver, Operator only
+            const activityFooter = document.getElementById('activityFooter');
+            const footerSpacer = document.getElementById('footerSpacer');
+            if (activityFooter) {
+                const canSeeLog = hasRole('admin', 'approver', 'operator');
+                activityFooter.style.display = canSeeLog ? '' : 'none';
+                if (footerSpacer) footerSpacer.style.display = canSeeLog ? '' : 'none';
+            }
+            
+            // Update keyboard shortcut hints based on visible tabs
+            updateKeyboardHints();
+            
+            // If current tab is now hidden, switch to workflows
+            if (currentTab === 'agents' && !hasRole('admin')) {
+                switchTab('workflows');
+            }
+            if (currentTab === 'scripts' && !hasRole('admin')) {
+                switchTab('workflows');
+            }
+            
+            addLog(`Role permissions applied: ${userRole}`, 'info');
+        }
+
+        function updateKeyboardHints() {
+            // Update keyboard hints based on visible tabs
+            const agentsKbd = document.querySelector('#tabBtnAgents .kbd');
+            const scriptsKbd = document.querySelector('#tabBtnScripts .kbd');
+            
+            if (agentsKbd && !hasRole('admin')) agentsKbd.style.display = 'none';
+            if (scriptsKbd && !hasRole('admin')) scriptsKbd.style.display = 'none';
+        }
+
+        async function loadScripts() {
+            try {
+                const res = await fetch(`${API_BASE}/scripts`, { credentials: 'include' });
+                if (res.ok) {
+                    const data = await res.json();
+                    scripts = data.scripts || [];
+                    renderScriptDropdown();
+                    renderScriptsTable();
+                    updateTabBadges();
+                    updateScriptsKPIs();
+                    addLog(`Loaded ${scripts.length} scripts`, 'success');
+                }
+            } catch (err) {
+                addLog(`Failed to load scripts: ${err.message}`, 'error');
+                renderScriptDropdown();
+                renderScriptsTable();
+            }
+        }
+
+        function renderScriptDropdown() {
+            const select = document.getElementById('wfScriptId');
+            if (scripts.length === 0) {
+                select.innerHTML = '<option value="">No scripts registered</option>';
+                return;
+            }
+            select.innerHTML = '<option value="">-- Select a script --</option>' + 
+                scripts.map(s => `<option value="${escapeHtml(s.script_id)}" title="${escapeHtml(s.description || '')}">${escapeHtml(s.script_id)}${s.description ? ' - ' + escapeHtml(s.description.substring(0, 30)) : ''}</option>`).join('');
+        }
+
+        function renderScriptsTable() {
+            const tbody = document.getElementById('scriptsTable');
+            if (scripts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-row">No scripts registered</td></tr>';
+                return;
+            }
+            tbody.innerHTML = scripts.map(s => `
+                <tr>
+                    <td><span style="font-family: monospace; color: var(--sky-400);">${escapeHtml(s.script_id)}</span></td>
+                    <td style="font-size: 11px; color: var(--text-secondary); max-width: 300px; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(s.script_path || s.path || '')}</td>
+                    <td style="font-size: 11px;">${escapeHtml(s.description || '-')}</td>
+                    <td style="font-size: 11px;">${s.timeout || 300}s</td>
+                </tr>
+            `).join('');
+        }
+
+        let approvers = [];
+        
+        async function loadApprovers() {
+            try {
+                const res = await fetch(`${API_BASE}/users/approvers`, { credentials: 'include' });
+                if (res.ok) {
+                    const data = await res.json();
+                    approvers = data.approvers || [];
+                    renderApproverDropdown();
+                    addLog(`Loaded ${approvers.length} approvers`, 'success');
+                } else {
+                    // Fallback: allow manual email entry
+                    renderApproverDropdown();
+                }
+            } catch (err) {
+                addLog(`Could not load approvers: ${err.message}`, 'info');
+                renderApproverDropdown();
+            }
+        }
+
+        function renderApproverDropdown() {
+            const select = document.getElementById('wfApproverEmail');
+            if (approvers.length === 0) {
+                // No approvers in DB - convert to text input for manual entry
+                const parent = select.parentElement;
+                const input = document.createElement('input');
+                input.type = 'email';
+                input.className = 'form-input';
+                input.id = 'wfApproverEmail';
+                input.placeholder = 'approver@company.com';
+                input.required = true;
+                select.replaceWith(input);
+                return;
+            }
+            select.innerHTML = '<option value="">-- Select approver --</option>' + 
+                approvers.map(a => {
+                    const display = a.full_name ? `${a.full_name} (${a.username})` : a.username;
+                    const email = a.email || '';
+                    return `<option value="${escapeHtml(email)}" title="${escapeHtml(a.role || 'approver')}">${escapeHtml(display)}${email ? ' - ' + escapeHtml(email) : ''}</option>`;
+                }).join('');
+        }
+
+        async function registerScript() {
+            const scriptId = document.getElementById('scriptId').value.trim();
+            const scriptPath = document.getElementById('scriptPath').value.trim();
+            const description = document.getElementById('scriptDescription').value.trim();
+            const timeout = parseInt(document.getElementById('scriptTimeout').value) || 300;
+
+            if (!scriptId) { addLog('Please enter a Script ID', 'error'); return; }
+            if (!scriptPath) { addLog('Please enter a Script Path', 'error'); return; }
+            if (!/^[a-zA-Z0-9_-]+$/.test(scriptId)) { addLog('Script ID must contain only letters, numbers, hyphens and underscores', 'error'); return; }
+
+            try {
+                await apiCall('/scripts/register', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        script_id: scriptId,
+                        script_path: scriptPath,
+                        description: description,
+                        timeout: timeout
+                    })
+                });
+                addLog(`Script '${scriptId}' registered successfully`, 'success');
+                document.getElementById('scriptId').value = '';
+                document.getElementById('scriptPath').value = '';
+                document.getElementById('scriptDescription').value = '';
+                document.getElementById('scriptTimeout').value = '300';
+                loadScripts();
+            } catch (err) {
+                addLog(`Failed to register script: ${err.message}`, 'error');
+            }
+        }
+
+        async function apiCall(endpoint, options = {}) {
+            const url = endpoint.startsWith('/api') ? endpoint : `${API_BASE}${endpoint}`;
+            try {
+                const res = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, credentials: 'include' });
+                if (!res.ok) { const err = await res.json().catch(() => ({ detail: 'Unknown error' })); throw new Error(err.detail || `HTTP ${res.status}`); }
+                return await res.json();
+            } catch (err) { addLog(`API Error: ${err.message}`, 'error'); throw err; }
+        }
+
+        async function loadData() {
+            if (loading) return;
+            loading = true;
+            document.getElementById('refreshBtn').classList.add('spinning');
+            addLog('Loading data...');
+            try {
+                const [wfResp, agResp] = await Promise.all([apiCall('/workflows').catch(() => ({ workflows: [] })), apiCall('/agents/').catch(() => ({ agents: [] }))]);
+                workflows = Array.isArray(wfResp) ? wfResp : wfResp.workflows || [];
+                agents = Array.isArray(agResp) ? agResp : agResp.agents || [];
+                renderWorkflows(); renderAgents(); updateKPIs(); updateAgentsKPIs(); updateTabBadges();
+                refreshCountdown = 30; // Reset countdown
+                addLog('Data loaded successfully', 'success');
+            } catch (err) { addLog(`Failed to load data: ${err.message}`, 'error'); }
+            finally { loading = false; document.getElementById('refreshBtn').classList.remove('spinning'); }
+        }
+
+        function renderWorkflows() {
+            const tbody = document.getElementById('workflowsTable');
+            const filtered = workflowFilter === 'all' ? workflows : workflows.filter(w => w.status === workflowFilter);
+            if (filtered.length === 0) { 
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-row">${workflowFilter === 'all' ? 'No workflows found' : `No ${workflowFilter} workflows`}</td></tr>`; 
+                return; 
+            }
+            tbody.innerHTML = filtered.map(wf => {
+                const isSelected = wf.workflow_id === selectedWorkflow, hasLogs = logfiles[wf.workflow_id];
+                return `<tr class="${isSelected ? 'selected' : ''}" onclick="selectWorkflow('${wf.workflow_id}')">
+                    <td>${escapeHtml(wf.workflow_id)}</td>
+                    <td><span class="script-badge">${escapeHtml(wf.script_id)}</span></td>
+                    <td><span class="badge badge-${wf.status}">${wf.status}</span></td>
+                    <td style="font-size: 11px; color: var(--text-secondary);">${formatDate(wf.created_at)}</td>
+                    <td class="text-right">
+                        ${hasLogs ? `<span class="badge badge-logs" style="cursor:pointer;" onclick="event.stopPropagation(); openWorkflowLog('${wf.workflow_id}')">Logs</span>` : ''}
+                        ${wf.status === 'pending' ? `
+                            <button class="action-btn action-btn-secondary" onclick="event.stopPropagation(); approveWorkflow('${wf.workflow_id}')">Approve</button>
+                            <button class="action-btn action-btn-danger" onclick="event.stopPropagation(); denyWorkflow('${wf.workflow_id}')">Deny</button>
+                        ` : ''}
+                        ${wf.status === 'approved' ? `<button class="action-btn action-btn-primary" onclick="event.stopPropagation(); executeWorkflow('${wf.workflow_id}')">Execute</button>` : ''}
+                        ${wf.status === 'executing' ? `<span class="badge badge-executing">⏳ Running...</span>` : ''}
+                        ${wf.status === 'executed' ? `<span class="badge badge-executed">✓ Completed</span>` : ''}
+                        ${wf.status === 'failed' ? `<span class="badge badge-failed">✗ Failed</span>` : ''}
+                        ${wf.status === 'denied' ? `<span class="badge badge-denied">Denied</span>` : ''}
+                    </td></tr>`;
+            }).join('');
+        }
+
+        function renderAgents() {
+            const tbody = document.getElementById('agentsTable'), selector = document.getElementById('agentSelector');
+            const filtered = agentFilter === 'all' ? agents : agents.filter(a => a.status === agentFilter);
+            
+            if (agents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-row">No agents registered</td></tr>';
+                selector.innerHTML = '<div style="padding: 0.25rem; text-align: center; color: var(--text-secondary); font-size: 11px;">No agents registered. Register an agent first →</div>';
+                return;
+            }
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-row">No ${agentFilter} agents</td></tr>`;
+            } else {
+                tbody.innerHTML = filtered.map(a => `<tr><td>${escapeHtml(a.agent_name)}</td><td>${escapeHtml(a.host)}</td><td>${a.port}</td><td><span class="badge badge-${a.status === 'online' ? 'online' : 'offline'}">${a.status}</span></td><td style="font-size: 11px; color: var(--text-secondary);">${formatDate(a.last_seen)}</td></tr>`).join('');
+            }
+            
+            // Selector always shows all agents for workflow creation
+            selector.innerHTML = agents.map(a => `<label class="agent-option"><input type="checkbox" value="${escapeHtml(a.agent_name)}" ${selectedAgents.includes(a.agent_name) ? 'checked' : ''} onchange="toggleAgentSelection('${escapeHtml(a.agent_name)}', this.checked)"><span class="agent-option-name">${escapeHtml(a.agent_name)}</span><span class="agent-option-status ${a.status}">${a.status}</span></label>`).join('');
+        }
+
+        function updateKPIs() {
+            document.getElementById('kpiTotal').textContent = workflows.length;
+            document.getElementById('kpiPending').textContent = workflows.filter(w => w.status === 'pending').length;
+            document.getElementById('kpiApproved').textContent = workflows.filter(w => w.status === 'approved').length;
+            document.getElementById('kpiExecuted').textContent = workflows.filter(w => w.status === 'executed').length;
+        }
+
+        function selectWorkflow(id) { selectedWorkflow = id; renderWorkflows(); updateLogsPanel(); }
+
+        async function createWorkflow() {
+            const scriptId = document.getElementById('wfScriptId').value;
+            const requestor = document.getElementById('wfRequestor').value.trim();
+            const requestorEmail = document.getElementById('wfRequestorEmail').value.trim();
+            const approverEmail = document.getElementById('wfApproverEmail').value.trim();
+            const reason = document.getElementById('wfReason').value.trim();
+            
+            if (!scriptId) { addLog('Please select a script', 'error'); return; }
+            if (!requestor || !reason) { addLog('Please fill in all workflow fields', 'error'); return; }
+            if (!approverEmail) { addLog('Please enter approver email for notifications', 'error'); return; }
+            if (selectedAgents.length === 0) { addLog('Please select at least one target agent', 'error'); return; }
+            
+            try {
+                await apiCall('/workflows', { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        script_id: scriptId, 
+                        targets: selectedAgents, 
+                        requestor, 
+                        requestor_email: requestorEmail,
+                        notify_email: approverEmail,
+                        reason, 
+                        required_approval_levels: 1, 
+                        ttl_minutes: 60 
+                    }) 
+                });
+                addLog('Workflow created - approval notification sent to ' + approverEmail, 'success');
+                document.getElementById('wfScriptId').selectedIndex = 0; 
+                document.getElementById('wfReason').value = '';
+                document.getElementById('wfApproverEmail').value = '';
+                selectedAgents = []; 
+                document.getElementById('selectedCount').textContent = '0'; 
+                loadData();
+            } catch (err) { addLog(`Failed to create workflow: ${err.message}`, 'error'); }
+        }
+
+        async function approveWorkflow(id) {
+            try { await apiCall(`/workflows/${id}/approve`, { method: 'POST', body: JSON.stringify({ approver: currentUser?.username || 'admin', note: 'Approved from dashboard' }) }); addLog(`Workflow ${id} approved`, 'success'); loadData(); }
+            catch (err) { addLog(`Failed to approve: ${err.message}`, 'error'); }
+        }
+
+        let pendingDenyWorkflowId = null;
+        
+        function denyWorkflow(id) {
+            pendingDenyWorkflowId = id;
+            document.getElementById('denyWorkflowId').textContent = id;
+            document.getElementById('denyReason').value = '';
+            document.getElementById('denyModal').classList.add('active');
+            document.getElementById('denyReason').focus();
+        }
+        
+        function closeDenyModal() {
+            document.getElementById('denyModal').classList.remove('active');
+            pendingDenyWorkflowId = null;
+        }
+        
+        async function confirmDeny() {
+            if (!pendingDenyWorkflowId) return;
+            const reason = document.getElementById('denyReason').value.trim() || 'Denied from dashboard';
+            try { 
+                await apiCall(`/workflows/${pendingDenyWorkflowId}/deny`, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        denier: currentUser?.username || 'admin', 
+                        reason: reason 
+                    }) 
+                }); 
+                addLog(`Workflow ${pendingDenyWorkflowId} denied: ${reason}`, 'warning'); 
+                closeDenyModal();
+                loadData(); 
+            }
+            catch (err) { 
+                addLog(`Failed to deny: ${err.message}`, 'error'); 
+                closeDenyModal();
+            }
+        }
+
+        async function executeWorkflow(id) {
+            try {
+                addLog(`Executing workflow ${id}...`, 'info');
+                const result = await apiCall(`/workflows/${id}/execute`, { method: 'POST' });
+                
+                // Check execution result
+                const successCount = result?.script_result?.success_count ?? result?.success_count ?? 0;
+                const failureCount = result?.script_result?.failure_count ?? result?.failure_count ?? 0;
+                
+                if (failureCount === 0) {
+                    addLog(`✅ Workflow ${id} executed successfully on ${successCount} agent(s)`, 'success');
+                } else {
+                    addLog(`⚠️ Workflow ${id} completed with ${failureCount} failure(s)`, 'error');
+                }
+                
+                // Extract logfiles (HTML and text) if present
+                const stdout = result?.script_result?.results?.[0]?.result?.stdout ?? result?.script_result?.results?.[0]?.stdout ?? '';
+                const files = extractAllLogfiles(stdout);
+                if (files.html || files.text) { 
+                    logfiles[id] = files;
+                    if (files.html) addLog(`HTML output: ${files.html}`, 'success');
+                    if (files.text) addLog(`Text log: ${files.text}`, 'success'); 
+                    selectedWorkflow = id; 
+                    logsExpanded = true; 
+                    updateLogsPanel(); 
+                }
+                
+                // Refresh data to show updated status
+                await loadData();
+                
+            } catch (err) { 
+                addLog(`❌ Execution failed: ${err.message}`, 'error'); 
+                await loadData(); // Refresh anyway to show failed status
+            }
+        }
+
+        function extractLogfile(stdout) { 
+            if (!stdout) return null; 
+            const clean = stdout.replace(/\u001b\[[0-9;]*m/g, '').replace(/\/\/+/g, '/'); 
+            // First try to find HTML file
+            const htmlMatch = clean.match(/(\/[A-Za-z0-9_\-\/\.]+\.html)/);
+            if (htmlMatch) return htmlMatch[1];
+            // Fall back to log file
+            const logMatch = clean.match(/(\/[A-Za-z0-9_\-\/\.]+\.log)/); 
+            return logMatch ? logMatch[1] : null; 
+        }
+        
+        function extractAllLogfiles(stdout) {
+            if (!stdout) return { html: null, text: null };
+            const clean = stdout.replace(/\u001b\[[0-9;]*m/g, '').replace(/\/\/+/g, '/');
+            const htmlMatch = clean.match(/(\/[A-Za-z0-9_\-\/\.]+\.html)/);
+            const logMatch = clean.match(/(\/[A-Za-z0-9_\-\/\.]+\.log)/);
+            return { html: htmlMatch ? htmlMatch[1] : null, text: logMatch ? logMatch[1] : null };
+        }
+
+        function toggleAgentSelection(name, checked) { if (checked) { if (!selectedAgents.includes(name)) selectedAgents.push(name); } else { selectedAgents = selectedAgents.filter(a => a !== name); } document.getElementById('selectedCount').textContent = selectedAgents.length; }
+
+        async function registerAgent() {
+            const name = document.getElementById('agentName').value.trim(), host = document.getElementById('agentHost').value.trim(), portStr = document.getElementById('agentPort').value.trim();
+            if (!name || !host || !portStr) { addLog('Please fill in all agent fields', 'error'); return; }
+            const port = parseInt(portStr, 10); if (isNaN(port) || port < 1 || port > 65535) { addLog('Port must be between 1-65535', 'error'); return; }
+            try { await apiCall('/agents/register', { method: 'POST', body: JSON.stringify({ agent_name: name, host, port }) }); addLog(`Agent ${name} registered`, 'success'); document.getElementById('agentName').value = ''; document.getElementById('agentHost').value = ''; document.getElementById('agentPort').value = '8001'; loadData(); }
+            catch (err) { addLog(`Failed to register agent: ${err.message}`, 'error'); }
+        }
+
+        function updateLogsPanel() {
+            const panel = document.getElementById('logsPanel');
+            const files = selectedWorkflow ? logfiles[selectedWorkflow] : null;
+            
+            // Handle both old format (string) and new format ({html, text})
+            const htmlFile = typeof files === 'object' ? files?.html : null;
+            const textFile = typeof files === 'object' ? files?.text : (typeof files === 'string' ? files : null);
+            
+            if (!selectedWorkflow || (!htmlFile && !textFile)) { 
+                panel.classList.add('hidden'); 
+                return; 
+            }
+            
+            panel.classList.remove('hidden');
+            document.getElementById('logsWorkflowId').textContent = selectedWorkflow;
+            // Show HTML path if available (primary), otherwise text
+            document.getElementById('logsPath').textContent = htmlFile || textFile;
+            document.getElementById('logsIcon').textContent = logsExpanded ? '▼' : '►';
+            document.getElementById('logsContent').classList.toggle('hidden', !logsExpanded);
+            
+            // Show/hide buttons based on available files
+            // HTML is primary (btn-primary), Text is secondary
+            document.getElementById('btnViewHtml').style.display = htmlFile ? 'inline-block' : 'none';
+            document.getElementById('btnViewText').style.display = textFile ? 'inline-block' : 'none';
+        }
+
+        function toggleLogs() { logsExpanded = !logsExpanded; updateLogsPanel(); }
+        
+        function viewHtmlLog() { 
+            const files = logfiles[selectedWorkflow]; 
+            const path = typeof files === 'object' ? files?.html : null;
+            if (path) window.open(`${API_BASE}/logs/file?path=${encodeURIComponent(path)}`, '_blank'); 
+        }
+        
+        function viewTextLog() { 
+            const files = logfiles[selectedWorkflow]; 
+            const path = typeof files === 'object' ? files?.text : (typeof files === 'string' ? files : null);
+            if (path) window.open(`${API_BASE}/logs/file?path=${encodeURIComponent(path)}`, '_blank'); 
+        }
+        
+        function viewLiveLogs() { 
+            const files = logfiles[selectedWorkflow]; 
+            // Prefer HTML file for live view
+            const path = typeof files === 'object' ? (files?.html || files?.text) : files;
+            if (path) window.open(`${API_BASE}/logs/tail?path=${encodeURIComponent(path)}`, '_blank'); 
+        }
+        
+        // Default view - opens HTML if available, otherwise text
+        function viewDefaultLog() {
+            const files = logfiles[selectedWorkflow];
+            const path = typeof files === 'object' ? (files?.html || files?.text) : files;
+            if (path) window.open(`${API_BASE}/logs/file?path=${encodeURIComponent(path)}`, '_blank');
+        }
+        
+        // Open log for specific workflow - opens HTML if available
+        function openWorkflowLog(workflowId) {
+            const files = logfiles[workflowId];
+            const path = typeof files === 'object' ? (files?.html || files?.text) : files;
+            if (path) window.open(`${API_BASE}/logs/file?path=${encodeURIComponent(path)}`, '_blank');
+        }
+
+        function addLog(message, type = 'info') { const ts = new Date().toLocaleTimeString(); logs.push({ message, type, timestamp: ts }); if (logs.length > 50) logs.shift(); const ta = document.getElementById('activityLog'); ta.value = logs.map(l => `${l.timestamp} [${l.type.toUpperCase()}] ${l.message}`).join('\n'); ta.scrollTop = ta.scrollHeight; }
+        function clearLogs() { logs = []; document.getElementById('activityLog').value = ''; }
+
+        function escapeHtml(t) { if (!t) return ''; const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+        function formatDate(ds) { if (!ds) return 'Never'; const d = new Date(ds), n = new Date(), m = Math.floor((n - d) / 60000); if (m < 1) return 'Just now'; if (m < 60) return `${m}m ago`; const h = Math.floor(m / 60); if (h < 24) return `${h}h ago`; return d.toLocaleDateString(); }
+        
+        // Modal keyboard support
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('denyModal');
+            if (!modal.classList.contains('active')) return;
+            if (e.key === 'Escape') closeDenyModal();
+            if (e.key === 'Enter' && e.ctrlKey) confirmDeny();
+        });
+        
+        // Close modal on overlay click
+        document.getElementById('denyModal').addEventListener('click', (e) => {
+            if (e.target.id === 'denyModal') closeDenyModal();
+        });
+    </script>
+</body>
+</html>
