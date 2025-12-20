@@ -1,0 +1,92 @@
+backends:
+  # Existing
+  orchestration:
+    name: "Orchestration Dashboard"
+    host: "10.28.203.100"
+    port: 7605
+    path_prefix: "/"
+    ssl: true
+    websocket: true
+    auth_required: true
+
+  deploy-console:
+    name: "Deployment Console"
+    host: "10.28.203.100"
+    port: 7600
+    path_prefix: "/deploy"
+    ssl: false
+    websocket: true
+    auth_required: true
+
+  # Add more backends...
+  jenkins:
+    name: "Jenkins CI"
+    host: "10.28.203.50"
+    port: 8080
+    path_prefix: "/jenkins"
+    strip_prefix: false        # Keep /jenkins in URL
+    ssl: false
+    auth_required: true
+
+  grafana:
+    name: "Grafana Monitoring"
+    host: "10.28.203.60"
+    port: 3000
+    path_prefix: "/grafana"
+    strip_prefix: true         # Remove /grafana, forward as /
+    ssl: false
+    auth_required: true
+
+  api-v1:
+    name: "API v1"
+    host: "10.28.203.100"
+    port: 9001
+    path_prefix: "/api/v1"
+    ssl: true
+    auth_required: true
+
+  api-v2:
+    name: "API v2"
+    host: "10.28.203.100"
+    port: 9002
+    path_prefix: "/api/v2"
+    ssl: true
+    auth_required: false       # Public API
+
+  docs:
+    name: "Documentation"
+    host: "10.28.203.100"
+    port: 8000
+    path_prefix: "/docs"
+    ssl: false
+    auth_required: false       # Public docs
+```
+
+---
+
+**Routing rules:**
+
+| Setting | Behavior |
+|---------|----------|
+| `path_prefix` | Longest match wins (`/api/v1` matches before `/api`) |
+| `strip_prefix: true` | `/deploy/scripts` → `/scripts` |
+| `strip_prefix: false` | `/jenkins/job` → `/jenkins/job` |
+| `auth_required: false` | No Smart Card needed for this backend |
+
+---
+
+**Startup will show all backends:**
+```
+============================================================
+Multi-Backend SSL Proxy
+============================================================
+Listening: https://10.28.203.100:7585
+Backends:
+  /api/v1         -> https://10.28.203.100:9001 [SSL, Auth]
+  /api/v2         -> https://10.28.203.100:9002 [SSL]
+  /deploy         -> http://10.28.203.100:7600 [WS, Auth]
+  /jenkins        -> http://10.28.203.50:8080 [Auth]
+  /grafana        -> http://10.28.203.60:3000 [Auth]
+  /docs           -> http://10.28.203.100:8000 []
+  /               -> https://10.28.203.100:7605 [SSL, WS, Auth]
+============================================================
