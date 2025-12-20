@@ -384,6 +384,197 @@
         .section-subtitle { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
 
         .hidden { display: none !important; }
+
+        /* ====== Reports Tab Styles ====== */
+        .reports-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 1rem;
+            min-height: 450px;
+        }
+        @media (max-width: 900px) {
+            .reports-layout { grid-template-columns: 1fr; }
+        }
+        .reports-sidebar {
+            background: var(--slate-bg-90);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-panel);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .reports-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-panel);
+        }
+        .reports-search {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border-panel);
+        }
+        .reports-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border-panel);
+        }
+        .reports-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+            max-height: 350px;
+        }
+        .script-category-header {
+            padding: 0.5rem 0.5rem 0.25rem;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 0.5rem;
+        }
+        .script-category-header:first-child { margin-top: 0; }
+        .script-item {
+            padding: 0.5rem 0.625rem;
+            margin: 0.25rem 0;
+            background: var(--slate-bg-70);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+        .script-item:hover {
+            background: rgba(56, 189, 248, 0.05);
+            border-color: var(--sky-400);
+        }
+        .script-item.selected {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: var(--sky-400);
+        }
+        .script-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 12px;
+            margin-bottom: 0.125rem;
+        }
+        .script-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .script-time {
+            font-size: 10px;
+            color: var(--sky-400);
+            margin-top: 0.25rem;
+        }
+        .reports-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .reports-details {
+            background: var(--slate-bg-90);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-panel);
+            padding: 1rem;
+            min-height: 120px;
+        }
+        .no-selection {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 1.5rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        .no-selection-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+        .reports-output {
+            background: var(--slate-bg-90);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-panel);
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 180px;
+        }
+        .reports-output .section-header {
+            padding: 0.625rem 1rem;
+            border-bottom: 1px solid var(--border-panel);
+            margin-bottom: 0;
+        }
+        .output-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .output-content {
+            flex: 1;
+            padding: 0.625rem 1rem;
+            background: radial-gradient(circle at top left, rgba(15,118,110,0.15), var(--bg-base) 40%);
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 11px;
+            line-height: 1.5;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: var(--text-primary);
+            max-height: 250px;
+            border-radius: 0 0 0.75rem 0.75rem;
+        }
+        .output-placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        .output-info { color: var(--sky-400); }
+        .output-success { color: var(--emerald-200); }
+        .output-error { color: var(--rose-200); }
+        .output-warning { color: var(--amber-200); }
+        .output-dim { color: var(--text-muted); }
+        .reports-history {
+            background: var(--slate-bg-90);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-panel);
+        }
+        .reports-history .section-header {
+            padding: 0.625rem 1rem;
+            border-bottom: 1px solid var(--border-panel);
+            margin-bottom: 0;
+        }
+        .history-list {
+            padding: 0.5rem;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        .history-item {
+            display: flex;
+            align-items: center;
+            padding: 0.375rem 0.625rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+        .history-item:hover {
+            background: rgba(56, 189, 248, 0.05);
+        }
+        .reports-list::-webkit-scrollbar,
+        .output-content::-webkit-scrollbar,
+        .history-list::-webkit-scrollbar { width: 6px; }
+        .reports-list::-webkit-scrollbar-thumb,
+        .output-content::-webkit-scrollbar-thumb,
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--slate-500-50);
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
@@ -435,7 +626,7 @@
                     <span class="tab-btn-icon">📜</span>Scripts<span class="tab-badge" id="tabBadgeScripts">0</span><span class="kbd">3</span>
                 </button>
                 <button class="tab-btn" onclick="switchTab('reports')" id="tabBtnReports">
-                    <span class="tab-btn-icon">📜</span>Reports<span class="tab-badge" id="tabBadgeReports">0</span><span class="kbd">3</span>
+                    <span class="tab-btn-icon">📊</span>Reports<span class="tab-badge" id="tabBadgeReports">0</span><span class="kbd">4</span>
                 </button>
 		
                 <div style="flex: 1;"></div>
@@ -604,6 +795,59 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Reports Tab -->
+            <div class="tab-content" id="tab-reports">
+                <div class="tab-panel">
+                    <div class="reports-layout">
+                        <!-- Left Panel: Script List -->
+                        <div class="reports-sidebar">
+                            <div class="reports-header">
+                                <div class="section-title" style="font-size: 12px;">📊 Reports</div>
+                                <button class="btn" onclick="ReportsModule.loadScripts()">Refresh</button>
+                            </div>
+                            <div class="reports-search">
+                                <input type="text" class="form-input" id="report-search" placeholder="Search..." 
+                                       onkeyup="ReportsModule.filterScripts(this.value)">
+                            </div>
+                            <div class="reports-categories" id="reports-categories"></div>
+                            <div class="reports-list" id="reports-list">
+                                <div class="empty-row">Loading scripts...</div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Details & Output -->
+                        <div class="reports-main">
+                            <div class="reports-details" id="report-details">
+                                <div class="no-selection">
+                                    <div class="no-selection-icon">📋</div>
+                                    <p>Select a report to run</p>
+                                </div>
+                            </div>
+                            <div class="reports-output">
+                                <div class="section-header">
+                                    <div class="section-title" style="font-size: 12px;">Output</div>
+                                    <div class="output-controls">
+                                        <button class="btn" onclick="ReportsModule.clearOutput()">Clear</button>
+                                        <button class="btn" onclick="ReportsModule.copyOutput()">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="output-content" id="report-output">
+                                    <div class="output-placeholder">Output appears here when you run a report</div>
+                                </div>
+                            </div>
+                            <div class="reports-history">
+                                <div class="section-header">
+                                    <div class="section-title" style="font-size: 12px;">Recent Runs</div>
+                                </div>
+                                <div class="history-list" id="history-list">
+                                    <div class="empty-row" style="font-size: 11px;">No recent runs</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <!-- Fixed Activity Log Footer -->
@@ -666,6 +910,10 @@
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.toggle('active', content.id === `tab-${tabName}`);
             });
+            // Initialize Reports tab
+            if (tabName === 'reports' && typeof ReportsModule !== 'undefined') {
+                ReportsModule.init();
+            }
         }
 
         // Keyboard shortcuts
@@ -676,6 +924,7 @@
             if (e.key === '1') switchTab('workflows');
             else if (e.key === '2' && hasRole('admin')) switchTab('agents');
             else if (e.key === '3' && hasRole('admin')) switchTab('scripts');
+            else if (e.key === '4') switchTab('reports');
             else if (e.key === 'r' || e.key === 'R') { loadData(); loadScripts(); }
         });
 
@@ -1287,6 +1536,281 @@
         document.getElementById('denyModal').addEventListener('click', (e) => {
             if (e.target.id === 'denyModal') closeDenyModal();
         });
+
+        // ====================================================================
+        // Reports Module
+        // ====================================================================
+        const ReportsModule = (function() {
+            let scripts = [];
+            let selectedScript = null;
+            let currentRunId = null;
+            let outputSocket = null;
+            let history = [];
+            let initialized = false;
+
+            function init() {
+                if (initialized) return;
+                loadScripts();
+                loadHistory();
+                initialized = true;
+            }
+
+            async function loadScripts() {
+                try {
+                    const response = await fetch('/api/reports/scripts');
+                    if (!response.ok) throw new Error('Failed to load scripts');
+                    scripts = await response.json();
+                    renderScriptsList();
+                    const badge = document.getElementById('tabBadgeReports');
+                    if (badge) badge.textContent = scripts.length;
+                } catch (error) {
+                    console.error('Error loading scripts:', error);
+                    document.getElementById('reports-list').innerHTML = 
+                        '<div class="empty-row" style="font-size:11px;">No report scripts found</div>';
+                }
+            }
+
+            async function loadHistory() {
+                try {
+                    const response = await fetch('/api/reports/history?limit=10');
+                    if (!response.ok) return;
+                    history = await response.json();
+                    renderHistory();
+                } catch (error) {
+                    console.error('Error loading history:', error);
+                }
+            }
+
+            function renderScriptsList(filter = '') {
+                const categories = {};
+                const filterLower = filter.toLowerCase();
+
+                scripts.forEach(script => {
+                    if (filter && !script.name.toLowerCase().includes(filterLower) &&
+                        !script.description.toLowerCase().includes(filterLower)) return;
+                    if (!categories[script.category]) categories[script.category] = [];
+                    categories[script.category].push(script);
+                });
+
+                const categoriesHtml = Object.keys(categories).sort().map(cat => 
+                    `<button class="filter-btn" onclick="ReportsModule.filterByCategory('${cat}')">${cat}</button>`
+                ).join('');
+                
+                document.getElementById('reports-categories').innerHTML = 
+                    `<button class="filter-btn active" onclick="ReportsModule.filterByCategory('')">All</button>` + categoriesHtml;
+
+                const listEl = document.getElementById('reports-list');
+                if (Object.keys(categories).length === 0) {
+                    listEl.innerHTML = '<div class="empty-row" style="font-size:11px;">No report scripts found</div>';
+                    return;
+                }
+
+                let html = '';
+                Object.keys(categories).sort().forEach(category => {
+                    html += `<div class="script-category-header">${category}</div>`;
+                    categories[category].forEach(script => {
+                        const isSelected = selectedScript && selectedScript.id === script.id;
+                        html += `
+                            <div class="script-item ${isSelected ? 'selected' : ''}" onclick="ReportsModule.selectScript('${script.id}')">
+                                <div class="script-name">${escapeHtml(script.name)}</div>
+                                <div class="script-desc">${escapeHtml(script.description)}</div>
+                                ${script.estimated_time ? `<div class="script-time">⏱ ${script.estimated_time}</div>` : ''}
+                            </div>`;
+                    });
+                });
+                listEl.innerHTML = html;
+            }
+
+            function selectScript(scriptId) {
+                selectedScript = scripts.find(s => s.id === scriptId);
+                if (!selectedScript) return;
+                renderScriptsList();
+                
+                document.getElementById('report-details').innerHTML = `
+                    <div class="section-title" style="font-size: 14px; margin-bottom: 0.375rem;">${escapeHtml(selectedScript.name)}</div>
+                    <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 0.75rem;">${escapeHtml(selectedScript.description)}</p>
+                    <div style="display: flex; gap: 0.5rem; font-size: 11px; margin-bottom: 0.75rem;">
+                        <span style="color: var(--text-muted);">Category:</span>
+                        <span style="color: var(--sky-400);">${escapeHtml(selectedScript.category)}</span>
+                        ${selectedScript.estimated_time ? `<span style="color: var(--text-muted); margin-left: 1rem;">Est:</span><span style="color: var(--emerald-200);">${selectedScript.estimated_time}</span>` : ''}
+                    </div>
+                    <button class="btn btn-primary" id="run-report-btn" onclick="ReportsModule.runScript('${selectedScript.id}')">▶ Run Report</button>
+                `;
+            }
+
+            async function runScript(scriptId) {
+                if (currentRunId) {
+                    addLog('A report is already running', 'warning');
+                    return;
+                }
+                try {
+                    clearOutput();
+                    appendOutput(`[${new Date().toLocaleTimeString()}] Starting report...\n`, 'info');
+                    updateRunButton(true);
+
+                    const response = await fetch(`/api/reports/run/${scriptId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ parameters: {} })
+                    });
+                    if (!response.ok) throw new Error('Failed to start report');
+
+                    const result = await response.json();
+                    currentRunId = result.run_id;
+                    appendOutput(`[${new Date().toLocaleTimeString()}] Run ID: ${currentRunId}\n`, 'info');
+                    appendOutput('─'.repeat(50) + '\n', 'dim');
+                    connectToOutputStream(currentRunId);
+                } catch (error) {
+                    console.error('Error running script:', error);
+                    addLog('Failed to run report: ' + error.message, 'error');
+                    updateRunButton(false);
+                }
+            }
+
+            function connectToOutputStream(runId) {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}/api/reports/ws/${runId}`;
+                outputSocket = new WebSocket(wsUrl);
+
+                outputSocket.onmessage = (event) => {
+                    try {
+                        const msg = JSON.parse(event.data);
+                        if (msg.type === 'output') appendOutput(msg.data);
+                        else if (msg.type === 'complete') handleReportComplete(msg);
+                        else if (msg.type === 'error') {
+                            appendOutput(`\n[ERROR] ${msg.message}\n`, 'error');
+                            handleReportComplete({ status: 'failed' });
+                        }
+                    } catch (e) {
+                        if (event.data !== 'pong') appendOutput(event.data);
+                    }
+                };
+
+                outputSocket.onclose = () => {
+                    if (currentRunId) handleReportComplete({ status: 'disconnected' });
+                };
+
+                const pingInterval = setInterval(() => {
+                    if (outputSocket && outputSocket.readyState === WebSocket.OPEN) {
+                        outputSocket.send('ping');
+                    } else clearInterval(pingInterval);
+                }, 25000);
+            }
+
+            function handleReportComplete(msg) {
+                appendOutput('\n' + '─'.repeat(50) + '\n', 'dim');
+                if (msg.status === 'completed') {
+                    appendOutput(`[${new Date().toLocaleTimeString()}] ✓ Report completed\n`, 'success');
+                } else {
+                    appendOutput(`[${new Date().toLocaleTimeString()}] ✗ Report ${msg.status}\n`, 'error');
+                }
+                currentRunId = null;
+                updateRunButton(false);
+                if (outputSocket) { outputSocket.close(); outputSocket = null; }
+                setTimeout(loadHistory, 1000);
+            }
+
+            function renderHistory() {
+                const historyList = document.getElementById('history-list');
+                if (!history || history.length === 0) {
+                    historyList.innerHTML = '<div class="empty-row" style="font-size:11px;">No recent runs</div>';
+                    return;
+                }
+                historyList.innerHTML = history.map(run => {
+                    const statusClass = run.status === 'completed' ? 'badge-executed' : 
+                                       run.status === 'failed' ? 'badge-failed' : 'badge-executing';
+                    const icon = run.status === 'completed' ? '✓' : run.status === 'failed' ? '✗' : '⋯';
+                    return `<div class="history-item" onclick="ReportsModule.showHistoryRun('${run.run_id}')">
+                        <span class="badge ${statusClass}" style="margin-right:6px;font-size:10px;">${icon}</span>
+                        <span style="flex:1;font-family:monospace;font-size:10px;">${escapeHtml(run.script_id.split('__').pop())}</span>
+                        <span style="font-size:9px;color:var(--text-muted);">${formatTime(run.started_at)}</span>
+                    </div>`;
+                }).join('');
+            }
+
+            async function showHistoryRun(runId) {
+                try {
+                    const response = await fetch(`/api/reports/result/${runId}`);
+                    if (!response.ok) throw new Error('Failed to load result');
+                    const result = await response.json();
+                    clearOutput();
+                    appendOutput(`[History] ${result.run_id}\n`, 'info');
+                    appendOutput(`[Status] ${result.status}\n`, 'info');
+                    appendOutput('─'.repeat(50) + '\n', 'dim');
+                    if (result.output) appendOutput(result.output);
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+
+            function appendOutput(text, className = '') {
+                const panel = document.getElementById('report-output');
+                const placeholder = panel.querySelector('.output-placeholder');
+                if (placeholder) placeholder.remove();
+                const span = document.createElement('span');
+                if (className) span.className = `output-${className}`;
+                span.textContent = text;
+                panel.appendChild(span);
+                panel.scrollTop = panel.scrollHeight;
+            }
+
+            function clearOutput() {
+                document.getElementById('report-output').innerHTML = '';
+            }
+
+            function copyOutput() {
+                const text = document.getElementById('report-output').textContent;
+                navigator.clipboard.writeText(text).then(() => addLog('Output copied', 'success'));
+            }
+
+            function updateRunButton(running) {
+                const btn = document.getElementById('run-report-btn');
+                if (!btn) return;
+                if (running) {
+                    btn.textContent = '⏹ Cancel';
+                    btn.classList.remove('btn-primary');
+                    btn.style.background = 'var(--rose-bg)';
+                    btn.style.color = 'var(--rose-200)';
+                    btn.style.border = '1px solid var(--rose-300-70)';
+                } else {
+                    btn.textContent = '▶ Run Report';
+                    btn.classList.add('btn-primary');
+                    btn.style.background = '';
+                    btn.style.color = '';
+                    btn.style.border = '';
+                }
+            }
+
+            function filterScripts(filter) { renderScriptsList(filter); }
+
+            function filterByCategory(category) {
+                document.querySelectorAll('#reports-categories .filter-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.textContent === (category || 'All'));
+                });
+                if (!category) { renderScriptsList(); return; }
+                const filtered = scripts.filter(s => s.category === category);
+                const listEl = document.getElementById('reports-list');
+                let html = `<div class="script-category-header">${category}</div>`;
+                filtered.forEach(script => {
+                    html += `<div class="script-item" onclick="ReportsModule.selectScript('${script.id}')">
+                        <div class="script-name">${escapeHtml(script.name)}</div>
+                        <div class="script-desc">${escapeHtml(script.description)}</div>
+                    </div>`;
+                });
+                listEl.innerHTML = html;
+            }
+
+            function formatTime(isoString) {
+                if (!isoString) return '';
+                return new Date(isoString).toLocaleTimeString();
+            }
+
+            return {
+                init, loadScripts, loadHistory, selectScript, runScript,
+                filterScripts, filterByCategory, showHistoryRun,
+                clearOutput, copyOutput
+            };
+        })();
     </script>
 </body>
 </html>
