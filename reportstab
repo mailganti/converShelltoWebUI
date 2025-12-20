@@ -1,0 +1,9 @@
+<!-- In navigation -->
+<button class="nav-tab" data-tab="reports">📊 Reports</button>
+
+<!-- Content area -->
+<div id="reports-container" class="tab-content"></div>
+
+<!-- Scripts -->
+<link rel="stylesheet" href="/static/css/reports.css">
+<script src="/static/js/reports.js"></script>
