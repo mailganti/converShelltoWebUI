@@ -824,6 +824,29 @@
                                     <p>Select a report to run</p>
                                 </div>
                             </div>
+
+                            <!-- Agent Selection -->
+                            <div class="reports-agents" id="reports-agents-panel" style="display:none;">
+                                <div class="section-header" style="padding: 0.625rem 1rem; border-bottom: 1px solid var(--border-panel); margin-bottom: 0;">
+                                    <div>
+                                        <div class="section-title" style="font-size: 12px;">Target Agent</div>
+                                        <div class="section-subtitle">Select where to run this report</div>
+                                    </div>
+                                    <span id="report-agent-count" style="font-size: 11px; color: var(--sky-400);">0 selected</span>
+                                </div>
+                                <div style="padding: 0.75rem;">
+                                    <!-- Search for agents (shown when >10 agents) -->
+                                    <div id="agent-search-container" style="margin-bottom: 0.5rem; display: none;">
+                                        <input type="text" class="form-input" id="report-agent-search" 
+                                               placeholder="Search agents..." onkeyup="ReportsModule.filterAgents(this.value)">
+                                    </div>
+                                    <!-- Agent selector -->
+                                    <div class="agent-selector" id="report-agent-selector" style="max-height: 120px;">
+                                        <div style="padding: 0.25rem; text-align: center; color: var(--text-secondary); font-size: 11px;">Loading agents...</div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="reports-output">
                                 <div class="section-header">
                                     <div class="section-title" style="font-size: 12px;">Output</div>
@@ -1541,12 +1564,14 @@
         // Reports Module
         // ====================================================================
         const ReportsModule = (function() {
-            let scripts = [];
+            let reportScripts = [];
             let selectedScript = null;
+            let selectedAgent = null;
             let currentRunId = null;
             let outputSocket = null;
             let history = [];
             let initialized = false;
+            let agentSearchFilter = '';
 
             function init() {
                 if (initialized) return;
@@ -1555,18 +1580,21 @@
                 initialized = true;
             }
 
+            // Load registered report scripts (similar to scripts endpoint)
             async function loadScripts() {
                 try {
                     const response = await fetch('/api/reports/scripts');
-                    if (!response.ok) throw new Error('Failed to load scripts');
-                    scripts = await response.json();
+                    if (!response.ok) throw new Error('Failed to load report scripts');
+                    const data = await response.json();
+                    // Support both array response and {scripts: [...]} format
+                    reportScripts = Array.isArray(data) ? data : (data.scripts || []);
                     renderScriptsList();
                     const badge = document.getElementById('tabBadgeReports');
-                    if (badge) badge.textContent = scripts.length;
+                    if (badge) badge.textContent = reportScripts.length;
                 } catch (error) {
-                    console.error('Error loading scripts:', error);
+                    console.error('Error loading report scripts:', error);
                     document.getElementById('reports-list').innerHTML = 
-                        '<div class="empty-row" style="font-size:11px;">No report scripts found</div>';
+                        '<div class="empty-row" style="font-size:11px;">No report scripts registered</div>';
                 }
             }
 
@@ -1581,15 +1609,82 @@
                 }
             }
 
+            // Render agent selector - dropdown for few, searchable list for many
+            function renderAgentSelector() {
+                const panel = document.getElementById('reports-agents-panel');
+                const selector = document.getElementById('report-agent-selector');
+                const searchContainer = document.getElementById('agent-search-container');
+                
+                // Use global agents array from main app
+                if (!agents || agents.length === 0) {
+                    selector.innerHTML = '<div style="padding: 0.5rem; text-align: center; color: var(--text-muted); font-size: 11px;">No agents available. Register agents first.</div>';
+                    return;
+                }
+
+                // Show search box if more than 10 agents
+                if (agents.length > 10) {
+                    searchContainer.style.display = 'block';
+                } else {
+                    searchContainer.style.display = 'none';
+                }
+
+                renderAgentList();
+            }
+
+            function renderAgentList() {
+                const selector = document.getElementById('report-agent-selector');
+                
+                // Filter agents based on search
+                let filtered = agents;
+                if (agentSearchFilter) {
+                    const filter = agentSearchFilter.toLowerCase();
+                    filtered = agents.filter(a => 
+                        a.agent_name.toLowerCase().includes(filter) || 
+                        a.host.toLowerCase().includes(filter)
+                    );
+                }
+
+                if (filtered.length === 0) {
+                    selector.innerHTML = '<div style="padding: 0.5rem; text-align: center; color: var(--text-muted); font-size: 11px;">No matching agents</div>';
+                    return;
+                }
+
+                // Use radio buttons for single agent selection
+                selector.innerHTML = filtered.map(a => `
+                    <label class="agent-option" style="cursor: pointer;">
+                        <input type="radio" name="report-agent" value="${escapeHtml(a.agent_name)}" 
+                               ${selectedAgent === a.agent_name ? 'checked' : ''} 
+                               ${a.status !== 'online' ? 'disabled' : ''}
+                               onchange="ReportsModule.selectAgent('${escapeHtml(a.agent_name)}')"
+                               style="margin-right: 0.5rem; accent-color: var(--sky-400);">
+                        <span class="agent-option-name" style="flex: 1;">${escapeHtml(a.agent_name)}</span>
+                        <span style="font-size: 10px; color: var(--text-muted); margin-right: 0.5rem;">${escapeHtml(a.host)}</span>
+                        <span class="agent-option-status ${a.status}">${a.status}</span>
+                    </label>
+                `).join('');
+            }
+
+            function selectAgent(agentName) {
+                selectedAgent = agentName;
+                document.getElementById('report-agent-count').textContent = agentName ? '1 selected' : '0 selected';
+            }
+
+            function filterAgents(filter) {
+                agentSearchFilter = filter;
+                renderAgentList();
+            }
+
             function renderScriptsList(filter = '') {
                 const categories = {};
                 const filterLower = filter.toLowerCase();
 
-                scripts.forEach(script => {
-                    if (filter && !script.name.toLowerCase().includes(filterLower) &&
-                        !script.description.toLowerCase().includes(filterLower)) return;
-                    if (!categories[script.category]) categories[script.category] = [];
-                    categories[script.category].push(script);
+                reportScripts.forEach(script => {
+                    const name = script.name || script.script_id || '';
+                    const desc = script.description || '';
+                    if (filter && !name.toLowerCase().includes(filterLower) && !desc.toLowerCase().includes(filterLower)) return;
+                    const cat = script.category || 'General';
+                    if (!categories[cat]) categories[cat] = [];
+                    categories[cat].push(script);
                 });
 
                 const categoriesHtml = Object.keys(categories).sort().map(cat => 
@@ -1601,20 +1696,22 @@
 
                 const listEl = document.getElementById('reports-list');
                 if (Object.keys(categories).length === 0) {
-                    listEl.innerHTML = '<div class="empty-row" style="font-size:11px;">No report scripts found</div>';
+                    listEl.innerHTML = '<div class="empty-row" style="font-size:11px;">No report scripts registered</div>';
                     return;
                 }
 
                 let html = '';
                 Object.keys(categories).sort().forEach(category => {
-                    html += `<div class="script-category-header">${category}</div>`;
+                    html += `<div class="script-category-header">${escapeHtml(category)}</div>`;
                     categories[category].forEach(script => {
-                        const isSelected = selectedScript && selectedScript.id === script.id;
+                        const scriptId = script.id || script.script_id;
+                        const isSelected = selectedScript && (selectedScript.id === scriptId || selectedScript.script_id === scriptId);
+                        const name = script.name || script.script_id || scriptId;
                         html += `
-                            <div class="script-item ${isSelected ? 'selected' : ''}" onclick="ReportsModule.selectScript('${script.id}')">
-                                <div class="script-name">${escapeHtml(script.name)}</div>
-                                <div class="script-desc">${escapeHtml(script.description)}</div>
-                                ${script.estimated_time ? `<div class="script-time">⏱ ${script.estimated_time}</div>` : ''}
+                            <div class="script-item ${isSelected ? 'selected' : ''}" onclick="ReportsModule.selectScript('${escapeHtml(scriptId)}')">
+                                <div class="script-name">${escapeHtml(name)}</div>
+                                <div class="script-desc">${escapeHtml(script.description || '')}</div>
+                                ${script.timeout ? `<div class="script-time">⏱ ${script.timeout}s</div>` : ''}
                             </div>`;
                     });
                 });
@@ -1622,46 +1719,90 @@
             }
 
             function selectScript(scriptId) {
-                selectedScript = scripts.find(s => s.id === scriptId);
+                selectedScript = reportScripts.find(s => s.id === scriptId || s.script_id === scriptId);
                 if (!selectedScript) return;
+                
+                // Reset agent selection
+                selectedAgent = null;
+                agentSearchFilter = '';
+                document.getElementById('report-agent-count').textContent = '0 selected';
+                const searchInput = document.getElementById('report-agent-search');
+                if (searchInput) searchInput.value = '';
+                
                 renderScriptsList();
                 
+                // Show agent panel
+                document.getElementById('reports-agents-panel').style.display = 'block';
+                document.getElementById('reports-agents-panel').style.background = 'var(--slate-bg-90)';
+                document.getElementById('reports-agents-panel').style.borderRadius = '0.75rem';
+                document.getElementById('reports-agents-panel').style.border = '1px solid var(--border-panel)';
+                renderAgentSelector();
+                
+                const name = selectedScript.name || selectedScript.script_id;
+                const desc = selectedScript.description || 'No description';
+                const cat = selectedScript.category || 'General';
+                const timeout = selectedScript.timeout || 300;
+                const path = selectedScript.script_path || selectedScript.path || '';
+                
                 document.getElementById('report-details').innerHTML = `
-                    <div class="section-title" style="font-size: 14px; margin-bottom: 0.375rem;">${escapeHtml(selectedScript.name)}</div>
-                    <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 0.75rem;">${escapeHtml(selectedScript.description)}</p>
-                    <div style="display: flex; gap: 0.5rem; font-size: 11px; margin-bottom: 0.75rem;">
-                        <span style="color: var(--text-muted);">Category:</span>
-                        <span style="color: var(--sky-400);">${escapeHtml(selectedScript.category)}</span>
-                        ${selectedScript.estimated_time ? `<span style="color: var(--text-muted); margin-left: 1rem;">Est:</span><span style="color: var(--emerald-200);">${selectedScript.estimated_time}</span>` : ''}
+                    <div class="section-title" style="font-size: 14px; margin-bottom: 0.375rem;">${escapeHtml(name)}</div>
+                    <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 0.75rem;">${escapeHtml(desc)}</p>
+                    <div style="display: flex; gap: 1rem; font-size: 11px; margin-bottom: 0.75rem; flex-wrap: wrap;">
+                        <span><span style="color: var(--text-muted);">Category:</span> <span style="color: var(--sky-400);">${escapeHtml(cat)}</span></span>
+                        <span><span style="color: var(--text-muted);">Timeout:</span> <span style="color: var(--emerald-200);">${timeout}s</span></span>
                     </div>
-                    <button class="btn btn-primary" id="run-report-btn" onclick="ReportsModule.runScript('${selectedScript.id}')">▶ Run Report</button>
+                    ${path ? `<div style="font-size: 10px; color: var(--text-muted); font-family: monospace; margin-bottom: 0.75rem;">${escapeHtml(path)}</div>` : ''}
+                    <button class="btn btn-primary" id="run-report-btn" onclick="ReportsModule.runScript()">▶ Run Report</button>
                 `;
             }
 
-            async function runScript(scriptId) {
+            async function runScript() {
+                if (!selectedScript) {
+                    addLog('Please select a report first', 'error');
+                    return;
+                }
+                if (!selectedAgent) {
+                    addLog('Please select a target agent', 'error');
+                    return;
+                }
                 if (currentRunId) {
                     addLog('A report is already running', 'warning');
                     return;
                 }
+                
+                const scriptId = selectedScript.id || selectedScript.script_id;
+                
                 try {
                     clearOutput();
-                    appendOutput(`[${new Date().toLocaleTimeString()}] Starting report...\n`, 'info');
+                    appendOutput(`[${new Date().toLocaleTimeString()}] Starting report: ${selectedScript.name || scriptId}\n`, 'info');
+                    appendOutput(`[${new Date().toLocaleTimeString()}] Target agent: ${selectedAgent}\n`, 'info');
                     updateRunButton(true);
 
                     const response = await fetch(`/api/reports/run/${scriptId}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ parameters: {} })
+                        body: JSON.stringify({ 
+                            target: selectedAgent,
+                            parameters: {}
+                        })
                     });
-                    if (!response.ok) throw new Error('Failed to start report');
+                    
+                    if (!response.ok) {
+                        const err = await response.json().catch(() => ({}));
+                        throw new Error(err.detail || 'Failed to start report');
+                    }
 
                     const result = await response.json();
                     currentRunId = result.run_id;
                     appendOutput(`[${new Date().toLocaleTimeString()}] Run ID: ${currentRunId}\n`, 'info');
                     appendOutput('─'.repeat(50) + '\n', 'dim');
+                    
+                    // Connect to WebSocket for streaming output
                     connectToOutputStream(currentRunId);
+                    
                 } catch (error) {
                     console.error('Error running script:', error);
+                    appendOutput(`\n[ERROR] ${error.message}\n`, 'error');
                     addLog('Failed to run report: ' + error.message, 'error');
                     updateRunButton(false);
                 }
@@ -1671,6 +1812,10 @@
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
                 const wsUrl = `${protocol}//${window.location.host}/api/reports/ws/${runId}`;
                 outputSocket = new WebSocket(wsUrl);
+
+                outputSocket.onopen = () => {
+                    appendOutput(`[Connected]\n`, 'dim');
+                };
 
                 outputSocket.onmessage = (event) => {
                     try {
@@ -1690,6 +1835,10 @@
                     if (currentRunId) handleReportComplete({ status: 'disconnected' });
                 };
 
+                outputSocket.onerror = () => {
+                    appendOutput(`\n[Connection error]\n`, 'error');
+                };
+
                 const pingInterval = setInterval(() => {
                     if (outputSocket && outputSocket.readyState === WebSocket.OPEN) {
                         outputSocket.send('ping');
@@ -1700,9 +1849,13 @@
             function handleReportComplete(msg) {
                 appendOutput('\n' + '─'.repeat(50) + '\n', 'dim');
                 if (msg.status === 'completed') {
-                    appendOutput(`[${new Date().toLocaleTimeString()}] ✓ Report completed\n`, 'success');
+                    appendOutput(`[${new Date().toLocaleTimeString()}] ✓ Report completed`, 'success');
+                    if (msg.exit_code !== undefined) appendOutput(` (exit code: ${msg.exit_code})`, 'success');
+                    appendOutput('\n', 'success');
+                    addLog('Report completed successfully', 'success');
                 } else {
                     appendOutput(`[${new Date().toLocaleTimeString()}] ✗ Report ${msg.status}\n`, 'error');
+                    addLog('Report ' + msg.status, 'error');
                 }
                 currentRunId = null;
                 updateRunButton(false);
@@ -1720,10 +1873,12 @@
                     const statusClass = run.status === 'completed' ? 'badge-executed' : 
                                        run.status === 'failed' ? 'badge-failed' : 'badge-executing';
                     const icon = run.status === 'completed' ? '✓' : run.status === 'failed' ? '✗' : '⋯';
+                    const scriptName = (run.script_id || '').split('__').pop();
                     return `<div class="history-item" onclick="ReportsModule.showHistoryRun('${run.run_id}')">
                         <span class="badge ${statusClass}" style="margin-right:6px;font-size:10px;">${icon}</span>
-                        <span style="flex:1;font-family:monospace;font-size:10px;">${escapeHtml(run.script_id.split('__').pop())}</span>
-                        <span style="font-size:9px;color:var(--text-muted);">${formatTime(run.started_at)}</span>
+                        <span style="flex:1;font-family:monospace;font-size:10px;">${escapeHtml(scriptName)}</span>
+                        <span style="font-size:9px;color:var(--text-muted);">${run.target || ''}</span>
+                        <span style="font-size:9px;color:var(--text-muted);margin-left:6px;">${formatTime(run.started_at)}</span>
                     </div>`;
                 }).join('');
             }
@@ -1734,12 +1889,14 @@
                     if (!response.ok) throw new Error('Failed to load result');
                     const result = await response.json();
                     clearOutput();
-                    appendOutput(`[History] ${result.run_id}\n`, 'info');
+                    appendOutput(`[History] Run ID: ${result.run_id}\n`, 'info');
                     appendOutput(`[Status] ${result.status}\n`, 'info');
+                    if (result.target) appendOutput(`[Agent] ${result.target}\n`, 'info');
                     appendOutput('─'.repeat(50) + '\n', 'dim');
                     if (result.output) appendOutput(result.output);
                 } catch (error) {
                     console.error('Error:', error);
+                    addLog('Failed to load run history', 'error');
                 }
             }
 
@@ -1760,24 +1917,20 @@
 
             function copyOutput() {
                 const text = document.getElementById('report-output').textContent;
-                navigator.clipboard.writeText(text).then(() => addLog('Output copied', 'success'));
+                navigator.clipboard.writeText(text).then(() => addLog('Output copied to clipboard', 'success'));
             }
 
             function updateRunButton(running) {
                 const btn = document.getElementById('run-report-btn');
                 if (!btn) return;
                 if (running) {
-                    btn.textContent = '⏹ Cancel';
-                    btn.classList.remove('btn-primary');
-                    btn.style.background = 'var(--rose-bg)';
-                    btn.style.color = 'var(--rose-200)';
-                    btn.style.border = '1px solid var(--rose-300-70)';
+                    btn.textContent = '⏳ Running...';
+                    btn.disabled = true;
+                    btn.style.opacity = '0.7';
                 } else {
                     btn.textContent = '▶ Run Report';
-                    btn.classList.add('btn-primary');
-                    btn.style.background = '';
-                    btn.style.color = '';
-                    btn.style.border = '';
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
                 }
             }
 
@@ -1788,13 +1941,14 @@
                     btn.classList.toggle('active', btn.textContent === (category || 'All'));
                 });
                 if (!category) { renderScriptsList(); return; }
-                const filtered = scripts.filter(s => s.category === category);
+                const filtered = reportScripts.filter(s => (s.category || 'General') === category);
                 const listEl = document.getElementById('reports-list');
-                let html = `<div class="script-category-header">${category}</div>`;
+                let html = `<div class="script-category-header">${escapeHtml(category)}</div>`;
                 filtered.forEach(script => {
-                    html += `<div class="script-item" onclick="ReportsModule.selectScript('${script.id}')">
-                        <div class="script-name">${escapeHtml(script.name)}</div>
-                        <div class="script-desc">${escapeHtml(script.description)}</div>
+                    const scriptId = script.id || script.script_id;
+                    html += `<div class="script-item" onclick="ReportsModule.selectScript('${escapeHtml(scriptId)}')">
+                        <div class="script-name">${escapeHtml(script.name || script.script_id)}</div>
+                        <div class="script-desc">${escapeHtml(script.description || '')}</div>
                     </div>`;
                 });
                 listEl.innerHTML = html;
@@ -1808,7 +1962,7 @@
             return {
                 init, loadScripts, loadHistory, selectScript, runScript,
                 filterScripts, filterByCategory, showHistoryRun,
-                clearOutput, copyOutput
+                clearOutput, copyOutput, selectAgent, filterAgents
             };
         })();
     </script>
