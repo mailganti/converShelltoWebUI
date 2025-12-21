@@ -1,456 +1,379 @@
 """
-Reports API - Bypass approval workflow for read-only status scripts
+Reports API - Backend for running read-only status reports on agents
 ====================================================================
-
-Add to your existing FastAPI app:
-    from reports import router as reports_router
-    app.include_router(reports_router, prefix="/api/reports", tags=["reports"])
+Reports are registered similar to scripts but bypass the approval workflow.
+They execute on selected agents and stream output via WebSocket.
 """
 
-import asyncio
-import os
-import subprocess
-from datetime import datetime
-from pathlib import Path
-from typing import List, Optional
-from dataclasses import dataclass, asdict
-
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect, Depends
-from pydantic import BaseModel
-
-# ============================================================================
-# Configuration
-# ============================================================================
-
-# Directory containing report scripts (read-only, no approval needed)
-REPORTS_SCRIPTS_DIR = os.getenv("REPORTS_SCRIPTS_DIR", "/u01/app/ssaAgent/orchestration-system/scripts/reports")
-
-# Allowed script extensions
-ALLOWED_EXTENSIONS = {".sh", ".py", ".pl"}
-
-# Maximum execution time for reports (seconds)
-MAX_EXECUTION_TIME = 300  # 5 minutes
-
-# ============================================================================
-# Models
-# ============================================================================
-
-class ReportScript(BaseModel):
-    """Report script metadata"""
-    id: str
-    name: str
-    description: str
-    filename: str
-    category: str
-    last_modified: str
-    estimated_time: Optional[str] = None
-
-
-class ReportRunRequest(BaseModel):
-    """Request to run a report"""
-    parameters: Optional[dict] = None
-
-
-class ReportRunResponse(BaseModel):
-    """Response from running a report"""
-    run_id: str
-    script_id: str
-    status: str
-    started_at: str
-
-
-class ReportResult(BaseModel):
-    """Report execution result"""
-    run_id: str
-    script_id: str
-    status: str  # running, completed, failed
-    started_at: str
-    completed_at: Optional[str] = None
-    exit_code: Optional[int] = None
-    output: Optional[str] = None
-    html_output: Optional[str] = None
-
-
-# ============================================================================
-# In-memory storage for running reports
-# ============================================================================
-
-running_reports: dict = {}
-report_results: dict = {}
-
-
-# ============================================================================
-# Helper Functions
-# ============================================================================
-
-def parse_script_metadata(script_path: Path) -> dict:
-    """
-    Parse script header for metadata.
-    
-    Expected format in script:
-    # REPORT_NAME: Database Status
-    # REPORT_DESC: Shows current database connection status
-    # REPORT_CATEGORY: Database
-    # REPORT_TIME: ~30 seconds
-    """
-    metadata = {
-        "name": script_path.stem.replace("_", " ").title(),
-        "description": "No description available",
-        "category": "General",
-        "estimated_time": None,
-    }
-    
-    try:
-        with open(script_path, 'r') as f:
-            for line in f:
-                if not line.startswith("#"):
-                    break
-                line = line.strip()
-                if line.startswith("# REPORT_NAME:"):
-                    metadata["name"] = line.split(":", 1)[1].strip()
-                elif line.startswith("# REPORT_DESC:"):
-                    metadata["description"] = line.split(":", 1)[1].strip()
-                elif line.startswith("# REPORT_CATEGORY:"):
-                    metadata["category"] = line.split(":", 1)[1].strip()
-                elif line.startswith("# REPORT_TIME:"):
-                    metadata["estimated_time"] = line.split(":", 1)[1].strip()
-    except Exception:
-        pass
-    
-    return metadata
-
-
-def discover_report_scripts() -> List[ReportScript]:
-    """Discover all report scripts in the reports directory"""
-    scripts = []
-    reports_dir = Path(REPORTS_SCRIPTS_DIR)
-    
-    if not reports_dir.exists():
-        return scripts
-    
-    for script_path in reports_dir.rglob("*"):
-        if script_path.is_file() and script_path.suffix in ALLOWED_EXTENSIONS:
-            # Get relative path for category
-            rel_path = script_path.relative_to(reports_dir)
-            category = str(rel_path.parent) if rel_path.parent != Path(".") else "General"
-            
-            metadata = parse_script_metadata(script_path)
-            if category != "General":
-                metadata["category"] = category.replace("/", " > ").title()
-            
-            stat = script_path.stat()
-            
-            scripts.append(ReportScript(
-                id=str(rel_path).replace("/", "__").replace("\\", "__"),
-                name=metadata["name"],
-                description=metadata["description"],
-                filename=script_path.name,
-                category=metadata["category"],
-                last_modified=datetime.fromtimestamp(stat.st_mtime).isoformat(),
-                estimated_time=metadata["estimated_time"],
-            ))
-    
-    return sorted(scripts, key=lambda s: (s.category, s.name))
-
-
-def get_script_path(script_id: str) -> Path:
-    """Convert script ID back to path"""
-    rel_path = script_id.replace("__", "/")
-    script_path = Path(REPORTS_SCRIPTS_DIR) / rel_path
-    
-    # Security check - ensure path is within reports directory
-    try:
-        script_path.resolve().relative_to(Path(REPORTS_SCRIPTS_DIR).resolve())
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid script path")
-    
-    if not script_path.exists():
-        raise HTTPException(status_code=404, detail="Script not found")
-    
-    return script_path
-
-
-# ============================================================================
-# Router
-# ============================================================================
+from pydantic import BaseModel, Field
+from typing import Optional, List, Dict, Any
+from datetime import datetime
+import asyncio
+import uuid
+import json
+import os
 
 router = APIRouter()
 
+# ============================================================================
+# Data Models
+# ============================================================================
 
-@router.get("/scripts", response_model=List[ReportScript])
-async def list_report_scripts():
-    """List all available report scripts"""
-    return discover_report_scripts()
+class ReportScript(BaseModel):
+    """Registered report script"""
+    script_id: str = Field(..., description="Unique report ID")
+    name: str = Field(..., description="Display name")
+    description: str = Field("", description="What this report does")
+    script_path: str = Field(..., description="Path to script on agent")
+    category: str = Field("General", description="Category for grouping")
+    timeout: int = Field(300, description="Timeout in seconds")
 
+class ReportRegisterRequest(BaseModel):
+    """Request to register a new report script"""
+    script_id: str
+    name: Optional[str] = None
+    description: str = ""
+    script_path: str
+    category: str = "General"
+    timeout: int = 300
 
-@router.get("/scripts/{script_id}", response_model=ReportScript)
-async def get_report_script(script_id: str):
-    """Get details of a specific report script"""
-    script_path = get_script_path(script_id)
-    metadata = parse_script_metadata(script_path)
-    stat = script_path.stat()
-    
-    rel_path = script_path.relative_to(Path(REPORTS_SCRIPTS_DIR))
-    category = str(rel_path.parent) if rel_path.parent != Path(".") else "General"
-    
-    return ReportScript(
-        id=script_id,
-        name=metadata["name"],
-        description=metadata["description"],
-        filename=script_path.name,
-        category=category.replace("/", " > ").title() if category != "General" else metadata["category"],
-        last_modified=datetime.fromtimestamp(stat.st_mtime).isoformat(),
-        estimated_time=metadata["estimated_time"],
+class ReportRunRequest(BaseModel):
+    """Request to run a report"""
+    target: str = Field(..., description="Agent name to run on")
+    parameters: Dict[str, Any] = Field(default_factory=dict)
+
+class ReportRun(BaseModel):
+    """A report execution record"""
+    run_id: str
+    script_id: str
+    target: str
+    status: str  # pending, running, completed, failed
+    started_at: datetime
+    completed_at: Optional[datetime] = None
+    exit_code: Optional[int] = None
+    output: str = ""
+
+# ============================================================================
+# In-Memory Storage (replace with DB in production)
+# ============================================================================
+
+# Registered report scripts
+_report_scripts: Dict[str, ReportScript] = {}
+
+# Report execution history
+_report_runs: Dict[str, ReportRun] = {}
+
+# Active WebSocket connections for streaming output
+_ws_connections: Dict[str, List[WebSocket]] = {}
+
+# ============================================================================
+# Report Script Registration Endpoints
+# ============================================================================
+
+@router.get("/scripts")
+async def list_report_scripts() -> List[dict]:
+    """List all registered report scripts"""
+    return [
+        {
+            "id": s.script_id,
+            "script_id": s.script_id,
+            "name": s.name,
+            "description": s.description,
+            "script_path": s.script_path,
+            "category": s.category,
+            "timeout": s.timeout
+        }
+        for s in _report_scripts.values()
+    ]
+
+@router.post("/scripts/register")
+async def register_report_script(req: ReportRegisterRequest) -> dict:
+    """Register a new report script"""
+    script = ReportScript(
+        script_id=req.script_id,
+        name=req.name or req.script_id,
+        description=req.description,
+        script_path=req.script_path,
+        category=req.category,
+        timeout=req.timeout
     )
+    _report_scripts[req.script_id] = script
+    return {"status": "registered", "script_id": req.script_id}
 
+@router.delete("/scripts/{script_id}")
+async def unregister_report_script(script_id: str) -> dict:
+    """Unregister a report script"""
+    if script_id not in _report_scripts:
+        raise HTTPException(status_code=404, detail="Report script not found")
+    del _report_scripts[script_id]
+    return {"status": "unregistered", "script_id": script_id}
 
-@router.post("/run/{script_id}", response_model=ReportRunResponse)
-async def run_report(script_id: str, request: ReportRunRequest = None):
+# ============================================================================
+# Report Execution Endpoints
+# ============================================================================
+
+@router.post("/run/{script_id}")
+async def run_report(script_id: str, req: ReportRunRequest) -> dict:
     """
-    Run a report script immediately (no approval required).
-    Returns a run_id to track the execution.
+    Start a report execution on the specified agent.
+    Returns a run_id for tracking and WebSocket connection.
     """
-    script_path = get_script_path(script_id)
+    if script_id not in _report_scripts:
+        raise HTTPException(status_code=404, detail=f"Report script '{script_id}' not found")
     
-    # Generate run ID
-    run_id = f"{script_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    started_at = datetime.now().isoformat()
+    script = _report_scripts[script_id]
+    run_id = str(uuid.uuid4())[:8]
     
-    # Initialize result
-    report_results[run_id] = ReportResult(
+    # Create run record
+    run = ReportRun(
         run_id=run_id,
         script_id=script_id,
-        status="running",
-        started_at=started_at,
+        target=req.target,
+        status="pending",
+        started_at=datetime.utcnow()
     )
+    _report_runs[run_id] = run
     
-    # Start execution in background
-    asyncio.create_task(_execute_report(run_id, script_path, request.parameters if request else None))
+    # Start async execution
+    asyncio.create_task(_execute_report(run_id, script, req.target, req.parameters))
     
-    return ReportRunResponse(
-        run_id=run_id,
-        script_id=script_id,
-        status="running",
-        started_at=started_at,
-    )
+    return {
+        "run_id": run_id,
+        "status": "started",
+        "ws_url": f"/api/reports/ws/{run_id}"
+    }
 
-
-@router.get("/result/{run_id}", response_model=ReportResult)
-async def get_report_result(run_id: str):
-    """Get the result of a report execution"""
-    if run_id not in report_results:
-        raise HTTPException(status_code=404, detail="Report run not found")
+async def _execute_report(run_id: str, script: ReportScript, target: str, parameters: Dict):
+    """Execute the report on the target agent"""
+    run = _report_runs.get(run_id)
+    if not run:
+        return
     
-    return report_results[run_id]
+    run.status = "running"
+    
+    try:
+        # Import agent communication module
+        # This should be your existing agent execution code
+        from agents import get_agent, execute_on_agent  # Adjust import as needed
+        
+        agent = get_agent(target)
+        if not agent:
+            raise Exception(f"Agent '{target}' not found or offline")
+        
+        # Execute script on agent
+        result = await execute_on_agent(
+            agent=agent,
+            script_path=script.script_path,
+            timeout=script.timeout,
+            parameters=parameters,
+            stream_callback=lambda data: _broadcast_output(run_id, data)
+        )
+        
+        run.status = "completed"
+        run.exit_code = result.get("exit_code", 0)
+        run.output = result.get("output", "")
+        
+        # Notify WebSocket clients
+        await _broadcast_complete(run_id, run.status, run.exit_code)
+        
+    except Exception as e:
+        run.status = "failed"
+        run.output = str(e)
+        await _broadcast_error(run_id, str(e))
+    
+    finally:
+        run.completed_at = datetime.utcnow()
 
+def _broadcast_output(run_id: str, data: str):
+    """Broadcast output to all connected WebSocket clients"""
+    asyncio.create_task(_async_broadcast(run_id, {"type": "output", "data": data}))
+
+async def _broadcast_complete(run_id: str, status: str, exit_code: int):
+    """Broadcast completion to all connected WebSocket clients"""
+    await _async_broadcast(run_id, {
+        "type": "complete",
+        "status": status,
+        "exit_code": exit_code
+    })
+
+async def _broadcast_error(run_id: str, message: str):
+    """Broadcast error to all connected WebSocket clients"""
+    await _async_broadcast(run_id, {"type": "error", "message": message})
+
+async def _async_broadcast(run_id: str, message: dict):
+    """Send message to all WebSocket connections for this run"""
+    if run_id not in _ws_connections:
+        return
+    
+    dead_connections = []
+    for ws in _ws_connections[run_id]:
+        try:
+            await ws.send_text(json.dumps(message))
+        except:
+            dead_connections.append(ws)
+    
+    # Clean up dead connections
+    for ws in dead_connections:
+        _ws_connections[run_id].remove(ws)
+
+# ============================================================================
+# WebSocket for Streaming Output
+# ============================================================================
 
 @router.websocket("/ws/{run_id}")
 async def report_output_stream(websocket: WebSocket, run_id: str):
-    """
-    WebSocket endpoint for streaming report output in real-time.
-    Connect before or during execution to receive output as it's generated.
-    """
+    """WebSocket endpoint for streaming report output"""
     await websocket.accept()
     
+    # Register connection
+    if run_id not in _ws_connections:
+        _ws_connections[run_id] = []
+    _ws_connections[run_id].append(websocket)
+    
     try:
-        # Check if this is a valid run
-        if run_id not in report_results and run_id not in running_reports:
-            await websocket.send_json({"type": "error", "message": "Report run not found"})
-            await websocket.close()
-            return
-        
-        # Register this websocket
-        if run_id not in running_reports:
-            running_reports[run_id] = {"websockets": []}
-        
-        if "websockets" not in running_reports[run_id]:
-            running_reports[run_id]["websockets"] = []
-        
-        running_reports[run_id]["websockets"].append(websocket)
-        
         # Send any existing output
-        if run_id in report_results:
-            result = report_results[run_id]
-            if result.output:
-                await websocket.send_json({
-                    "type": "output",
-                    "data": result.output
-                })
-            if result.status != "running":
-                await websocket.send_json({
-                    "type": "complete",
-                    "status": result.status,
-                    "exit_code": result.exit_code
-                })
+        run = _report_runs.get(run_id)
+        if run and run.output:
+            await websocket.send_text(json.dumps({"type": "output", "data": run.output}))
         
-        # Keep connection open until report completes or client disconnects
+        # If already complete, send status
+        if run and run.status in ("completed", "failed"):
+            await websocket.send_text(json.dumps({
+                "type": "complete",
+                "status": run.status,
+                "exit_code": run.exit_code
+            }))
+        
+        # Keep connection alive
         while True:
             try:
-                # Wait for messages (mainly for ping/pong)
                 data = await asyncio.wait_for(websocket.receive_text(), timeout=30)
                 if data == "ping":
                     await websocket.send_text("pong")
             except asyncio.TimeoutError:
-                # Send ping to keep connection alive
+                # Send ping to keep alive
                 try:
                     await websocket.send_text("ping")
                 except:
                     break
-            
-            # Check if report is done
-            if run_id in report_results and report_results[run_id].status != "running":
-                break
-                
+                    
     except WebSocketDisconnect:
         pass
     finally:
-        # Remove websocket from tracking
-        if run_id in running_reports and "websockets" in running_reports[run_id]:
-            try:
-                running_reports[run_id]["websockets"].remove(websocket)
-            except ValueError:
-                pass
+        # Unregister connection
+        if run_id in _ws_connections and websocket in _ws_connections[run_id]:
+            _ws_connections[run_id].remove(websocket)
 
+# ============================================================================
+# History & Results Endpoints
+# ============================================================================
 
-async def _execute_report(run_id: str, script_path: Path, parameters: dict = None):
-    """Execute a report script and capture output"""
-    output_lines = []
-    
-    try:
-        # Build command
-        if script_path.suffix == ".py":
-            cmd = ["python3", str(script_path)]
-        elif script_path.suffix == ".pl":
-            cmd = ["perl", str(script_path)]
-        else:
-            cmd = ["bash", str(script_path)]
-        
-        # Add parameters as environment variables
-        env = os.environ.copy()
-        if parameters:
-            for key, value in parameters.items():
-                env[f"REPORT_PARAM_{key.upper()}"] = str(value)
-        
-        # Execute
-        process = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.STDOUT,
-            env=env,
-            cwd=str(script_path.parent),
-        )
-        
-        running_reports[run_id] = {
-            "process": process,
-            "websockets": running_reports.get(run_id, {}).get("websockets", [])
-        }
-        
-        # Stream output
-        async def read_output():
-            while True:
-                line = await process.stdout.readline()
-                if not line:
-                    break
-                
-                decoded = line.decode('utf-8', errors='replace')
-                output_lines.append(decoded)
-                
-                # Send to connected websockets
-                for ws in running_reports.get(run_id, {}).get("websockets", []):
-                    try:
-                        await ws.send_json({
-                            "type": "output",
-                            "data": decoded
-                        })
-                    except:
-                        pass
-        
-        # Wait for completion with timeout
-        try:
-            await asyncio.wait_for(read_output(), timeout=MAX_EXECUTION_TIME)
-            await process.wait()
-            exit_code = process.returncode
-            status = "completed" if exit_code == 0 else "failed"
-        except asyncio.TimeoutError:
-            process.kill()
-            output_lines.append("\n[ERROR] Report execution timed out\n")
-            exit_code = -1
-            status = "failed"
-        
-        # Check for HTML output file
-        html_output = None
-        html_file = script_path.with_suffix('.html')
-        output_html_file = script_path.parent / f"{script_path.stem}_output.html"
-        
-        for hf in [html_file, output_html_file]:
-            if hf.exists():
-                try:
-                    html_output = hf.read_text()
-                except:
-                    pass
-                break
-        
-        # Update result
-        full_output = "".join(output_lines)
-        report_results[run_id] = ReportResult(
-            run_id=run_id,
-            script_id=report_results[run_id].script_id,
-            status=status,
-            started_at=report_results[run_id].started_at,
-            completed_at=datetime.now().isoformat(),
-            exit_code=exit_code,
-            output=full_output,
-            html_output=html_output,
-        )
-        
-        # Notify websockets of completion
-        for ws in running_reports.get(run_id, {}).get("websockets", []):
-            try:
-                await ws.send_json({
-                    "type": "complete",
-                    "status": status,
-                    "exit_code": exit_code
-                })
-            except:
-                pass
-        
-    except Exception as e:
-        report_results[run_id] = ReportResult(
-            run_id=run_id,
-            script_id=report_results[run_id].script_id,
-            status="failed",
-            started_at=report_results[run_id].started_at,
-            completed_at=datetime.now().isoformat(),
-            exit_code=-1,
-            output=f"Error: {str(e)}",
-        )
-    
-    finally:
-        # Cleanup
-        if run_id in running_reports:
-            del running_reports[run_id]
-
-
-@router.get("/history", response_model=List[ReportResult])
-async def get_report_history(limit: int = 20):
+@router.get("/history")
+async def get_report_history(limit: int = 20) -> List[dict]:
     """Get recent report execution history"""
-    results = list(report_results.values())
-    results.sort(key=lambda r: r.started_at, reverse=True)
-    return results[:limit]
+    runs = sorted(
+        _report_runs.values(),
+        key=lambda r: r.started_at,
+        reverse=True
+    )[:limit]
+    
+    return [
+        {
+            "run_id": r.run_id,
+            "script_id": r.script_id,
+            "target": r.target,
+            "status": r.status,
+            "started_at": r.started_at.isoformat(),
+            "completed_at": r.completed_at.isoformat() if r.completed_at else None,
+            "exit_code": r.exit_code
+        }
+        for r in runs
+    ]
 
+@router.get("/result/{run_id}")
+async def get_report_result(run_id: str) -> dict:
+    """Get the result of a specific report run"""
+    run = _report_runs.get(run_id)
+    if not run:
+        raise HTTPException(status_code=404, detail="Report run not found")
+    
+    return {
+        "run_id": run.run_id,
+        "script_id": run.script_id,
+        "target": run.target,
+        "status": run.status,
+        "started_at": run.started_at.isoformat(),
+        "completed_at": run.completed_at.isoformat() if run.completed_at else None,
+        "exit_code": run.exit_code,
+        "output": run.output
+    }
 
 @router.delete("/result/{run_id}")
-async def cancel_report(run_id: str):
-    """Cancel a running report"""
-    if run_id not in running_reports:
-        raise HTTPException(status_code=404, detail="Report not running")
+async def cancel_report(run_id: str) -> dict:
+    """Cancel a running report (best effort)"""
+    run = _report_runs.get(run_id)
+    if not run:
+        raise HTTPException(status_code=404, detail="Report run not found")
     
-    process = running_reports[run_id].get("process")
-    if process:
-        process.kill()
+    if run.status == "running":
+        run.status = "cancelled"
+        run.completed_at = datetime.utcnow()
+        await _broadcast_complete(run_id, "cancelled", -1)
     
-    if run_id in report_results:
-        report_results[run_id].status = "cancelled"
-        report_results[run_id].completed_at = datetime.now().isoformat()
+    return {"status": "cancelled", "run_id": run_id}
+
+# ============================================================================
+# Integration Helper
+# ============================================================================
+
+def init_sample_reports():
+    """Initialize some sample report scripts for testing"""
+    samples = [
+        ReportScript(
+            script_id="db-status",
+            name="Database Status",
+            description="Check database connectivity and status",
+            script_path="/opt/scripts/reports/db_status.sh",
+            category="Database",
+            timeout=60
+        ),
+        ReportScript(
+            script_id="disk-usage",
+            name="Disk Usage",
+            description="Report disk space usage across filesystems",
+            script_path="/opt/scripts/reports/disk_usage.sh",
+            category="System",
+            timeout=30
+        ),
+        ReportScript(
+            script_id="service-health",
+            name="Service Health Check",
+            description="Check status of critical services",
+            script_path="/opt/scripts/reports/service_health.sh",
+            category="System",
+            timeout=120
+        ),
+        ReportScript(
+            script_id="ebs-status",
+            name="EBS Instance Status",
+            description="Oracle EBS concurrent manager and listener status",
+            script_path="/opt/scripts/reports/ebs_status.sh",
+            category="Oracle",
+            timeout=180
+        ),
+        ReportScript(
+            script_id="backup-status",
+            name="Backup Status",
+            description="Check recent backup completion status",
+            script_path="/opt/scripts/reports/backup_status.sh",
+            category="Backup",
+            timeout=60
+        ),
+    ]
     
-    return {"status": "cancelled"}
+    for script in samples:
+        _report_scripts[script.script_id] = script
+
+# Uncomment to load samples on startup:
+# init_sample_reports()
