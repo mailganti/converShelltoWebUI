@@ -878,15 +878,20 @@
                                 <div class="form-group"><div class="form-label">Category</div><input type="text" class="form-input" id="reportCategory" placeholder="Database" value="General"></div>
                                 <div class="form-group"><div class="form-label">Timeout (sec)</div><input type="number" class="form-input" id="reportTimeout" value="300" min="1" max="3600"></div>
                                 <div class="form-group full"><div class="form-label">Description</div><input type="text" class="form-input" id="reportDescription" placeholder="What this report checks"></div>
-                                <div class="form-group full">
-                                    <div class="form-label">Parameters <span style="font-weight: normal; color: var(--text-muted);">(JSON array, optional)</span></div>
-                                    <textarea class="form-input" id="reportParams" rows="3" placeholder='[{"name": "start_date", "label": "Start Date", "type": "date", "required": true}, {"name": "env", "label": "Environment", "type": "select", "options": ["PROD", "DEV", "QA"], "default": "PROD"}]'></textarea>
-                                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">
-                                        Types: text, number, date, select, checkbox. Fields: name, label, type, required, default, options (for select), placeholder
-                                    </div>
+                            </div>
+                            
+                            <!-- Parameter Builder -->
+                            <div style="margin-top: 1rem; padding: 1rem; background: var(--slate-bg-80); border-radius: 0.5rem; border: 1px solid var(--border-panel);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                    <div class="form-label" style="margin: 0;">Parameters <span style="font-weight: normal; color: var(--text-muted);">(optional)</span></div>
+                                    <button class="btn" onclick="ReportsModule.addParameter()" style="font-size: 11px;">+ Add Parameter</button>
+                                </div>
+                                <div id="parameterBuilder">
+                                    <div style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 0.5rem;">No parameters defined. Click "Add Parameter" to add one.</div>
                                 </div>
                             </div>
-                            <button class="btn btn-primary" onclick="ReportsModule.registerReport()">Register Report</button>
+                            
+                            <button class="btn btn-primary" onclick="ReportsModule.registerReport()" style="margin-top: 1rem;">Register Report</button>
                         </div>
                     </div>
                 </div>
@@ -1866,20 +1871,13 @@
                 const category = document.getElementById('reportCategory').value.trim() || 'General';
                 const timeout = parseInt(document.getElementById('reportTimeout').value) || 300;
                 const description = document.getElementById('reportDescription').value.trim();
-                const paramsJson = document.getElementById('reportParams').value.trim();
 
                 if (!scriptId) { addLog('Please enter a Report ID', 'error'); return; }
                 if (!path) { addLog('Please enter a Script Path', 'error'); return; }
                 if (!/^[a-zA-Z0-9_-]+$/.test(scriptId)) { addLog('Report ID must contain only letters, numbers, hyphens and underscores', 'error'); return; }
 
-                let parameters = [];
-                if (paramsJson) {
-                    try {
-                        parameters = JSON.parse(paramsJson);
-                        if (!Array.isArray(parameters)) throw new Error('Must be array');
-                        for (const p of parameters) { if (!p.name) throw new Error('Each param needs "name"'); if (!p.type) p.type = 'text'; }
-                    } catch (e) { addLog('Invalid parameters JSON: ' + e.message, 'error'); return; }
-                }
+                // Collect parameters from visual builder
+                const parameters = collectBuilderParameters();
 
                 try {
                     const response = await fetch('/api/reports/scripts/register', {
@@ -1888,14 +1886,14 @@
                         body: JSON.stringify({ script_id: scriptId, name: name || scriptId, script_path: path, category: category, timeout: timeout, description: description, parameters: parameters })
                     });
                     if (!response.ok) { const err = await response.json().catch(() => ({})); throw new Error(err.detail || 'Failed'); }
-                    addLog('Report "' + scriptId + '" registered', 'success');
+                    addLog('Report "' + scriptId + '" registered' + (parameters.length > 0 ? ' with ' + parameters.length + ' parameter(s)' : ''), 'success');
                     document.getElementById('reportId').value = '';
                     document.getElementById('reportName').value = '';
                     document.getElementById('reportPath').value = '';
                     document.getElementById('reportCategory').value = 'General';
                     document.getElementById('reportTimeout').value = '300';
                     document.getElementById('reportDescription').value = '';
-                    document.getElementById('reportParams').value = '';
+                    clearParameterBuilder();
                     loadScripts();
                 } catch (error) { addLog('Failed to register: ' + error.message, 'error'); }
             }
@@ -1924,7 +1922,106 @@
 
             function refreshAgents() { renderAgentDropdown(); }
 
-            return { init, loadScripts, registerReport, runSelectedReport, quickRun, onReportSelect, clearOutput, copyOutput, refreshAgents };
+            // Parameter Builder
+            let parameterCount = 0;
+            
+            function addParameter() {
+                const builder = document.getElementById('parameterBuilder');
+                // Remove empty message if present
+                if (parameterCount === 0) {
+                    builder.innerHTML = '';
+                }
+                
+                const idx = parameterCount++;
+                const row = document.createElement('div');
+                row.id = 'param-row-' + idx;
+                row.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr 120px 80px 1fr auto; gap: 0.5rem; align-items: end; margin-bottom: 0.5rem; padding: 0.5rem; background: var(--slate-bg-90); border-radius: 0.375rem;';
+                row.innerHTML = 
+                    '<div><div style="font-size: 10px; color: var(--text-muted); margin-bottom: 2px;">Name *</div><input type="text" class="form-input" id="pb-name-' + idx + '" placeholder="param_name" style="font-size: 11px;"></div>' +
+                    '<div><div style="font-size: 10px; color: var(--text-muted); margin-bottom: 2px;">Label</div><input type="text" class="form-input" id="pb-label-' + idx + '" placeholder="Display Label" style="font-size: 11px;"></div>' +
+                    '<div><div style="font-size: 10px; color: var(--text-muted); margin-bottom: 2px;">Type</div><select class="form-input" id="pb-type-' + idx + '" onchange="ReportsModule.onParamTypeChange(' + idx + ')" style="font-size: 11px;"><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option><option value="select">Select</option><option value="checkbox">Checkbox</option><option value="textarea">Textarea</option></select></div>' +
+                    '<div><div style="font-size: 10px; color: var(--text-muted); margin-bottom: 2px;">Required</div><label style="display: flex; align-items: center; height: 32px;"><input type="checkbox" id="pb-req-' + idx + '" style="width: 16px; height: 16px; accent-color: var(--sky-400);"></label></div>' +
+                    '<div id="pb-extra-' + idx + '"><div style="font-size: 10px; color: var(--text-muted); margin-bottom: 2px;">Default</div><input type="text" class="form-input" id="pb-default-' + idx + '" placeholder="default value" style="font-size: 11px;"></div>' +
+                    '<div><button class="btn" onclick="ReportsModule.removeParameter(' + idx + ')" style="font-size: 10px; padding: 4px 8px; color: var(--rose-200);">✕</button></div>';
+                builder.appendChild(row);
+            }
+            
+            function removeParameter(idx) {
+                const row = document.getElementById('param-row-' + idx);
+                if (row) row.remove();
+                // Check if any params left
+                const builder = document.getElementById('parameterBuilder');
+                if (builder.children.length === 0) {
+                    builder.innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 0.5rem;">No parameters defined. Click "Add Parameter" to add one.</div>';
+                    parameterCount = 0;
+                }
+            }
+            
+            function onParamTypeChange(idx) {
+                const type = document.getElementById('pb-type-' + idx).value;
+                const extraDiv = document.getElementById('pb-extra-' + idx);
+                
+                if (type === 'select') {
+                    extraDiv.innerHTML = '<div style="font-size: 10px; color: var(--text-muted); margin-bottom: 2px;">Options (comma-sep)</div><input type="text" class="form-input" id="pb-options-' + idx + '" placeholder="PROD,DEV,QA" style="font-size: 11px;">';
+                } else if (type === 'number') {
+                    extraDiv.innerHTML = '<div style="font-size: 10px; color: var(--text-muted); margin-bottom: 2px;">Default / Min / Max</div><div style="display: flex; gap: 4px;"><input type="number" class="form-input" id="pb-default-' + idx + '" placeholder="def" style="font-size: 11px; width: 50px;"><input type="number" class="form-input" id="pb-min-' + idx + '" placeholder="min" style="font-size: 11px; width: 50px;"><input type="number" class="form-input" id="pb-max-' + idx + '" placeholder="max" style="font-size: 11px; width: 50px;"></div>';
+                } else if (type === 'checkbox') {
+                    extraDiv.innerHTML = '<div style="font-size: 10px; color: var(--text-muted); margin-bottom: 2px;">Default</div><label style="display: flex; align-items: center; height: 32px;"><input type="checkbox" id="pb-default-' + idx + '" style="width: 16px; height: 16px; accent-color: var(--sky-400);"><span style="font-size: 11px; margin-left: 6px;">Checked</span></label>';
+                } else {
+                    extraDiv.innerHTML = '<div style="font-size: 10px; color: var(--text-muted); margin-bottom: 2px;">Default</div><input type="text" class="form-input" id="pb-default-' + idx + '" placeholder="default value" style="font-size: 11px;">';
+                }
+            }
+            
+            function collectBuilderParameters() {
+                const params = [];
+                const builder = document.getElementById('parameterBuilder');
+                const rows = builder.querySelectorAll('[id^="param-row-"]');
+                
+                rows.forEach(row => {
+                    const idx = row.id.replace('param-row-', '');
+                    const name = document.getElementById('pb-name-' + idx);
+                    if (!name || !name.value.trim()) return;
+                    
+                    const type = document.getElementById('pb-type-' + idx).value;
+                    const param = {
+                        name: name.value.trim(),
+                        label: (document.getElementById('pb-label-' + idx).value.trim()) || name.value.trim(),
+                        type: type,
+                        required: document.getElementById('pb-req-' + idx).checked
+                    };
+                    
+                    if (type === 'select') {
+                        const optEl = document.getElementById('pb-options-' + idx);
+                        if (optEl && optEl.value.trim()) {
+                            param.options = optEl.value.split(',').map(s => s.trim()).filter(s => s);
+                        }
+                    } else if (type === 'number') {
+                        const defEl = document.getElementById('pb-default-' + idx);
+                        const minEl = document.getElementById('pb-min-' + idx);
+                        const maxEl = document.getElementById('pb-max-' + idx);
+                        if (defEl && defEl.value) param.default = parseFloat(defEl.value);
+                        if (minEl && minEl.value) param.min = parseFloat(minEl.value);
+                        if (maxEl && maxEl.value) param.max = parseFloat(maxEl.value);
+                    } else if (type === 'checkbox') {
+                        const defEl = document.getElementById('pb-default-' + idx);
+                        if (defEl) param.default = defEl.checked;
+                    } else {
+                        const defEl = document.getElementById('pb-default-' + idx);
+                        if (defEl && defEl.value.trim()) param.default = defEl.value.trim();
+                    }
+                    
+                    params.push(param);
+                });
+                
+                return params;
+            }
+            
+            function clearParameterBuilder() {
+                parameterCount = 0;
+                document.getElementById('parameterBuilder').innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 0.5rem;">No parameters defined. Click "Add Parameter" to add one.</div>';
+            }
+
+            return { init, loadScripts, registerReport, runSelectedReport, quickRun, onReportSelect, clearOutput, copyOutput, refreshAgents, addParameter, removeParameter, onParamTypeChange };
         })();
     </script>
 </body>
