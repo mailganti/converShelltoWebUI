@@ -816,8 +816,8 @@
                         <!-- Reports Table -->
                         <div class="table-container">
                             <table>
-                                <thead><tr><th>Report ID</th><th>Name</th><th>Category</th><th>Timeout</th><th class="text-right">Actions</th></tr></thead>
-                                <tbody id="reportsTable"><tr><td colspan="5" class="empty-row">No reports registered</td></tr></tbody>
+                                <thead><tr><th>Report ID</th><th>Name</th><th>Category</th><th>Parameters</th><th>Timeout</th><th class="text-right">Actions</th></tr></thead>
+                                <tbody id="reportsTable"><tr><td colspan="6" class="empty-row">No reports registered</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -840,7 +840,16 @@
                                     </select>
                                 </div>
                             </div>
-                            <button class="btn btn-primary" onclick="ReportsModule.runSelectedReport()">▶ Run Report</button>
+                            
+                            <!-- Dynamic Parameters Section -->
+                            <div id="reportParamsSection" style="display: none; margin-top: 1rem;">
+                                <div class="form-label" style="margin-bottom: 0.5rem;">Parameters</div>
+                                <div class="form-grid" id="reportParamsGrid">
+                                    <!-- Parameters will be dynamically inserted here -->
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary" onclick="ReportsModule.runSelectedReport()" style="margin-top: 1rem;">▶ Run Report</button>
                             
                             <!-- Output Panel -->
                             <div id="reportOutputPanel" style="margin-top: 1rem; display: none;">
@@ -869,6 +878,13 @@
                                 <div class="form-group"><div class="form-label">Category</div><input type="text" class="form-input" id="reportCategory" placeholder="Database" value="General"></div>
                                 <div class="form-group"><div class="form-label">Timeout (sec)</div><input type="number" class="form-input" id="reportTimeout" value="300" min="1" max="3600"></div>
                                 <div class="form-group full"><div class="form-label">Description</div><input type="text" class="form-input" id="reportDescription" placeholder="What this report checks"></div>
+                                <div class="form-group full">
+                                    <div class="form-label">Parameters <span style="font-weight: normal; color: var(--text-muted);">(JSON array, optional)</span></div>
+                                    <textarea class="form-input" id="reportParams" rows="3" placeholder='[{"name": "start_date", "label": "Start Date", "type": "date", "required": true}, {"name": "env", "label": "Environment", "type": "select", "options": ["PROD", "DEV", "QA"], "default": "PROD"}]'></textarea>
+                                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">
+                                        Types: text, number, date, select, checkbox. Fields: name, label, type, required, default, options (for select), placeholder
+                                    </div>
+                                </div>
                             </div>
                             <button class="btn btn-primary" onclick="ReportsModule.registerReport()">Register Report</button>
                         </div>
@@ -1566,23 +1582,24 @@
             if (e.target.id === 'denyModal') closeDenyModal();
         });
 
+
         // ====================================================================
-        // Reports Module - Simple table/dropdown version
+        // Reports Module - With Parameters Support
         // ====================================================================
         const ReportsModule = (function() {
             let reportScripts = [];
             let currentRunId = null;
             let outputSocket = null;
             let initialized = false;
+            let selectedReportParams = [];
 
             function init() {
-                console.log('ReportsModule.init called, initialized:', initialized);
+                console.log('ReportsModule.init called');
                 loadScripts();
                 renderAgentDropdown();
                 initialized = true;
             }
 
-            // Load registered report scripts
             async function loadScripts() {
                 console.log('ReportsModule.loadScripts called');
                 try {
@@ -1596,10 +1613,10 @@
                     updateKPIs();
                     const badge = document.getElementById('tabBadgeReports');
                     if (badge) badge.textContent = reportScripts.length;
-                    addLog(`Loaded ${reportScripts.length} report scripts`, 'success');
+                    addLog('Loaded ' + reportScripts.length + ' report scripts', 'success');
                 } catch (error) {
                     console.error('Error loading report scripts:', error);
-                    addLog('Reports API not available - register reports after adding the API endpoint', 'info');
+                    addLog('Reports API not available', 'info');
                     reportScripts = [];
                     renderReportsTable();
                     renderReportDropdown();
@@ -1616,30 +1633,30 @@
 
             function renderReportsTable() {
                 const tbody = document.getElementById('reportsTable');
-                if (!tbody) { console.error('reportsTable not found'); return; }
-                
+                if (!tbody) return;
                 if (reportScripts.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="empty-row">No reports registered. Use the form below to register reports.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-row">No reports registered. Use the form below to register reports.</td></tr>';
                     return;
                 }
                 tbody.innerHTML = reportScripts.map(r => {
                     const id = r.script_id || r.id;
-                    return `<tr>
-                        <td><span style="font-family: monospace; color: var(--sky-400);">${escapeHtml(id)}</span></td>
-                        <td>${escapeHtml(r.name || id)}</td>
-                        <td><span class="badge" style="background: var(--slate-bg-80); border-color: var(--slate-500-50);">${escapeHtml(r.category || 'General')}</span></td>
-                        <td style="font-size: 11px;">${r.timeout || 300}s</td>
-                        <td class="text-right">
-                            <button class="action-btn action-btn-primary" onclick="ReportsModule.quickRun('${escapeHtml(id)}')">▶ Run</button>
-                        </td>
-                    </tr>`;
+                    const params = r.parameters || [];
+                    const paramCount = params.length;
+                    const paramNames = params.map(p => p.name).join(', ');
+                    return '<tr>' +
+                        '<td><span style="font-family: monospace; color: var(--sky-400);">' + escapeHtml(id) + '</span></td>' +
+                        '<td>' + escapeHtml(r.name || id) + '</td>' +
+                        '<td><span class="badge" style="background: var(--slate-bg-80); border-color: var(--slate-500-50);">' + escapeHtml(r.category || 'General') + '</span></td>' +
+                        '<td style="font-size: 11px;">' + (paramCount > 0 ? '<span title="' + escapeHtml(paramNames) + '" style="color: var(--emerald-200);">' + paramCount + ' param' + (paramCount > 1 ? 's' : '') + '</span>' : '<span style="color: var(--text-muted);">none</span>') + '</td>' +
+                        '<td style="font-size: 11px;">' + (r.timeout || 300) + 's</td>' +
+                        '<td class="text-right"><button class="action-btn action-btn-primary" onclick="ReportsModule.quickRun(\'' + escapeHtml(id) + '\')">▶ Run</button></td>' +
+                        '</tr>';
                 }).join('');
             }
 
             function renderReportDropdown() {
                 const select = document.getElementById('reportSelect');
-                if (!select) { console.error('reportSelect not found'); return; }
-                
+                if (!select) return;
                 if (reportScripts.length === 0) {
                     select.innerHTML = '<option value="">-- No reports registered --</option>';
                     return;
@@ -1647,37 +1664,117 @@
                 select.innerHTML = '<option value="">-- Select a report --</option>' + 
                     reportScripts.map(r => {
                         const id = r.script_id || r.id;
-                        return `<option value="${escapeHtml(id)}">${escapeHtml(r.name || id)} (${escapeHtml(r.category || 'General')})</option>`;
+                        const paramCount = (r.parameters || []).length;
+                        const paramHint = paramCount > 0 ? ' [' + paramCount + ' params]' : '';
+                        return '<option value="' + escapeHtml(id) + '">' + escapeHtml(r.name || id) + ' (' + escapeHtml(r.category || 'General') + ')' + paramHint + '</option>';
                     }).join('');
             }
 
             function renderAgentDropdown() {
                 const select = document.getElementById('reportAgentSelect');
-                if (!select) { console.error('reportAgentSelect not found'); return; }
-                
-                // Use global agents array from main app
+                if (!select) return;
                 const agentList = (typeof agents !== 'undefined') ? agents : [];
-                console.log('renderAgentDropdown - agents available:', agentList.length);
-                
                 if (agentList.length === 0) {
-                    select.innerHTML = '<option value="">-- No agents available (check Agents tab) --</option>';
+                    select.innerHTML = '<option value="">-- No agents available --</option>';
                     return;
                 }
                 select.innerHTML = '<option value="">-- Select agent --</option>' + 
                     agentList.map(a => {
                         const disabled = a.status !== 'online' ? 'disabled' : '';
                         const status = a.status === 'online' ? '🟢' : '🔴';
-                        return `<option value="${escapeHtml(a.agent_name)}" ${disabled}>${status} ${escapeHtml(a.agent_name)} (${escapeHtml(a.host)})</option>`;
+                        return '<option value="' + escapeHtml(a.agent_name) + '" ' + disabled + '>' + status + ' ' + escapeHtml(a.agent_name) + ' (' + escapeHtml(a.host) + ')</option>';
                     }).join('');
             }
 
             function onReportSelect() {
+                const scriptId = document.getElementById('reportSelect').value;
+                const paramsSection = document.getElementById('reportParamsSection');
+                const paramsGrid = document.getElementById('reportParamsGrid');
+                
                 renderAgentDropdown();
+                
+                if (!scriptId) {
+                    paramsSection.style.display = 'none';
+                    selectedReportParams = [];
+                    return;
+                }
+                
+                const report = reportScripts.find(r => (r.script_id || r.id) === scriptId);
+                if (!report) {
+                    paramsSection.style.display = 'none';
+                    selectedReportParams = [];
+                    return;
+                }
+                
+                selectedReportParams = report.parameters || [];
+                
+                if (selectedReportParams.length === 0) {
+                    paramsSection.style.display = 'none';
+                    return;
+                }
+                
+                paramsGrid.innerHTML = selectedReportParams.map(p => {
+                    const required = p.required ? '<span style="color: var(--rose-200);">*</span>' : '';
+                    const inputId = 'param_' + p.name;
+                    let inputHtml = '';
+                    
+                    switch (p.type) {
+                        case 'select':
+                            const options = (p.options || []).map(opt => 
+                                '<option value="' + escapeHtml(opt) + '"' + (opt === p.default ? ' selected' : '') + '>' + escapeHtml(opt) + '</option>'
+                            ).join('');
+                            inputHtml = '<select class="form-input" id="' + inputId + '"' + (p.required ? ' required' : '') + '><option value="">-- Select --</option>' + options + '</select>';
+                            break;
+                        case 'checkbox':
+                            inputHtml = '<label style="display: flex; align-items: center; gap: 8px; cursor: pointer;"><input type="checkbox" id="' + inputId + '"' + (p.default ? ' checked' : '') + ' style="width: 16px; height: 16px; accent-color: var(--sky-400);"><span style="font-size: 12px; color: var(--text-secondary);">' + escapeHtml(p.placeholder || 'Enable') + '</span></label>';
+                            break;
+                        case 'number':
+                            inputHtml = '<input type="number" class="form-input" id="' + inputId + '" value="' + (p.default || '') + '" placeholder="' + escapeHtml(p.placeholder || '') + '"' + (p.min !== undefined ? ' min="' + p.min + '"' : '') + (p.max !== undefined ? ' max="' + p.max + '"' : '') + (p.required ? ' required' : '') + '>';
+                            break;
+                        case 'date':
+                            inputHtml = '<input type="date" class="form-input" id="' + inputId + '" value="' + (p.default || '') + '"' + (p.required ? ' required' : '') + '>';
+                            break;
+                        case 'textarea':
+                            inputHtml = '<textarea class="form-input" id="' + inputId + '" rows="2" placeholder="' + escapeHtml(p.placeholder || '') + '"' + (p.required ? ' required' : '') + '>' + escapeHtml(p.default || '') + '</textarea>';
+                            break;
+                        default:
+                            inputHtml = '<input type="text" class="form-input" id="' + inputId + '" value="' + escapeHtml(p.default || '') + '" placeholder="' + escapeHtml(p.placeholder || '') + '"' + (p.required ? ' required' : '') + '>';
+                    }
+                    
+                    return '<div class="form-group' + (p.type === 'textarea' ? ' full' : '') + '"><div class="form-label">' + escapeHtml(p.label || p.name) + ' ' + required + '</div>' + inputHtml + '</div>';
+                }).join('');
+                
+                paramsSection.style.display = 'block';
+            }
+
+            function collectParameters() {
+                const params = {};
+                for (const p of selectedReportParams) {
+                    const el = document.getElementById('param_' + p.name);
+                    if (!el) continue;
+                    
+                    let value;
+                    if (p.type === 'checkbox') {
+                        value = el.checked;
+                    } else if (p.type === 'number') {
+                        value = el.value ? parseFloat(el.value) : null;
+                    } else {
+                        value = el.value;
+                    }
+                    
+                    if (p.required && (value === '' || value === null || value === undefined)) {
+                        addLog('Parameter "' + (p.label || p.name) + '" is required', 'error');
+                        el.focus();
+                        return null;
+                    }
+                    params[p.name] = value;
+                }
+                return params;
             }
 
             function quickRun(scriptId) {
                 document.getElementById('reportSelect').value = scriptId;
-                renderAgentDropdown();
+                onReportSelect();
                 document.getElementById('reportAgentSelect').focus();
             }
 
@@ -1685,31 +1782,27 @@
                 const scriptId = document.getElementById('reportSelect').value;
                 const targetAgent = document.getElementById('reportAgentSelect').value;
 
-                if (!scriptId) {
-                    addLog('Please select a report', 'error');
-                    return;
-                }
-                if (!targetAgent) {
-                    addLog('Please select a target agent', 'error');
-                    return;
-                }
-                if (currentRunId) {
-                    addLog('A report is already running', 'warning');
-                    return;
-                }
+                if (!scriptId) { addLog('Please select a report', 'error'); return; }
+                if (!targetAgent) { addLog('Please select a target agent', 'error'); return; }
+                if (currentRunId) { addLog('A report is already running', 'warning'); return; }
 
-                // Show output panel
+                const parameters = collectParameters();
+                if (parameters === null) return;
+
                 document.getElementById('reportOutputPanel').style.display = 'block';
                 clearOutput();
-                appendOutput(`[${new Date().toLocaleTimeString()}] Starting report: ${scriptId}\n`, 'info');
-                appendOutput(`[${new Date().toLocaleTimeString()}] Target: ${targetAgent}\n`, 'info');
+                appendOutput('[' + new Date().toLocaleTimeString() + '] Starting report: ' + scriptId + '\n', 'info');
+                appendOutput('[' + new Date().toLocaleTimeString() + '] Target: ' + targetAgent + '\n', 'info');
+                if (Object.keys(parameters).length > 0) {
+                    appendOutput('[' + new Date().toLocaleTimeString() + '] Parameters: ' + JSON.stringify(parameters) + '\n', 'info');
+                }
                 appendOutput('─'.repeat(50) + '\n', 'dim');
 
                 try {
-                    const response = await fetch(`/api/reports/run/${scriptId}`, {
+                    const response = await fetch('/api/reports/run/' + scriptId, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ target: targetAgent, parameters: {} })
+                        body: JSON.stringify({ target: targetAgent, parameters: parameters })
                     });
 
                     if (!response.ok) {
@@ -1719,86 +1812,51 @@
 
                     const result = await response.json();
                     currentRunId = result.run_id;
-                    appendOutput(`[${new Date().toLocaleTimeString()}] Run ID: ${currentRunId}\n`, 'info');
-                    addLog(`Report ${scriptId} started on ${targetAgent}`, 'success');
-
-                    // Connect to WebSocket for streaming
+                    appendOutput('[' + new Date().toLocaleTimeString() + '] Run ID: ' + currentRunId + '\n', 'info');
+                    addLog('Report ' + scriptId + ' started on ' + targetAgent, 'success');
                     connectToOutputStream(currentRunId);
-
                 } catch (error) {
-                    appendOutput(`\n[ERROR] ${error.message}\n`, 'error');
+                    appendOutput('\n[ERROR] ' + error.message + '\n', 'error');
                     addLog('Report failed: ' + error.message, 'error');
                 }
             }
 
             function connectToOutputStream(runId) {
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const wsUrl = `${protocol}//${window.location.host}/api/reports/ws/${runId}`;
-                
+                const wsUrl = protocol + '//' + window.location.host + '/api/reports/ws/' + runId;
                 try {
                     outputSocket = new WebSocket(wsUrl);
-
-                    outputSocket.onopen = () => {
-                        appendOutput(`[Connected to output stream]\n`, 'dim');
-                    };
-
+                    outputSocket.onopen = () => { appendOutput('[Connected]\n', 'dim'); };
                     outputSocket.onmessage = (event) => {
                         try {
                             const msg = JSON.parse(event.data);
-                            if (msg.type === 'output') {
-                                appendOutput(msg.data);
-                            } else if (msg.type === 'complete') {
-                                handleComplete(msg);
-                            } else if (msg.type === 'error') {
-                                appendOutput(`\n[ERROR] ${msg.message}\n`, 'error');
-                                handleComplete({ status: 'failed' });
-                            }
-                        } catch (e) {
-                            if (event.data !== 'pong') {
-                                appendOutput(event.data);
-                            }
-                        }
+                            if (msg.type === 'output') appendOutput(msg.data);
+                            else if (msg.type === 'complete') handleComplete(msg);
+                            else if (msg.type === 'error') { appendOutput('\n[ERROR] ' + msg.message + '\n', 'error'); handleComplete({ status: 'failed' }); }
+                        } catch (e) { if (event.data !== 'pong') appendOutput(event.data); }
                     };
-
-                    outputSocket.onclose = () => {
-                        if (currentRunId) {
-                            handleComplete({ status: 'disconnected' });
-                        }
-                    };
-
-                    outputSocket.onerror = () => {
-                        appendOutput(`\n[WebSocket error]\n`, 'error');
-                    };
-
-                    // Keep alive
+                    outputSocket.onclose = () => { if (currentRunId) handleComplete({ status: 'disconnected' }); };
+                    outputSocket.onerror = () => { appendOutput('\n[WebSocket error]\n', 'error'); };
                     const pingInterval = setInterval(() => {
-                        if (outputSocket && outputSocket.readyState === WebSocket.OPEN) {
-                            outputSocket.send('ping');
-                        } else {
-                            clearInterval(pingInterval);
-                        }
+                        if (outputSocket && outputSocket.readyState === WebSocket.OPEN) outputSocket.send('ping');
+                        else clearInterval(pingInterval);
                     }, 25000);
-                } catch (e) {
-                    appendOutput(`\n[Failed to connect to output stream]\n`, 'error');
-                }
+                } catch (e) { appendOutput('\n[Failed to connect]\n', 'error'); }
             }
 
             function handleComplete(msg) {
                 appendOutput('\n' + '─'.repeat(50) + '\n', 'dim');
                 if (msg.status === 'completed') {
-                    appendOutput(`[${new Date().toLocaleTimeString()}] ✓ Report completed`, 'success');
-                    if (msg.exit_code !== undefined) appendOutput(` (exit code: ${msg.exit_code})`, 'success');
+                    appendOutput('[' + new Date().toLocaleTimeString() + '] ✓ Report completed', 'success');
+                    if (msg.exit_code !== undefined) appendOutput(' (exit code: ' + msg.exit_code + ')', 'success');
                     appendOutput('\n', 'success');
                     addLog('Report completed successfully', 'success');
                 } else {
-                    appendOutput(`[${new Date().toLocaleTimeString()}] ✗ Report ${msg.status}\n`, 'error');
+                    appendOutput('[' + new Date().toLocaleTimeString() + '] ✗ Report ' + msg.status + '\n', 'error');
                     addLog('Report ' + msg.status, 'error');
                 }
                 currentRunId = null;
-                if (outputSocket) {
-                    outputSocket.close();
-                    outputSocket = null;
-                }
+                if (outputSocket) { outputSocket.close(); outputSocket = null; }
             }
 
             async function registerReport() {
@@ -1808,58 +1866,47 @@
                 const category = document.getElementById('reportCategory').value.trim() || 'General';
                 const timeout = parseInt(document.getElementById('reportTimeout').value) || 300;
                 const description = document.getElementById('reportDescription').value.trim();
+                const paramsJson = document.getElementById('reportParams').value.trim();
 
                 if (!scriptId) { addLog('Please enter a Report ID', 'error'); return; }
                 if (!path) { addLog('Please enter a Script Path', 'error'); return; }
-                if (!/^[a-zA-Z0-9_-]+$/.test(scriptId)) { 
-                    addLog('Report ID must contain only letters, numbers, hyphens and underscores', 'error'); 
-                    return; 
+                if (!/^[a-zA-Z0-9_-]+$/.test(scriptId)) { addLog('Report ID must contain only letters, numbers, hyphens and underscores', 'error'); return; }
+
+                let parameters = [];
+                if (paramsJson) {
+                    try {
+                        parameters = JSON.parse(paramsJson);
+                        if (!Array.isArray(parameters)) throw new Error('Must be array');
+                        for (const p of parameters) { if (!p.name) throw new Error('Each param needs "name"'); if (!p.type) p.type = 'text'; }
+                    } catch (e) { addLog('Invalid parameters JSON: ' + e.message, 'error'); return; }
                 }
 
                 try {
                     const response = await fetch('/api/reports/scripts/register', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            script_id: scriptId,
-                            name: name || scriptId,
-                            script_path: path,
-                            category: category,
-                            timeout: timeout,
-                            description: description
-                        })
+                        body: JSON.stringify({ script_id: scriptId, name: name || scriptId, script_path: path, category: category, timeout: timeout, description: description, parameters: parameters })
                     });
-
-                    if (!response.ok) {
-                        const err = await response.json().catch(() => ({}));
-                        throw new Error(err.detail || 'Failed to register');
-                    }
-
-                    addLog(`Report '${scriptId}' registered successfully`, 'success');
-                    
-                    // Clear form
+                    if (!response.ok) { const err = await response.json().catch(() => ({})); throw new Error(err.detail || 'Failed'); }
+                    addLog('Report "' + scriptId + '" registered', 'success');
                     document.getElementById('reportId').value = '';
                     document.getElementById('reportName').value = '';
                     document.getElementById('reportPath').value = '';
                     document.getElementById('reportCategory').value = 'General';
                     document.getElementById('reportTimeout').value = '300';
                     document.getElementById('reportDescription').value = '';
-                    
-                    // Reload
+                    document.getElementById('reportParams').value = '';
                     loadScripts();
-
-                } catch (error) {
-                    addLog('Failed to register report: ' + error.message, 'error');
-                }
+                } catch (error) { addLog('Failed to register: ' + error.message, 'error'); }
             }
 
-            function appendOutput(text, className = '') {
+            function appendOutput(text, className) {
                 const panel = document.getElementById('report-output');
                 if (!panel) return;
                 const placeholder = panel.querySelector('.output-placeholder');
                 if (placeholder) placeholder.remove();
                 const span = document.createElement('span');
-                if (className) span.className = `output-${className}`;
+                if (className) span.className = 'output-' + className;
                 span.textContent = text;
                 panel.appendChild(span);
                 panel.scrollTop = panel.scrollHeight;
@@ -1872,21 +1919,12 @@
 
             function copyOutput() {
                 const panel = document.getElementById('report-output');
-                if (panel) {
-                    navigator.clipboard.writeText(panel.textContent).then(() => addLog('Output copied', 'success'));
-                }
+                if (panel) navigator.clipboard.writeText(panel.textContent).then(() => addLog('Output copied', 'success'));
             }
 
-            // Called by main app after agents load
-            function refreshAgents() {
-                console.log('ReportsModule.refreshAgents called');
-                renderAgentDropdown();
-            }
+            function refreshAgents() { renderAgentDropdown(); }
 
-            return {
-                init, loadScripts, registerReport, runSelectedReport, quickRun,
-                onReportSelect, clearOutput, copyOutput, refreshAgents
-            };
+            return { init, loadScripts, registerReport, runSelectedReport, quickRun, onReportSelect, clearOutput, copyOutput, refreshAgents };
         })();
     </script>
 </body>
