@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -927,8 +926,8 @@
                         </div>
                     </div>
 
-                    <!-- Register Report Section -->
-                    <div class="tab-section">
+                    <!-- Register Report Section (Admin Only) -->
+                    <div class="tab-section" id="registerReportSection">
                         <div class="form-section" style="margin-top: 0;">
                             <div class="form-title">Register New Report</div>
                             <div class="form-grid">
@@ -1222,6 +1221,12 @@
             const scriptsTab = document.getElementById('tabBtnScripts');
             if (scriptsTab) {
                 scriptsTab.style.display = hasRole('admin') ? '' : 'none';
+            }
+            
+            // Register Report section - Admin only
+            const registerReportSection = document.getElementById('registerReportSection');
+            if (registerReportSection) {
+                registerReportSection.style.display = hasRole('admin') ? '' : 'none';
             }
             
             // Activity Log footer - Admin, Approver, Operator only
