@@ -1,3 +1,881 @@
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/bin/hypercorn", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/__main__.py", line 225, in main
+    config = _load_config(args.config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/__main__.py", line 22, in _load_config
+    return Config.from_toml(config_path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/config.py", line 372, in from_toml
+    with open(file_path, "rb") as file_:
+         ^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/hypercorn.toml'
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/bin/hypercorn", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/__main__.py", line 225, in main
+    config = _load_config(args.config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/__main__.py", line 22, in _load_config
+    return Config.from_toml(config_path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/config.py", line 372, in from_toml
+    with open(file_path, "rb") as file_:
+         ^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/hypercorn.toml'
+Process SpawnProcess-1:
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/utils.py", line 99, in load_application
+    module = import_module(import_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/python3.12/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1324, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'main'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/python3.12/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/python3.12/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/asyncio/run.py", line 186, in asyncio_worker
+    app = load_application(config.application_path, config.wsgi_max_body_size)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/utils.py", line 102, in load_application
+    raise NoAppError(f"Cannot load application from '{path}', module not found.")
+hypercorn.utils.NoAppError: Cannot load application from 'main:app', module not found.
+2025-12-15 12:45:51,219 - main - INFO - ============================================================
+2025-12-15 12:45:51,219 - main - INFO - Orchestration System API Starting
+2025-12-15 12:45:51,219 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-15 12:45:51,219 - main - INFO - Server: Hypercorn with TLS
+2025-12-15 12:45:51,219 - main - INFO - ============================================================
+[2025-12-15 12:45:51 -0500] [689383] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 12:45:51,314 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 12:45:55,592 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-15 12:46:38,020 - main - INFO - ============================================================
+2025-12-15 12:46:38,020 - main - INFO - Orchestration System API Starting
+2025-12-15 12:46:38,020 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-15 12:46:38,020 - main - INFO - Server: Hypercorn with TLS
+2025-12-15 12:46:38,020 - main - INFO - ============================================================
+[2025-12-15 12:46:38 -0500] [690162] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 12:46:38,112 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 12:46:55,040 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-15 12:46:55,040 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-15 12:46:55,051 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=viewer
+2025-12-15 12:46:55,069 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-15 12:46:55,069 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-15 13:51:23,276 - main - INFO - ============================================================
+2025-12-15 13:51:23,276 - main - INFO - Orchestration System API Starting
+2025-12-15 13:51:23,276 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-15 13:51:23,276 - main - INFO - Server: Hypercorn with TLS
+2025-12-15 13:51:23,276 - main - INFO - ============================================================
+[2025-12-15 13:51:23 -0500] [744575] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 13:51:23,370 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 13:51:30,284 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-15 13:51:50,722 - controller.deps - INFO - Admin access granted to Rajesh Mudiganti via smartcard
+2025-12-15 13:51:50,743 - controller.routes.scripts - INFO - === Script Execution: hello ===
+2025-12-15 13:51:50,743 - controller.routes.scripts - INFO - Targets: ['ds-d1-ebs-01']
+2025-12-15 13:51:58,321 - controller.deps - INFO - Admin access granted to Rajesh Mudiganti via smartcard
+2025-12-15 13:51:58,339 - controller.routes.scripts - INFO - === Script Execution: createRP ===
+2025-12-15 13:51:58,339 - controller.routes.scripts - INFO - Targets: ['ds-d1-ebs-01']
+2025-12-15 13:51:58,352 - controller.routes.scripts - INFO - Executing on ds-d1-ebs-01 (ds-d1-ebs-01.ba.ssa.gov:7615)
+2025-12-15 13:51:58,353 - controller.routes.scripts - INFO - [SSL] Connecting to agent: https://ds-d1-ebs-01.ba.ssa.gov:7615/execute (verify=False)
+2025-12-15 13:52:00,706 - httpx - INFO - HTTP Request: POST https://ds-d1-ebs-01.ba.ssa.gov:7615/execute "HTTP/1.1 200 OK"
+2025-12-15 13:52:00,706 - controller.routes.scripts - INFO - ✅ ds-d1-ebs-01: exit_code=0
+2025-12-15 13:52:43,794 - controller.deps - INFO - Admin access granted to Rajesh Mudiganti via smartcard
+2025-12-15 13:52:43,815 - controller.routes.scripts - INFO - === Script Execution: CheckPasswords ===
+2025-12-15 13:52:43,815 - controller.routes.scripts - INFO - Targets: ['ds-d1-ebs-01', 'ds-d2-ebs-01']
+2025-12-15 13:52:43,838 - controller.routes.scripts - INFO - Executing on ds-d1-ebs-01 (ds-d1-ebs-01.ba.ssa.gov:7615)
+2025-12-15 13:52:43,838 - controller.routes.scripts - INFO - [SSL] Connecting to agent: https://ds-d1-ebs-01.ba.ssa.gov:7615/execute (verify=False)
+2025-12-15 13:52:45,193 - httpx - INFO - HTTP Request: POST https://ds-d1-ebs-01.ba.ssa.gov:7615/execute "HTTP/1.1 200 OK"
+2025-12-15 13:52:45,195 - controller.routes.scripts - INFO - ✅ ds-d1-ebs-01: exit_code=0
+2025-12-15 13:52:45,195 - controller.routes.scripts - INFO - Executing on ds-d2-ebs-01 (ds-d2-ebs-01.ba.ssa.gov:7615)
+2025-12-15 13:52:45,195 - controller.routes.scripts - INFO - [SSL] Connecting to agent: https://ds-d2-ebs-01.ba.ssa.gov:7615/execute (verify=False)
+2025-12-15 13:53:13,845 - controller.deps - INFO - Admin access granted to Rajesh Mudiganti via smartcard
+2025-12-15 13:53:16,354 - controller.routes.scripts - ERROR - [SSL] HTTP Error: ConnectError: 
+2025-12-15 13:53:16,354 - controller.routes.scripts - ERROR - ❌ ds-d2-ebs-01: 502 - Agent communication error: 
+2025-12-15 14:00:26,413 - controller.db.db - INFO - Workflow created: wf_2ced408000df
+2025-12-15 14:00:26,431 - controller.routes.workflows - INFO - Workflow created: wf_2ced408000df
+2025-12-15 14:12:25,074 - controller.deps - INFO - Approver access granted to Rajesh Mudiganti via smartcard
+2025-12-15 14:12:25,137 - controller.routes.workflows - INFO - Workflow approved: wf_2ced408000df
+2025-12-15 14:12:30,022 - controller.deps - INFO - Admin access granted to Rajesh Mudiganti via smartcard
+2025-12-15 14:12:30,043 - controller.routes.scripts - INFO - === Script Execution: CheckPasswords ===
+2025-12-15 14:12:30,043 - controller.routes.scripts - INFO - Targets: ['ds-d1-ebs-01']
+2025-12-15 14:12:30,059 - controller.routes.scripts - INFO - Executing on ds-d1-ebs-01 (ds-d1-ebs-01.ba.ssa.gov:7615)
+2025-12-15 14:12:30,059 - controller.routes.scripts - INFO - [SSL] Connecting to agent: https://ds-d1-ebs-01.ba.ssa.gov:7615/execute (verify=False)
+2025-12-15 14:12:31,473 - httpx - INFO - HTTP Request: POST https://ds-d1-ebs-01.ba.ssa.gov:7615/execute "HTTP/1.1 200 OK"
+2025-12-15 14:12:31,474 - controller.routes.scripts - INFO - ✅ ds-d1-ebs-01: exit_code=0
+2025-12-15 14:20:15,686 - controller.db.db - INFO - Workflow created: wf_e21e6bf4a015
+2025-12-15 14:20:15,705 - controller.routes.workflows - INFO - Workflow created: wf_e21e6bf4a015
+2025-12-15 14:20:47,587 - controller.deps - INFO - Approver access granted to Rajesh Mudiganti via smartcard
+2025-12-15 14:20:47,644 - controller.routes.workflows - INFO - Workflow approved: wf_e21e6bf4a015
+2025-12-15 14:20:51,722 - controller.deps - INFO - Admin access granted to Rajesh Mudiganti via smartcard
+2025-12-15 14:20:51,744 - controller.routes.scripts - INFO - === Script Execution: createRP ===
+2025-12-15 14:20:51,744 - controller.routes.scripts - INFO - Targets: ['ds-d1-ebs-01']
+2025-12-15 14:20:51,761 - controller.routes.scripts - INFO - Executing on ds-d1-ebs-01 (ds-d1-ebs-01.ba.ssa.gov:7615)
+2025-12-15 14:20:51,761 - controller.routes.scripts - INFO - [SSL] Connecting to agent: https://ds-d1-ebs-01.ba.ssa.gov:7615/execute (verify=False)
+2025-12-15 14:20:53,984 - httpx - INFO - HTTP Request: POST https://ds-d1-ebs-01.ba.ssa.gov:7615/execute "HTTP/1.1 200 OK"
+2025-12-15 14:20:53,984 - controller.routes.scripts - INFO - ✅ ds-d1-ebs-01: exit_code=0
+2025-12-15 15:03:28,452 - main - INFO - ============================================================
+2025-12-15 15:03:28,452 - main - INFO - Orchestration System API Starting
+2025-12-15 15:03:28,452 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-15 15:03:28,452 - main - INFO - Server: Hypercorn with TLS
+2025-12-15 15:03:28,452 - main - INFO - ============================================================
+[2025-12-15 15:03:28 -0500] [805719] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 15:03:28,547 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 15:03:35,855 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-15 15:04:34,510 - controller.db.db - INFO - Workflow created: wf_70f795fc2bef
+2025-12-15 15:04:34,529 - controller.routes.workflows - INFO - Workflow created: wf_70f795fc2bef
+2025-12-15 15:04:40,545 - controller.deps - INFO - Approver access granted to Rajesh Mudiganti via smartcard
+2025-12-15 15:04:40,603 - controller.routes.workflows - INFO - Workflow approved: wf_70f795fc2bef
+2025-12-15 15:31:24,946 - main - INFO - ============================================================
+2025-12-15 15:31:24,946 - main - INFO - Orchestration System API Starting
+2025-12-15 15:31:24,946 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-15 15:31:24,946 - main - INFO - Server: Hypercorn with TLS
+2025-12-15 15:31:24,946 - main - INFO - ============================================================
+[2025-12-15 15:31:25 -0500] [829116] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 15:31:25,042 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 15:31:31,349 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-15 15:31:47,168 - controller.deps - INFO - Admin access granted to Rajesh Mudiganti via smartcard
+2025-12-15 15:31:47,187 - controller.routes.scripts - INFO - === Script Execution: createRP ===
+2025-12-15 15:31:47,187 - controller.routes.scripts - INFO - Targets: ['ds-d1-ebs-01']
+2025-12-15 15:31:47,201 - controller.routes.scripts - INFO - Executing on ds-d1-ebs-01 (ds-d1-ebs-01.ba.ssa.gov:7615)
+2025-12-15 15:31:47,201 - controller.routes.scripts - INFO - [SSL] Connecting to agent: https://ds-d1-ebs-01.ba.ssa.gov:7615/execute (verify=False)
+2025-12-15 15:31:49,358 - httpx - INFO - HTTP Request: POST https://ds-d1-ebs-01.ba.ssa.gov:7615/execute "HTTP/1.1 200 OK"
+2025-12-15 15:31:49,359 - controller.routes.scripts - INFO - ✅ ds-d1-ebs-01: exit_code=0
+2025-12-15 15:32:57,611 - controller.db.db - INFO - Workflow created: wf_bbd012416cb0
+2025-12-15 15:32:57,631 - controller.routes.workflows - INFO - Workflow created: wf_bbd012416cb0
+2025-12-15 15:32:57,631 - controller.routes.workflows - INFO - [EMAIL] notify_email=, requestor_email=, EMAIL_ENABLED=True
+2025-12-15 15:37:13,087 - main - INFO - ============================================================
+2025-12-15 15:37:13,087 - main - INFO - Orchestration System API Starting
+2025-12-15 15:37:13,087 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-15 15:37:13,087 - main - INFO - Server: Hypercorn with TLS
+2025-12-15 15:37:13,087 - main - INFO - ============================================================
+[2025-12-15 15:37:13 -0500] [834214] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 15:37:13,179 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 15:37:14,127 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-15 15:39:05,880 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-15 15:39:05,887 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=viewer
+2025-12-15 15:39:05,906 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-15 15:39:05,906 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-15 15:39:05,939 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-15 15:39:05,946 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=viewer
+2025-12-15 15:39:05,962 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-15 15:39:05,962 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-15 15:40:03,425 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-15 15:40:03,431 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=viewer
+2025-12-15 15:40:03,449 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-15 15:40:03,449 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-15 15:41:54,802 - controller.deps - INFO - Approver access granted to Rajesh Mudiganti via smartcard
+2025-12-15 15:41:54,860 - controller.routes.workflows - INFO - Workflow approved: wf_bbd012416cb0
+2025-12-15 15:42:49,938 - controller.db.db - INFO - Workflow created: wf_2336e73fed99
+2025-12-15 15:42:49,958 - controller.routes.workflows - INFO - Workflow created: wf_2336e73fed99
+2025-12-15 15:42:49,958 - controller.routes.workflows - INFO - [EMAIL] notify_email=rajesh.mudiganti@ssa.gov, requestor_email=rajesh.mudiganti@ssa.gov, EMAIL_ENABLED=True
+2025-12-15 15:42:49,958 - controller.routes.workflows - INFO - [EMAIL] Attempting to send approval notification to rajesh.mudiganti@ssa.gov
+2025-12-15 15:42:50,114 - controller.emailer - INFO - Email sent to rajesh.mudiganti@ssa.gov: [Action Required] Workflow Approval: SecondAgent - Rajesh Mudiganti (affiliate)
+2025-12-15 15:42:50,115 - controller.routes.workflows - INFO - [EMAIL] send_email returned: True
+2025-12-15 15:42:50,115 - controller.routes.workflows - INFO - Approval notification sent to rajesh.mudiganti@ssa.gov for workflow wf_2336e73fed99
+2025-12-15 17:41:55,287 - main - INFO - ============================================================
+2025-12-15 17:41:55,287 - main - INFO - Orchestration System API Starting
+2025-12-15 17:41:55,287 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-15 17:41:55,287 - main - INFO - Server: Hypercorn with TLS
+2025-12-15 17:41:55,287 - main - INFO - ============================================================
+[2025-12-15 17:41:55 -0500] [937455] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 17:41:55,381 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 17:42:11,387 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-15 17:42:23,953 - controller.deps - INFO - Approver access granted to Rajesh Mudiganti via smartcard
+2025-12-15 17:42:24,017 - controller.routes.workflows - INFO - Workflow approved: wf_2336e73fed99
+2025-12-15 17:42:24,018 - controller.emailer - INFO - [DRY RUN] Email would be sent:
+2025-12-15 17:42:24,018 - controller.emailer - INFO -   To: rajesh.mudiganti@ssa.gov
+2025-12-15 17:42:24,018 - controller.emailer - INFO -   CC: None
+2025-12-15 17:42:24,018 - controller.emailer - INFO -   Subject: [Approved] Workflow Ready: SecondAgent
+2025-12-15 17:42:24,018 - controller.emailer - INFO -   From: orchestration@localhost
+2025-12-15 17:42:24,018 - controller.emailer - INFO -   Reply-To: None
+2025-12-15 17:42:24,018 - controller.routes.workflows - INFO - Approval notification sent to rajesh.mudiganti@ssa.gov for workflow wf_2336e73fed99
+2025-12-15 17:55:31,808 - controller.db.db - INFO - Workflow created: wf_accb1f184f83
+2025-12-15 17:55:31,826 - controller.routes.workflows - INFO - Workflow created: wf_accb1f184f83
+2025-12-15 17:55:31,826 - controller.routes.workflows - INFO - [EMAIL] notify_email=rajesh.mudiganti@ssa.gov, requestor_email=rajesh.mudiganti@ssa.gov, EMAIL_ENABLED=True
+2025-12-15 17:55:31,826 - controller.routes.workflows - INFO - [EMAIL] Attempting to send approval notification to rajesh.mudiganti@ssa.gov
+2025-12-15 17:55:31,826 - controller.emailer - INFO - [DRY RUN] Email would be sent:
+2025-12-15 17:55:31,826 - controller.emailer - INFO -   To: rajesh.mudiganti@ssa.gov
+2025-12-15 17:55:31,826 - controller.emailer - INFO -   CC: None
+2025-12-15 17:55:31,826 - controller.emailer - INFO -   Subject: [Action Required] Workflow Approval: hello - Rajesh Mudiganti (affiliate)
+2025-12-15 17:55:31,826 - controller.emailer - INFO -   From: orchestration@localhost
+2025-12-15 17:55:31,826 - controller.emailer - INFO -   Reply-To: None
+2025-12-15 17:55:31,826 - controller.routes.workflows - INFO - [EMAIL] send_email returned: True
+2025-12-15 17:55:31,826 - controller.routes.workflows - INFO - Approval notification sent to rajesh.mudiganti@ssa.gov for workflow wf_accb1f184f83
+2025-12-15 17:56:24,611 - main - INFO - ============================================================
+2025-12-15 17:56:24,611 - main - INFO - Orchestration System API Starting
+2025-12-15 17:56:24,611 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-15 17:56:24,611 - main - INFO - Server: Hypercorn with TLS
+2025-12-15 17:56:24,611 - main - INFO - ============================================================
+[2025-12-15 17:56:24 -0500] [949641] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 17:56:24,705 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 17:56:44,963 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-15 17:59:18,914 - controller.deps - INFO - Approver access granted to Rajesh Mudiganti via smartcard
+2025-12-15 17:59:18,956 - controller.routes.workflows - INFO - Workflow denied: wf_accb1f184f83 by Rajesh Mudiganti (affiliate)
+2025-12-15 17:59:18,956 - controller.emailer - INFO - [DRY RUN] Email would be sent:
+2025-12-15 17:59:18,956 - controller.emailer - INFO -   To: rajesh.mudiganti@ssa.gov
+2025-12-15 17:59:18,956 - controller.emailer - INFO -   CC: None
+2025-12-15 17:59:18,956 - controller.emailer - INFO -   Subject: [Denied] Workflow Request: hello
+2025-12-15 17:59:18,956 - controller.emailer - INFO -   From: facti@ds-d1-ebs-01.ba.ssa.gov
+2025-12-15 17:59:18,956 - controller.emailer - INFO -   Reply-To: None
+2025-12-15 17:59:18,956 - controller.routes.workflows - INFO - Denial notification sent to rajesh.mudiganti@ssa.gov for workflow wf_accb1f184f83
+2025-12-15 17:59:27,329 - controller.deps - INFO - Admin access granted to Rajesh Mudiganti via smartcard
+2025-12-15 17:59:27,347 - controller.routes.scripts - INFO - === Script Execution: SecondAgent ===
+2025-12-15 17:59:27,347 - controller.routes.scripts - INFO - Targets: ['ds-d1-ebs-01']
+2025-12-15 18:00:20,511 - controller.db.db - INFO - Workflow created: wf_4f05f888f23c
+2025-12-15 18:00:20,530 - controller.routes.workflows - INFO - Workflow created: wf_4f05f888f23c
+2025-12-15 18:00:20,530 - controller.routes.workflows - INFO - [EMAIL] notify_email=rajesh.mudiganti@ssa.gov, requestor_email=rajesh.mudiganti@ssa.gov, EMAIL_ENABLED=True
+2025-12-15 18:00:20,530 - controller.routes.workflows - INFO - [EMAIL] Attempting to send approval notification to rajesh.mudiganti@ssa.gov
+2025-12-15 18:00:20,530 - controller.emailer - INFO - [DRY RUN] Email would be sent:
+2025-12-15 18:00:20,530 - controller.emailer - INFO -   To: rajesh.mudiganti@ssa.gov
+2025-12-15 18:00:20,530 - controller.emailer - INFO -   CC: None
+2025-12-15 18:00:20,530 - controller.emailer - INFO -   Subject: [Action Required] Workflow Approval: SecondAgent - Rajesh Mudiganti (affiliate)
+2025-12-15 18:00:20,530 - controller.emailer - INFO -   From: facti@ds-d1-ebs-01.ba.ssa.gov
+2025-12-15 18:00:20,530 - controller.emailer - INFO -   Reply-To: None
+2025-12-15 18:00:20,530 - controller.routes.workflows - INFO - [EMAIL] send_email returned: True
+2025-12-15 18:00:20,530 - controller.routes.workflows - INFO - Approval notification sent to rajesh.mudiganti@ssa.gov for workflow wf_4f05f888f23c
+2025-12-15 18:08:00,485 - controller.deps - INFO - Approver access granted to Rajesh Mudiganti via smartcard
+2025-12-15 18:08:00,518 - controller.routes.workflows - INFO - Workflow denied: wf_4f05f888f23c by Rajesh Mudiganti (affiliate)
+2025-12-15 18:08:00,518 - controller.emailer - INFO - [DRY RUN] Email would be sent:
+2025-12-15 18:08:00,518 - controller.emailer - INFO -   To: rajesh.mudiganti@ssa.gov
+2025-12-15 18:08:00,518 - controller.emailer - INFO -   CC: None
+2025-12-15 18:08:00,518 - controller.emailer - INFO -   Subject: [Denied] Workflow Request: SecondAgent
+2025-12-15 18:08:00,518 - controller.emailer - INFO -   From: facti@ds-d1-ebs-01.ba.ssa.gov
+2025-12-15 18:08:00,518 - controller.emailer - INFO -   Reply-To: None
+2025-12-15 18:08:00,518 - controller.routes.workflows - INFO - Denial notification sent to rajesh.mudiganti@ssa.gov for workflow wf_4f05f888f23c
+2025-12-15 18:08:27,523 - controller.db.db - INFO - Workflow created: wf_b92fb0353ace
+2025-12-15 18:08:27,542 - controller.routes.workflows - INFO - Workflow created: wf_b92fb0353ace
+2025-12-15 18:08:27,542 - controller.routes.workflows - INFO - [EMAIL] notify_email=rajesh.mudiganti@ssa.gov, requestor_email=rajesh.mudiganti@ssa.gov, EMAIL_ENABLED=True
+2025-12-15 18:08:27,542 - controller.routes.workflows - INFO - [EMAIL] Attempting to send approval notification to rajesh.mudiganti@ssa.gov
+2025-12-15 18:08:27,543 - controller.emailer - INFO - [DRY RUN] Email would be sent:
+2025-12-15 18:08:27,543 - controller.emailer - INFO -   To: rajesh.mudiganti@ssa.gov
+2025-12-15 18:08:27,543 - controller.emailer - INFO -   CC: None
+2025-12-15 18:08:27,543 - controller.emailer - INFO -   Subject: [Action Required] Workflow Approval: createRP - Rajesh Mudiganti (affiliate)
+2025-12-15 18:08:27,543 - controller.emailer - INFO -   From: facti@ds-d1-ebs-01.ba.ssa.gov
+2025-12-15 18:08:27,543 - controller.emailer - INFO -   Reply-To: None
+2025-12-15 18:08:27,543 - controller.routes.workflows - INFO - [EMAIL] send_email returned: True
+2025-12-15 18:08:27,543 - controller.routes.workflows - INFO - Approval notification sent to rajesh.mudiganti@ssa.gov for workflow wf_b92fb0353ace
+2025-12-15 19:21:07,874 - main - INFO - ============================================================
+2025-12-15 19:21:07,874 - main - INFO - Orchestration System API Starting
+2025-12-15 19:21:07,874 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-15 19:21:07,874 - main - INFO - Server: Hypercorn with TLS
+2025-12-15 19:21:07,874 - main - INFO - ============================================================
+[2025-12-15 19:21:07 -0500] [1020044] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 19:21:07,967 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 19:21:16,633 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-15 19:21:30,825 - controller.deps - INFO - Approver access granted to Rajesh Mudiganti via smartcard
+2025-12-15 19:21:30,860 - controller.routes.workflows - INFO - Workflow denied: wf_b92fb0353ace by Rajesh Mudiganti (affiliate)
+2025-12-15 19:21:30,861 - controller.emailer - INFO - [DRY RUN] Email would be sent:
+2025-12-15 19:21:30,861 - controller.emailer - INFO -   To: rajesh.mudiganti@ssa.gov
+2025-12-15 19:21:30,861 - controller.emailer - INFO -   Subject: [Denied] Workflow Request: createRP
+2025-12-15 19:21:30,861 - controller.emailer - INFO -   From: facti@ds-d1-ebs-01.ba.ssa.gov
+2025-12-15 19:21:30,861 - controller.routes.workflows - INFO - Denial notification sent to rajesh.mudiganti@ssa.gov for workflow wf_b92fb0353ace
+2025-12-15 19:21:56,293 - controller.db.db - INFO - Workflow created: wf_e77e8e718d89
+2025-12-15 19:21:56,315 - controller.routes.workflows - INFO - Workflow created: wf_e77e8e718d89
+2025-12-15 19:21:56,315 - controller.routes.workflows - INFO - [EMAIL] notify_email=rajesh.mudiganti@ssa.gov, requestor_email=rajesh.mudiganti@ssa.gov, EMAIL_ENABLED=True
+2025-12-15 19:21:56,315 - controller.routes.workflows - INFO - [EMAIL] Attempting to send approval notification to rajesh.mudiganti@ssa.gov
+2025-12-15 19:21:56,315 - controller.emailer - INFO - [DRY RUN] Email would be sent:
+2025-12-15 19:21:56,315 - controller.emailer - INFO -   To: rajesh.mudiganti@ssa.gov
+2025-12-15 19:21:56,315 - controller.emailer - INFO -   Subject: [Action Required] Workflow Approval: hello - Rajesh Mudiganti (affiliate)
+2025-12-15 19:21:56,315 - controller.emailer - INFO -   From: facti@ds-d1-ebs-01.ba.ssa.gov
+2025-12-15 19:21:56,315 - controller.routes.workflows - INFO - [EMAIL] send_email returned: True
+2025-12-15 19:21:56,315 - controller.routes.workflows - INFO - Approval notification sent to rajesh.mudiganti@ssa.gov for workflow wf_e77e8e718d89
+2025-12-15 19:22:48,686 - main - INFO - ============================================================
+2025-12-15 19:22:48,686 - main - INFO - Orchestration System API Starting
+2025-12-15 19:22:48,686 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-15 19:22:48,686 - main - INFO - Server: Hypercorn with TLS
+2025-12-15 19:22:48,686 - main - INFO - ============================================================
+[2025-12-15 19:22:48 -0500] [1021001] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 19:22:48,781 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 19:22:49,003 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-15 19:22:58,714 - controller.deps - INFO - Approver access granted to Rajesh Mudiganti via smartcard
+2025-12-15 19:22:58,750 - controller.routes.workflows - INFO - Workflow denied: wf_e77e8e718d89 by Rajesh Mudiganti (affiliate)
+2025-12-15 19:22:58,801 - controller.emailer - INFO - Email sent via sendmail to rajesh.mudiganti@ssa.gov: [Denied] Workflow Request: hello
+2025-12-15 19:22:58,801 - controller.routes.workflows - INFO - Denial notification sent to rajesh.mudiganti@ssa.gov for workflow wf_e77e8e718d89
+2025-12-15 19:23:12,996 - controller.db.db - INFO - Workflow created: wf_c9e962021ac7
+2025-12-15 19:23:13,016 - controller.routes.workflows - INFO - Workflow created: wf_c9e962021ac7
+2025-12-15 19:23:13,016 - controller.routes.workflows - INFO - [EMAIL] notify_email=rajesh.mudiganti@ssa.gov, requestor_email=rajesh.mudiganti@ssa.gov, EMAIL_ENABLED=True
+2025-12-15 19:23:13,016 - controller.routes.workflows - INFO - [EMAIL] Attempting to send approval notification to rajesh.mudiganti@ssa.gov
+2025-12-15 19:23:13,066 - controller.emailer - INFO - Email sent via sendmail to rajesh.mudiganti@ssa.gov: [Action Required] Workflow Approval: createRP - Rajesh Mudiganti (affiliate)
+2025-12-15 19:23:13,066 - controller.routes.workflows - INFO - [EMAIL] send_email returned: True
+2025-12-15 19:23:13,066 - controller.routes.workflows - INFO - Approval notification sent to rajesh.mudiganti@ssa.gov for workflow wf_c9e962021ac7
+2025-12-15 19:27:19,702 - main - INFO - ============================================================
+2025-12-15 19:27:19,702 - main - INFO - Orchestration System API Starting
+2025-12-15 19:27:19,702 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-15 19:27:19,702 - main - INFO - Server: Hypercorn with TLS
+2025-12-15 19:27:19,702 - main - INFO - ============================================================
+[2025-12-15 19:27:19 -0500] [1025009] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 19:27:19,797 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 19:27:25,352 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-15 19:27:39,274 - controller.deps - INFO - Approver access granted to Rajesh Mudiganti via smartcard
+2025-12-15 19:27:39,311 - controller.routes.workflows - INFO - Workflow denied: wf_c9e962021ac7 by Rajesh Mudiganti (affiliate)
+2025-12-15 19:27:39,379 - controller.emailer - INFO - Email sent via sendmail to rajesh.mudiganti@ssa.gov: [Denied] Workflow Request: createRP
+2025-12-15 19:27:39,379 - controller.routes.workflows - INFO - Denial notification sent to rajesh.mudiganti@ssa.gov for workflow wf_c9e962021ac7
+2025-12-15 21:22:42,596 - controller.db.db - INFO - Workflow created: wf_22048270f585
+2025-12-15 21:22:42,619 - controller.routes.workflows - INFO - Workflow created: wf_22048270f585
+2025-12-15 21:22:42,619 - controller.routes.workflows - INFO - [EMAIL] notify_email=rajesh.mudiganti@ssa.gov, requestor_email=rajesh.mudiganti@ssa.gov, EMAIL_ENABLED=True
+2025-12-15 21:22:42,619 - controller.routes.workflows - INFO - [EMAIL] Attempting to send approval notification to rajesh.mudiganti@ssa.gov
+2025-12-15 21:22:42,675 - controller.emailer - INFO - Email sent via sendmail to rajesh.mudiganti@ssa.gov: [Action Required] Workflow Approval: hello - Rajesh Mudiganti (affiliate)
+2025-12-15 21:22:42,675 - controller.routes.workflows - INFO - [EMAIL] send_email returned: True
+2025-12-15 21:22:42,675 - controller.routes.workflows - INFO - Approval notification sent to rajesh.mudiganti@ssa.gov for workflow wf_22048270f585
+2025-12-15 21:23:01,846 - controller.deps - INFO - Approver access granted to Rajesh Mudiganti via smartcard
+2025-12-15 21:23:01,880 - controller.routes.workflows - INFO - Workflow denied: wf_22048270f585 by Rajesh Mudiganti (affiliate)
+2025-12-15 21:23:01,930 - controller.emailer - INFO - Email sent via sendmail to rajesh.mudiganti@ssa.gov: [Denied] Workflow Request: hello
+2025-12-15 21:23:01,930 - controller.routes.workflows - INFO - Denial notification sent to rajesh.mudiganti@ssa.gov for workflow wf_22048270f585
+2025-12-15 21:24:04,373 - main - INFO - ============================================================
+2025-12-15 21:24:04,373 - main - INFO - Orchestration System API Starting
+2025-12-15 21:24:04,373 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-15 21:24:04,373 - main - INFO - Server: Hypercorn with TLS
+2025-12-15 21:24:04,373 - main - INFO - ============================================================
+[2025-12-15 21:24:04 -0500] [1125160] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 21:24:04,466 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-15 21:24:21,091 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-15 21:24:52,354 - controller.db.db - INFO - Workflow created: wf_a50fb5e0ca96
+2025-12-15 21:24:52,377 - controller.routes.workflows - INFO - Workflow created: wf_a50fb5e0ca96
+2025-12-15 21:24:52,377 - controller.routes.workflows - INFO - [EMAIL] notify_email=rajesh.mudiganti@ssa.gov, requestor_email=rajesh.mudiganti@ssa.gov, EMAIL_ENABLED=True
+2025-12-15 21:24:52,377 - controller.routes.workflows - INFO - [EMAIL] Attempting to send approval notification to rajesh.mudiganti@ssa.gov
+2025-12-15 21:24:52,449 - controller.emailer - INFO - Email sent via sendmail to rajesh.mudiganti@ssa.gov: [Action Required] Workflow Approval: hello - Rajesh Mudiganti (affiliate)
+2025-12-15 21:24:52,449 - controller.routes.workflows - INFO - [EMAIL] send_email returned: True
+2025-12-15 21:24:52,449 - controller.routes.workflows - INFO - Approval notification sent to rajesh.mudiganti@ssa.gov for workflow wf_a50fb5e0ca96
+2025-12-15 21:25:54,146 - controller.deps - INFO - Approver access granted to Rajesh Mudiganti via smartcard
+2025-12-15 21:25:54,181 - controller.routes.workflows - INFO - Workflow denied: wf_a50fb5e0ca96 by Rajesh Mudiganti (affiliate)
+2025-12-15 21:25:54,234 - controller.emailer - INFO - Email sent via sendmail to rajesh.mudiganti@ssa.gov: [Denied] Workflow Request: hello
+2025-12-15 21:25:54,234 - controller.routes.workflows - INFO - Denial notification sent to rajesh.mudiganti@ssa.gov for workflow wf_a50fb5e0ca96
+2025-12-16 00:32:28,355 - main - INFO - ============================================================
+2025-12-16 00:32:28,355 - main - INFO - Orchestration System API Starting
+2025-12-16 00:32:28,355 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-16 00:32:28,355 - main - INFO - Server: Hypercorn with TLS
+2025-12-16 00:32:28,355 - main - INFO - ============================================================
+[2025-12-16 00:32:28 -0500] [1393204] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 00:32:28,448 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 00:32:45,117 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-16 09:41:40,394 - main - INFO - ============================================================
+2025-12-16 09:41:40,394 - main - INFO - Orchestration System API Starting
+2025-12-16 09:41:40,394 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-16 09:41:40,394 - main - INFO - Server: Hypercorn with TLS
+2025-12-16 09:41:40,394 - main - INFO - ============================================================
+[2025-12-16 09:41:40 -0500] [1850590] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 09:41:40,489 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 09:41:47,826 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-16 09:41:47,827 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-16 09:41:47,838 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=viewer
+2025-12-16 09:41:47,857 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-16 09:41:47,857 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-16 09:41:47,894 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-16 09:41:47,899 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=viewer
+2025-12-16 09:41:47,914 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-16 09:41:47,914 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-16 09:49:33,878 - main - INFO - ============================================================
+2025-12-16 09:49:33,878 - main - INFO - Orchestration System API Starting
+2025-12-16 09:49:33,878 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-16 09:49:33,878 - main - INFO - Server: Hypercorn with TLS
+2025-12-16 09:49:33,878 - main - INFO - ============================================================
+[2025-12-16 09:49:33 -0500] [1857161] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 09:49:33,972 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 09:49:35,556 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-16 10:33:55,578 - main - INFO - ============================================================
+2025-12-16 10:33:55,578 - main - INFO - Orchestration System API Starting
+2025-12-16 10:33:55,578 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-16 10:33:55,579 - main - INFO - Server: Hypercorn with TLS
+2025-12-16 10:33:55,579 - main - INFO - ============================================================
+[2025-12-16 10:33:55 -0500] [1893894] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 10:33:55,674 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 10:33:59,189 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-16 10:34:46,217 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-16 10:34:46,223 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=viewer
+2025-12-16 10:34:46,240 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-16 10:34:46,240 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-16 10:53:36,679 - main - INFO - ============================================================
+2025-12-16 10:53:36,679 - main - INFO - Orchestration System API Starting
+2025-12-16 10:53:36,679 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-16 10:53:36,680 - main - INFO - Server: Hypercorn with TLS
+2025-12-16 10:53:36,680 - main - INFO - ============================================================
+[2025-12-16 10:53:36 -0500] [1910214] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 10:53:36,773 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 10:53:47,521 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-16 10:53:47,522 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-16 10:53:47,534 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=viewer
+2025-12-16 10:53:47,552 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-16 10:53:47,552 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-16 10:53:47,592 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-16 10:53:47,597 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=viewer
+2025-12-16 10:53:47,613 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-16 10:53:47,613 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-16 11:48:29,574 - main - INFO - ============================================================
+2025-12-16 11:48:29,574 - main - INFO - Orchestration System API Starting
+2025-12-16 11:48:29,574 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-16 11:48:29,574 - main - INFO - Server: Hypercorn with TLS
+2025-12-16 11:48:29,574 - main - INFO - ============================================================
+[2025-12-16 11:48:29 -0500] [1955894] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 11:48:29,668 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 11:48:33,706 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-16 11:48:56,123 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-16 11:48:56,129 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=viewer
+2025-12-16 11:48:56,146 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-16 11:48:56,146 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-16 12:24:13,040 - main - INFO - ============================================================
+2025-12-16 12:24:13,040 - main - INFO - Orchestration System API Starting
+2025-12-16 12:24:13,040 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-16 12:24:13,040 - main - INFO - Server: Hypercorn with TLS
+2025-12-16 12:24:13,040 - main - INFO - ============================================================
+[2025-12-16 12:24:13 -0500] [1986024] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 12:24:13,138 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 12:24:36,825 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-16 12:25:03,783 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-16 12:25:03,788 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=admin
+2025-12-16 12:25:03,805 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-16 12:25:03,805 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-16 12:32:49,837 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-16 12:32:49,843 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=admin
+2025-12-16 12:32:49,860 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-16 12:32:49,860 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-16 12:45:29,248 - main - INFO - ============================================================
+2025-12-16 12:45:29,248 - main - INFO - Orchestration System API Starting
+2025-12-16 12:45:29,248 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-16 12:45:29,248 - main - INFO - Server: Hypercorn with TLS
+2025-12-16 12:45:29,248 - main - INFO - ============================================================
+[2025-12-16 12:45:29 -0500] [2005227] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 12:45:29,341 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 12:45:36,600 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-16 12:48:38,280 - controller.db.db - INFO - Workflow created: wf_5fb18936f21c
+2025-12-16 12:48:38,300 - controller.routes.workflows - INFO - Workflow created: wf_5fb18936f21c
+2025-12-16 12:48:38,300 - controller.routes.workflows - INFO - [EMAIL] notify_email=rajesh.mudiganti@ssa.gov, requestor_email=rajesh.mudiganti@ssa.gov, EMAIL_ENABLED=True
+2025-12-16 12:48:38,300 - controller.routes.workflows - INFO - [EMAIL] Attempting to send approval notification to rajesh.mudiganti@ssa.gov
+2025-12-16 12:48:38,300 - controller.emailer - INFO - [DRY RUN] Email would be sent:
+2025-12-16 12:48:38,300 - controller.emailer - INFO -   To: rajesh.mudiganti@ssa.gov
+2025-12-16 12:48:38,300 - controller.emailer - INFO -   Subject: [Action Required] Workflow Approval: createRP - Rajesh Mudiganti (affiliate)
+2025-12-16 12:48:38,300 - controller.emailer - INFO -   From: facti@ds-d1-ebs-01.ba.ssa.gov
+2025-12-16 12:48:38,300 - controller.routes.workflows - INFO - [EMAIL] send_email returned: True
+2025-12-16 12:48:38,300 - controller.routes.workflows - INFO - Approval notification sent to rajesh.mudiganti@ssa.gov for workflow wf_5fb18936f21c
+2025-12-16 12:50:04,785 - controller.deps - INFO - Approver access granted to Rajesh Mudiganti via smartcard
+2025-12-16 12:50:04,818 - controller.routes.workflows - INFO - Workflow denied: wf_5fb18936f21c by Rajesh Mudiganti (affiliate)
+2025-12-16 12:50:04,819 - controller.emailer - INFO - [DRY RUN] Email would be sent:
+2025-12-16 12:50:04,819 - controller.emailer - INFO -   To: rajesh.mudiganti@ssa.gov
+2025-12-16 12:50:04,819 - controller.emailer - INFO -   Subject: [Denied] Workflow Request: createRP
+2025-12-16 12:50:04,819 - controller.emailer - INFO -   From: facti@ds-d1-ebs-01.ba.ssa.gov
+2025-12-16 12:50:04,819 - controller.routes.workflows - INFO - Denial notification sent to rajesh.mudiganti@ssa.gov for workflow wf_5fb18936f21c
+2025-12-16 13:19:24,185 - controller.deps - INFO - Admin access granted to Rajesh Mudiganti via smartcard
+2025-12-16 13:19:38,187 - controller.deps - INFO - Admin access granted to Rajesh Mudiganti via smartcard
+2025-12-16 13:19:38,214 - controller.routes.scripts - INFO - Script registered: ibyValidate
+2025-12-16 15:34:56,438 - main - INFO - ============================================================
+2025-12-16 15:34:56,438 - main - INFO - Orchestration System API Starting
+2025-12-16 15:34:56,438 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-16 15:34:56,438 - main - INFO - Server: Hypercorn with TLS
+2025-12-16 15:34:56,438 - main - INFO - ============================================================
+[2025-12-16 15:34:56 -0500] [2153655] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 15:34:56,534 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 15:35:19,947 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-16 15:46:17,641 - main - INFO - ============================================================
+2025-12-16 15:46:17,641 - main - INFO - Orchestration System API Starting
+2025-12-16 15:46:17,641 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-16 15:46:17,641 - main - INFO - Server: Hypercorn with TLS
+2025-12-16 15:46:17,641 - main - INFO - ============================================================
+[2025-12-16 15:46:17 -0500] [2165231] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 15:46:17,734 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 15:46:20,728 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-16 15:46:38,057 - main - INFO - Looking for login.html. Current directory: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system
+2025-12-16 15:47:05,736 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-16 15:47:05,742 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=admin
+2025-12-16 15:47:05,760 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-16 15:47:05,760 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-16 15:47:06,618 - main - INFO - Looking for login.html. Current directory: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system
+2025-12-16 15:48:24,620 - main - INFO - ============================================================
+2025-12-16 15:48:24,620 - main - INFO - Orchestration System API Starting
+2025-12-16 15:48:24,621 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-16 15:48:24,621 - main - INFO - Server: Hypercorn with TLS
+2025-12-16 15:48:24,621 - main - INFO - ============================================================
+[2025-12-16 15:48:24 -0500] [2167270] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 15:48:24,713 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 15:48:31,329 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-16 15:48:32,079 - main - INFO - Looking for login.html. Current directory: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system
+2025-12-16 15:58:08,950 - main - INFO - ============================================================
+2025-12-16 15:58:08,950 - main - INFO - Orchestration System API Starting
+2025-12-16 15:58:08,950 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-16 15:58:08,950 - main - INFO - Server: Hypercorn with TLS
+2025-12-16 15:58:08,950 - main - INFO - ============================================================
+[2025-12-16 15:58:09 -0500] [2176964] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 15:58:09,045 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-16 15:58:21,551 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/bin/hypercorn", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/__main__.py", line 312, in main
+    return run(config)
+           ^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/run.py", line 39, in run
+    sockets = config.create_sockets()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/config.py", line 202, in create_sockets
+    secure_sockets = self._create_sockets(self.bind)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/config.py", line 275, in _create_sockets
+    sock.bind(binding)
+OSError: [Errno 98] Address already in use
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/bin/hypercorn", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/__main__.py", line 312, in main
+    return run(config)
+           ^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/run.py", line 39, in run
+    sockets = config.create_sockets()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/config.py", line 202, in create_sockets
+    secure_sockets = self._create_sockets(self.bind)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/config.py", line 275, in _create_sockets
+    sock.bind(binding)
+OSError: [Errno 98] Address already in use
+2025-12-17 15:54:49,868 - main - INFO - ============================================================
+2025-12-17 15:54:49,868 - main - INFO - Orchestration System API Starting
+2025-12-17 15:54:49,869 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-17 15:54:49,869 - main - INFO - Server: Hypercorn with TLS
+2025-12-17 15:54:49,869 - main - INFO - ============================================================
+[2025-12-17 15:54:49 -0500] [3632513] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-17 15:54:49,964 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-17 15:55:06,095 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-17 18:41:05,718 - main - INFO - Looking for login.html. Current directory: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system
+2025-12-17 18:44:47,022 - main - INFO - Looking for login.html. Current directory: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system
+2025-12-17 18:44:47,024 - main - INFO - Loaded login.html from dashboard/dist/login.html
+2025-12-17 18:44:55,952 - main - INFO - Looking for login.html. Current directory: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system
+2025-12-17 18:44:55,954 - main - INFO - Loaded login.html from dashboard/dist/login.html
+2025-12-18 13:39:17,961 - main - INFO - ============================================================
+2025-12-18 13:39:17,961 - main - INFO - Orchestration System API Starting
+2025-12-18 13:39:17,961 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-18 13:39:17,961 - main - INFO - Server: Hypercorn with TLS
+2025-12-18 13:39:17,961 - main - INFO - ============================================================
+[2025-12-18 13:39:18 -0500] [735359] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-18 13:39:18,105 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-18 13:39:41,510 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-18 22:08:50,849 - main - INFO - ============================================================
+2025-12-18 22:08:50,849 - main - INFO - Orchestration System API Starting
+2025-12-18 22:08:50,849 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-18 22:08:50,849 - main - INFO - Server: Hypercorn with TLS
+2025-12-18 22:08:50,849 - main - INFO - ============================================================
+[2025-12-18 22:08:50 -0500] [1350937] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-18 22:08:50,943 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-18 22:09:19,921 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+[2025-12-18 22:09:21 -0500] [1350937] [ERROR] Error in ASGI Framework
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 78, in call_next
+    message = await recv_stream.receive()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 98, in receive
+    return self.receive_nowait()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 91, in receive_nowait
+    raise EndOfStream
+anyio.EndOfStream
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/asyncio/task_group.py", line 28, in _handle
+    await app(scope, receive, send, sync_spawn, call_soon)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/app_wrappers.py", line 34, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/applications.py", line 1106, in __call__
+    await super().__call__(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 108, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/main.py", line 95, in cert_auto_login
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 84, in call_next
+    raise app_exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 70, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/sessions.py", line 86, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/main.py", line 164, in debug_headers
+    "expected_user_header": AUTH_CONFIG.AUTH_USER_HEADER,
+                            ^^^^^^^^^^^
+NameError: name 'AUTH_CONFIG' is not defined
+2025-12-18 22:09:21,736 - hypercorn.error - ERROR - Error in ASGI Framework
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 78, in call_next
+    message = await recv_stream.receive()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 98, in receive
+    return self.receive_nowait()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 91, in receive_nowait
+    raise EndOfStream
+anyio.EndOfStream
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/asyncio/task_group.py", line 28, in _handle
+    await app(scope, receive, send, sync_spawn, call_soon)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/app_wrappers.py", line 34, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/applications.py", line 1106, in __call__
+    await super().__call__(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 108, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/main.py", line 95, in cert_auto_login
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 84, in call_next
+    raise app_exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 70, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/sessions.py", line 86, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/main.py", line 164, in debug_headers
+    "expected_user_header": AUTH_CONFIG.AUTH_USER_HEADER,
+                            ^^^^^^^^^^^
+NameError: name 'AUTH_CONFIG' is not defined
+2025-12-18 22:15:10,985 - main - INFO - ============================================================
+2025-12-18 22:15:10,985 - main - INFO - Orchestration System API Starting
+2025-12-18 22:15:10,985 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-18 22:15:10,985 - main - INFO - Server: Hypercorn with TLS
+2025-12-18 22:15:10,985 - main - INFO - ============================================================
+[2025-12-18 22:15:11 -0500] [1357528] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-18 22:15:11,078 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-18 22:15:20,388 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-18 22:19:30,943 - main - INFO - ============================================================
+2025-12-18 22:19:30,943 - main - INFO - Orchestration System API Starting
+2025-12-18 22:19:30,943 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-18 22:19:30,943 - main - INFO - Server: Hypercorn with TLS
+2025-12-18 22:19:30,943 - main - INFO - ============================================================
+[2025-12-18 22:19:31 -0500] [1361553] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-18 22:19:31,035 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-18 22:19:50,700 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-19 10:46:43,627 - main - INFO - ============================================================
+2025-12-19 10:46:43,627 - main - INFO - Orchestration System API Starting
+2025-12-19 10:46:43,627 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-19 10:46:43,627 - main - INFO - Server: Hypercorn with TLS
+2025-12-19 10:46:43,627 - main - INFO - ============================================================
+[2025-12-19 10:46:43 -0500] [2102089] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-19 10:46:43,724 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-19 10:47:13,043 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-19 11:42:51,944 - main - INFO - Looking for login.html. Current directory: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system
+2025-12-19 12:32:47,171 - main - INFO - ============================================================
+2025-12-19 12:32:47,171 - main - INFO - Orchestration System API Starting
+2025-12-19 12:32:47,171 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-19 12:32:47,171 - main - INFO - Server: Hypercorn with TLS
+2025-12-19 12:32:47,171 - main - INFO - ============================================================
+[2025-12-19 12:32:47 -0500] [2207935] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-19 12:32:47,265 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-19 12:32:50,563 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-19 12:35:52,106 - main - INFO - Looking for login.html. Current directory: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system
+2025-12-19 12:35:52,109 - main - INFO - Loaded login.html from dashboard/dist/login.html
+2025-12-19 12:39:20,459 - main - INFO - ============================================================
+2025-12-19 12:39:20,460 - main - INFO - Orchestration System API Starting
+2025-12-19 12:39:20,460 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-19 12:39:20,460 - main - INFO - Server: Hypercorn with TLS
+2025-12-19 12:39:20,460 - main - INFO - ============================================================
+[2025-12-19 12:39:20 -0500] [2215240] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-19 12:39:20,558 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-19 12:39:21,071 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-19 12:48:10,787 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-19 12:48:10,795 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=admin
+2025-12-19 12:48:10,818 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-19 12:48:10,818 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-19 13:28:58,354 - main - INFO - ============================================================
+2025-12-19 13:28:58,354 - main - INFO - Orchestration System API Starting
+2025-12-19 13:28:58,354 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-19 13:28:58,354 - main - INFO - Server: Hypercorn with TLS
+2025-12-19 13:28:58,354 - main - INFO - ============================================================
+[2025-12-19 13:28:58 -0500] [2264588] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-19 13:28:58,448 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-19 13:29:24,715 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-19 13:48:29,130 - main - INFO - ============================================================
+2025-12-19 13:48:29,130 - main - INFO - Orchestration System API Starting
+2025-12-19 13:48:29,130 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-19 13:48:29,130 - main - INFO - Server: Hypercorn with TLS
+2025-12-19 13:48:29,130 - main - INFO - ============================================================
+[2025-12-19 13:48:29 -0500] [2285173] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-19 13:48:29,350 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-19 13:48:56,071 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-19 13:57:43,908 - main - INFO - ============================================================
+2025-12-19 13:57:43,908 - main - INFO - Orchestration System API Starting
+2025-12-19 13:57:43,908 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-19 13:57:43,908 - main - INFO - Server: Hypercorn with TLS
+2025-12-19 13:57:43,908 - main - INFO - ============================================================
+[2025-12-19 13:57:44 -0500] [2297313] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-19 13:57:44,003 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-19 13:57:56,712 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-19 14:14:33,803 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti(affiliate) DN=None
+2025-12-19 14:14:33,809 - main - INFO - [CERT ROLE] No OU/CN match → default role=viewer
+2025-12-19 14:14:34,075 - controller.auth.web_auth - INFO - User created: Rajesh Mudiganti(affiliate) (role: viewer)
+2025-12-19 14:14:34,075 - main - INFO - [CERT LOGIN] Created new cert user: Rajesh Mudiganti(affiliate) → role=viewer
+2025-12-19 14:14:34,093 - controller.auth.web_auth - INFO - Session created for user 11 (secure cookie)
+2025-12-19 14:14:34,093 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti(affiliate) → user_id=11
+2025-12-19 14:30:08,551 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-19 14:30:08,556 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=admin
+2025-12-19 14:30:08,571 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-19 14:30:08,571 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-20 14:31:17,294 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-20 14:31:17,300 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=admin
+2025-12-20 14:31:17,317 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-20 14:31:17,317 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-20 15:10:14,597 - main - INFO - ============================================================
+2025-12-20 15:10:14,597 - main - INFO - Orchestration System API Starting
+2025-12-20 15:10:14,597 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-20 15:10:14,597 - main - INFO - Server: Hypercorn with TLS
+2025-12-20 15:10:14,597 - main - INFO - ============================================================
+[2025-12-20 15:10:14 -0500] [3797224] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 15:10:14,690 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 15:10:34,872 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-20 15:12:02,662 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-20 15:12:02,669 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=admin
+2025-12-20 15:12:02,689 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-20 15:12:02,689 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-20 15:12:26,628 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-20 15:12:26,633 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=admin
+2025-12-20 15:12:26,649 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-20 15:12:26,649 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-20 15:34:50,096 - main - INFO - ============================================================
+2025-12-20 15:34:50,096 - main - INFO - Orchestration System API Starting
+2025-12-20 15:34:50,096 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-20 15:34:50,096 - main - INFO - Server: Hypercorn with TLS
+2025-12-20 15:34:50,096 - main - INFO - ============================================================
+[2025-12-20 15:34:50 -0500] [3821338] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 15:34:50,189 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 15:35:03,789 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-20 15:35:27,104 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-20 15:35:27,110 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=admin
+2025-12-20 15:35:27,131 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-20 15:35:27,131 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-20 15:36:32,637 - main - INFO - ============================================================
+2025-12-20 15:36:32,638 - main - INFO - Orchestration System API Starting
+2025-12-20 15:36:32,638 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-20 15:36:32,638 - main - INFO - Server: Hypercorn with TLS
+2025-12-20 15:36:32,638 - main - INFO - ============================================================
+[2025-12-20 15:36:32 -0500] [3823237] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 15:36:32,730 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 15:36:34,450 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-20 21:02:27,991 - main - INFO - ============================================================
+2025-12-20 21:02:27,991 - main - INFO - Orchestration System API Starting
+2025-12-20 21:02:27,991 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-20 21:02:27,991 - main - INFO - Server: Hypercorn with TLS
+2025-12-20 21:02:27,991 - main - INFO - ============================================================
+[2025-12-20 21:02:28 -0500] [4146656] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 21:02:28,084 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 21:02:30,388 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-20 21:11:27,763 - main - INFO - ============================================================
+2025-12-20 21:11:27,763 - main - INFO - Orchestration System API Starting
+2025-12-20 21:11:27,763 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-20 21:11:27,763 - main - INFO - Server: Hypercorn with TLS
+2025-12-20 21:11:27,763 - main - INFO - ============================================================
+[2025-12-20 21:11:27 -0500] [4155489] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 21:11:27,856 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 21:11:31,034 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-20 21:16:05,886 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-20 21:16:05,892 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=admin
+2025-12-20 21:16:05,914 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-20 21:16:05,914 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-20 21:17:03,932 - main - INFO - ============================================================
+2025-12-20 21:17:03,932 - main - INFO - Orchestration System API Starting
+2025-12-20 21:17:03,932 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-20 21:17:03,932 - main - INFO - Server: Hypercorn with TLS
+2025-12-20 21:17:03,932 - main - INFO - ============================================================
+[2025-12-20 21:17:04 -0500] [4161481] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 21:17:04,024 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 21:17:06,399 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-20 22:17:57,640 - main - INFO - ============================================================
+2025-12-20 22:17:57,640 - main - INFO - Orchestration System API Starting
+2025-12-20 22:17:57,640 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-20 22:17:57,640 - main - INFO - Server: Hypercorn with TLS
+2025-12-20 22:17:57,640 - main - INFO - ============================================================
+[2025-12-20 22:17:57 -0500] [27337] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 22:17:57,734 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-20 22:18:06,327 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-21 21:11:15,224 - main - INFO - ============================================================
+2025-12-21 21:11:15,224 - main - INFO - Orchestration System API Starting
+2025-12-21 21:11:15,224 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-21 21:11:15,224 - main - INFO - Server: Hypercorn with TLS
+2025-12-21 21:11:15,224 - main - INFO - ============================================================
+[2025-12-21 21:11:15 -0500] [1391645] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-21 21:11:15,319 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-21 21:11:15,424 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-21 21:12:18,245 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-21 21:12:18,252 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=admin
+2025-12-21 21:12:18,271 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-21 21:12:18,271 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-21 21:35:30,039 - main - INFO - ============================================================
+2025-12-21 21:35:30,039 - main - INFO - Orchestration System API Starting
+2025-12-21 21:35:30,039 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-21 21:35:30,039 - main - INFO - Server: Hypercorn with TLS
+2025-12-21 21:35:30,039 - main - INFO - ============================================================
+[2025-12-21 21:35:30 -0500] [1421108] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-21 21:35:30,134 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-21 21:35:47,131 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
 Process SpawnProcess-1:
 Traceback (most recent call last):
   File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/python3.12/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
@@ -19,4 +897,735 @@ Traceback (most recent call last):
   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
   File "<frozen importlib._bootstrap_external>", line 995, in exec_module
   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
-  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/main.py",
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/main.py", line 12, in <module>
+    from controller.routes import agents, workflows, tokens, scripts
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/routes/agents.py", line 20, in <module>
+    from controller.db.db import get_db
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/db/db.py", line 790
+    """
+    ^^^
+IndentationError: expected an indented block after function definition on line 789
+2025-12-22 22:37:03,457 - main - INFO - ============================================================
+2025-12-22 22:37:03,458 - main - INFO - Orchestration System API Starting
+2025-12-22 22:37:03,458 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-22 22:37:03,458 - main - INFO - Server: Hypercorn with TLS
+2025-12-22 22:37:03,458 - main - INFO - ============================================================
+[2025-12-22 22:37:03 -0500] [3017074] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-22 22:37:03,551 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-22 22:37:03,860 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-22 22:37:20,298 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-22 22:37:20,305 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=admin
+2025-12-22 22:37:20,326 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-22 22:37:20,326 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-22 22:37:21,820 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:37:51,741 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:38:21,723 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:38:51,713 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:39:21,761 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:39:51,730 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:40:21,747 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:40:51,729 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:41:21,725 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:41:51,731 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:42:21,759 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:42:51,741 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:43:21,737 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:43:51,781 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:44:21,735 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:44:51,742 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:45:21,760 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:45:51,732 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:46:21,737 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:46:51,745 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:47:21,735 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:47:51,751 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:48:21,739 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:48:51,730 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:49:21,745 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:49:51,725 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:50:21,726 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:50:51,770 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:51:21,726 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:51:51,726 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:52:21,746 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:52:51,740 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:53:21,754 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:53:51,732 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:54:21,727 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:54:51,736 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:55:21,751 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:55:51,752 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:56:21,746 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:56:51,745 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:57:21,733 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:57:51,724 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:58:21,731 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:58:51,744 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:59:21,740 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 22:59:51,749 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:00:21,741 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:00:51,731 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:01:21,743 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:01:51,749 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:02:21,740 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:02:51,742 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:03:21,733 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:03:51,741 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:04:21,729 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:04:51,751 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:05:21,752 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:05:51,744 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:06:21,749 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:06:51,757 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:07:21,808 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:07:51,750 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:08:21,737 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:08:51,743 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:09:21,756 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:09:51,764 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:10:21,753 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:10:51,748 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:11:21,744 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:11:51,746 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:12:21,778 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:12:51,748 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:13:21,758 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:13:51,749 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:14:21,753 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:14:51,760 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:15:21,749 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:15:51,760 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:16:21,776 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:16:51,754 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:17:21,770 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:17:51,764 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:18:21,765 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:18:51,750 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:19:21,786 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:19:51,769 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:20:21,753 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:20:51,761 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:21:21,750 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:21:51,745 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:22:21,778 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:22:51,765 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:23:21,750 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:23:51,764 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:24:21,760 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:24:51,747 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:25:21,785 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:25:51,756 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:26:21,745 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:26:52,027 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:27:22,021 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-22 23:34:03,083 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 00:04:03,090 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 00:34:03,132 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 01:04:03,110 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 01:34:03,132 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 02:04:03,123 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 02:34:03,172 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 03:04:03,182 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 03:34:03,212 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 04:04:03,243 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 04:34:03,218 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 05:04:03,246 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 05:34:03,309 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 06:04:03,300 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 06:34:03,271 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:04:03,309 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:34:03,369 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:50:29,065 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:50:59,040 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:51:29,029 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:51:59,036 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:52:29,035 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:52:59,040 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:53:29,022 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:53:59,044 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:54:29,029 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:54:59,052 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:55:29,034 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:55:59,026 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:56:29,306 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:56:59,038 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:57:29,217 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:57:59,044 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:58:29,033 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:58:59,059 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:59:29,048 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 07:59:59,049 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:00:29,040 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:00:59,040 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:01:29,054 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:01:59,047 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:02:29,038 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:02:59,046 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:03:29,041 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:03:59,069 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:04:29,056 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:04:59,037 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:05:29,062 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:05:59,056 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:06:29,044 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:06:59,044 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:07:29,044 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:07:59,050 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:08:29,049 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:08:59,048 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:09:29,048 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:09:59,038 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:10:29,050 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:10:59,056 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:11:29,038 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:11:59,050 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:12:29,060 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:12:59,041 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:13:29,053 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:13:59,044 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:14:29,050 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:14:59,084 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:15:29,060 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:15:59,047 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:16:29,322 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:16:59,329 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:17:00,403 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:17:38,413 - main - INFO - ============================================================
+2025-12-23 08:17:38,413 - main - INFO - Orchestration System API Starting
+2025-12-23 08:17:38,413 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-23 08:17:38,413 - main - INFO - Server: Hypercorn with TLS
+2025-12-23 08:17:38,413 - main - INFO - ============================================================
+[2025-12-23 08:17:38 -0500] [3591811] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-23 08:17:38,506 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-23 08:17:44,828 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-23 08:18:07,329 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:19:00,575 - main - INFO - [CERT] Client certificate detected: CN=Rajesh Mudiganti (affiliate) DN=countryName=US, organizationName=U.S. Government, organizationalUnitName=SSA, organizationalUnitName=Users, dnQualifier=PIV1, commonName=Rajesh Mudiganti (affiliate)
+2025-12-23 08:19:00,581 - main - INFO - [CERT LOGIN] Existing user matched: Rajesh Mudiganti (affiliate) → role=admin
+2025-12-23 08:19:00,598 - controller.auth.web_auth - INFO - Session created for user 5 (secure cookie)
+2025-12-23 08:19:00,598 - main - INFO - [CERT LOGIN] Session established for CN=Rajesh Mudiganti (affiliate) → user_id=5
+2025-12-23 08:19:01,988 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:19:31,368 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:20:01,362 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:20:34,316 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:21:07,372 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:21:37,366 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:22:07,378 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:22:37,381 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:23:07,371 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:23:37,425 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:24:07,375 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:24:37,380 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:25:35,334 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:42:44,307 - main - INFO - ============================================================
+2025-12-23 08:42:44,307 - main - INFO - Orchestration System API Starting
+2025-12-23 08:42:44,307 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-23 08:42:44,307 - main - INFO - Server: Hypercorn with TLS
+2025-12-23 08:42:44,307 - main - INFO - ============================================================
+[2025-12-23 08:42:44 -0500] [3616700] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-23 08:42:44,403 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-23 08:42:46,604 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-23 08:44:39,283 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:45:09,167 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:45:39,346 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:46:09,343 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:48:03,346 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+Process SpawnProcess-1:
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/python3.12/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/python3.12/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/asyncio/run.py", line 186, in asyncio_worker
+    app = load_application(config.application_path, config.wsgi_max_body_size)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/utils.py", line 99, in load_application
+    module = import_module(import_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/python3.12/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/main.py", line 17, in <module>
+    from controller.routes.reports import router as reports_router
+ModuleNotFoundError: No module named 'controller.routes.reports'
+2025-12-23 08:57:16,226 - main - INFO - ============================================================
+2025-12-23 08:57:16,227 - main - INFO - Orchestration System API Starting
+2025-12-23 08:57:16,227 - main - INFO - Authentication: Client Certificate (Smartcard)
+2025-12-23 08:57:16,227 - main - INFO - Server: Hypercorn with TLS
+2025-12-23 08:57:16,227 - main - INFO - ============================================================
+[2025-12-23 08:57:16 -0500] [3631225] [INFO] Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-23 08:57:16,319 - hypercorn.error - INFO - Running on https://10.28.203.100:7605 (CTRL + C to quit)
+2025-12-23 08:57:17,585 - controller.db.db - INFO - Connected to database: /ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/orchestration.db
+2025-12-23 08:57:31,129 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+[2025-12-23 08:57:33 -0500] [3631225] [ERROR] Error in ASGI Framework
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 98, in receive
+    return self.receive_nowait()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 93, in receive_nowait
+    raise WouldBlock
+anyio.WouldBlock
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 78, in call_next
+    message = await recv_stream.receive()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 118, in receive
+    raise EndOfStream
+anyio.EndOfStream
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/asyncio/task_group.py", line 28, in _handle
+    await app(scope, receive, send, sync_spawn, call_soon)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/app_wrappers.py", line 34, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/applications.py", line 1106, in __call__
+    await super().__call__(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 108, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/main.py", line 89, in cert_auto_login
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 84, in call_next
+    raise app_exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 70, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/sessions.py", line 86, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/routes/reports_api.py", line 125, in list_report_scripts
+    init_reports_table(db)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/routes/reports_api.py", line 84, in init_reports_table
+    db.execute("""
+    ^^^^^^^^^^
+AttributeError: 'OrchestrationDB' object has no attribute 'execute'
+2025-12-23 08:57:33,646 - hypercorn.error - ERROR - Error in ASGI Framework
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 98, in receive
+    return self.receive_nowait()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 93, in receive_nowait
+    raise WouldBlock
+anyio.WouldBlock
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 78, in call_next
+    message = await recv_stream.receive()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 118, in receive
+    raise EndOfStream
+anyio.EndOfStream
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/asyncio/task_group.py", line 28, in _handle
+    await app(scope, receive, send, sync_spawn, call_soon)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/app_wrappers.py", line 34, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/applications.py", line 1106, in __call__
+    await super().__call__(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 108, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/main.py", line 89, in cert_auto_login
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 84, in call_next
+    raise app_exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 70, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/sessions.py", line 86, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/routes/reports_api.py", line 125, in list_report_scripts
+    init_reports_table(db)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/routes/reports_api.py", line 84, in init_reports_table
+    db.execute("""
+    ^^^^^^^^^^
+AttributeError: 'OrchestrationDB' object has no attribute 'execute'
+2025-12-23 08:57:59,296 - controller.deps - INFO - Admin access granted to Rajesh Mudiganti via smartcard
+[2025-12-23 08:57:59 -0500] [3631225] [ERROR] Error in ASGI Framework
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 98, in receive
+    return self.receive_nowait()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 93, in receive_nowait
+    raise WouldBlock
+anyio.WouldBlock
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 78, in call_next
+    message = await recv_stream.receive()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 118, in receive
+    raise EndOfStream
+anyio.EndOfStream
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/asyncio/task_group.py", line 28, in _handle
+    await app(scope, receive, send, sync_spawn, call_soon)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/app_wrappers.py", line 34, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/applications.py", line 1106, in __call__
+    await super().__call__(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 108, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/main.py", line 89, in cert_auto_login
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 84, in call_next
+    raise app_exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 70, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/sessions.py", line 86, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/cors.py", line 146, in simple_response
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/routes/reports_api.py", line 175, in register_report_script
+    init_reports_table(db)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/routes/reports_api.py", line 84, in init_reports_table
+    db.execute("""
+    ^^^^^^^^^^
+AttributeError: 'OrchestrationDB' object has no attribute 'execute'
+2025-12-23 08:57:59,299 - hypercorn.error - ERROR - Error in ASGI Framework
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 98, in receive
+    return self.receive_nowait()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 93, in receive_nowait
+    raise WouldBlock
+anyio.WouldBlock
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 78, in call_next
+    message = await recv_stream.receive()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 118, in receive
+    raise EndOfStream
+anyio.EndOfStream
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/asyncio/task_group.py", line 28, in _handle
+    await app(scope, receive, send, sync_spawn, call_soon)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/app_wrappers.py", line 34, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/applications.py", line 1106, in __call__
+    await super().__call__(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 108, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/main.py", line 89, in cert_auto_login
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 84, in call_next
+    raise app_exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 70, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/sessions.py", line 86, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/cors.py", line 146, in simple_response
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/routes/reports_api.py", line 175, in register_report_script
+    init_reports_table(db)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/routes/reports_api.py", line 84, in init_reports_table
+    db.execute("""
+    ^^^^^^^^^^
+AttributeError: 'OrchestrationDB' object has no attribute 'execute'
+2025-12-23 08:58:00,872 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:58:30,864 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:59:01,349 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 08:59:31,346 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 09:02:09,490 - controller.deps - INFO - Admin access granted to Rajesh Mudiganti via smartcard
+[2025-12-23 09:02:09 -0500] [3631225] [ERROR] Error in ASGI Framework
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 98, in receive
+    return self.receive_nowait()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 93, in receive_nowait
+    raise WouldBlock
+anyio.WouldBlock
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 78, in call_next
+    message = await recv_stream.receive()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 118, in receive
+    raise EndOfStream
+anyio.EndOfStream
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/asyncio/task_group.py", line 28, in _handle
+    await app(scope, receive, send, sync_spawn, call_soon)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/app_wrappers.py", line 34, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/applications.py", line 1106, in __call__
+    await super().__call__(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 108, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/main.py", line 89, in cert_auto_login
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 84, in call_next
+    raise app_exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 70, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/sessions.py", line 86, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/cors.py", line 146, in simple_response
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/routes/reports_api.py", line 175, in register_report_script
+    init_reports_table(db)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/routes/reports_api.py", line 84, in init_reports_table
+    db.execute("""
+    ^^^^^^^^^^
+AttributeError: 'OrchestrationDB' object has no attribute 'execute'
+2025-12-23 09:02:09,492 - hypercorn.error - ERROR - Error in ASGI Framework
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 98, in receive
+    return self.receive_nowait()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 93, in receive_nowait
+    raise WouldBlock
+anyio.WouldBlock
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 78, in call_next
+    message = await recv_stream.receive()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/anyio/streams/memory.py", line 118, in receive
+    raise EndOfStream
+anyio.EndOfStream
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/asyncio/task_group.py", line 28, in _handle
+    await app(scope, receive, send, sync_spawn, call_soon)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/hypercorn/app_wrappers.py", line 34, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/applications.py", line 1106, in __call__
+    await super().__call__(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 108, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/main.py", line 89, in cert_auto_login
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 84, in call_next
+    raise app_exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/base.py", line 70, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/sessions.py", line 86, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/cors.py", line 146, in simple_response
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/newPython/lib/python3.12/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/routes/reports_api.py", line 175, in register_report_script
+    init_reports_table(db)
+  File "/ADMIN/Oracle/Toolkits/deployStage/tools/python/ssaAgent/orchestration-system/controller/routes/reports_api.py", line 84, in init_reports_table
+    db.execute("""
+    ^^^^^^^^^^
+AttributeError: 'OrchestrationDB' object has no attribute 'execute'
+2025-12-23 09:02:17,344 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 09:02:47,378 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
+2025-12-23 09:07:03,377 - controller.routes.agents - WARNING - User Rajesh Mudiganti has no environment access configured
