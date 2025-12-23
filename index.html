@@ -175,6 +175,32 @@
         .script-badge { font-family: monospace; font-size: 11px; padding: 2px 8px; border-radius: 0.375rem; background: var(--slate-bg-80); border: 1px solid var(--slate-500-70); }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
+        /* Environment Badges */
+        .env-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .env-dev {
+            background: rgba(14, 165, 233, 0.15);
+            color: #7dd3fc;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+        }
+        .env-test {
+            background: rgba(168, 85, 247, 0.15);
+            color: #d8b4fe;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+        .env-prod {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
         /* Action Buttons */
         .action-btn { border-radius: 9999px; padding: 3px 8px; font-size: 10px; cursor: pointer; transition: all 0.2s; margin-left: 0.25rem; }
         .action-btn-secondary { border: 1px solid var(--slate-500-80); background: var(--slate-bg-90); color: var(--text-primary); }
@@ -209,6 +235,7 @@
         .agent-option-status { font-size: 10px; padding: 1px 8px; border-radius: 9999px; }
         .agent-option-status.online { background: var(--emerald-bg-20); color: var(--emerald-200); }
         .agent-option-status.offline { background: var(--slate-500-20); color: var(--text-secondary); }
+        .agent-option-env { font-size: 9px; margin-left: 6px; }
         .form-hint { font-size: 10px; color: var(--text-secondary); margin-top: 0.25rem; }
 
         /* Logs Panel */
@@ -575,6 +602,20 @@
             background: var(--slate-500-50);
             border-radius: 3px;
         }
+
+        /* Environment access info */
+        .env-access-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--slate-bg-80);
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .env-access-info .env-badge { margin-left: 4px; }
     </style>
 </head>
 <body>
@@ -721,6 +762,12 @@
                             <button class="btn" onclick="loadData()">Refresh</button>
                         </div>
 
+                        <!-- Environment Access Info -->
+                        <div class="env-access-info" id="envAccessInfo">
+                            <span>🔐 Your environment access:</span>
+                            <span id="userEnvBadges">Loading...</span>
+                        </div>
+
                         <div class="kpi-row">
                             <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value" id="kpiAgentsTotal">0</div></div>
                             <div class="kpi-card"><div class="kpi-label">Online</div><div class="kpi-value" style="color: var(--emerald-200);" id="kpiAgentsOnline">0</div></div>
@@ -728,16 +775,21 @@
                         </div>
 
                         <div class="filter-bar">
-                            <span class="filter-label">Filter:</span>
+                            <span class="filter-label">Status:</span>
                             <button class="filter-btn active" onclick="filterAgents('all')">All</button>
                             <button class="filter-btn" onclick="filterAgents('online')">Online</button>
                             <button class="filter-btn" onclick="filterAgents('offline')">Offline</button>
+                            <span class="filter-label" style="margin-left: 16px;">Environment:</span>
+                            <button class="filter-btn" onclick="filterAgentsByEnv('all')" id="envFilterAll">All</button>
+                            <button class="filter-btn" onclick="filterAgentsByEnv('DEV')" id="envFilterDev">DEV</button>
+                            <button class="filter-btn" onclick="filterAgentsByEnv('TEST')" id="envFilterTest">TEST</button>
+                            <button class="filter-btn" onclick="filterAgentsByEnv('PROD')" id="envFilterProd">PROD</button>
                         </div>
 
                         <div class="table-container">
                             <table>
-                                <thead><tr><th>Name</th><th>Host</th><th>Port</th><th>Status</th><th>Last Seen</th></tr></thead>
-                                <tbody id="agentsTable"><tr><td colspan="5" class="empty-row">No agents registered</td></tr></tbody>
+                                <thead><tr><th>Name</th><th>Host</th><th>Port</th><th>Environment</th><th>Status</th><th>Last Seen</th></tr></thead>
+                                <tbody id="agentsTable"><tr><td colspan="6" class="empty-row">No agents registered</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -745,10 +797,18 @@
                     <div class="tab-section">
                         <div class="form-section" style="margin-top: 0;">
                             <div class="form-title">Register New Agent</div>
-                            <div class="form-grid single">
+                            <div class="form-grid">
                                 <div class="form-group"><div class="form-label">Agent Name</div><input type="text" class="form-input" id="agentName" placeholder="server1"></div>
                                 <div class="form-group"><div class="form-label">Host</div><input type="text" class="form-input" id="agentHost" placeholder="192.168.1.100"></div>
                                 <div class="form-group"><div class="form-label">Port</div><input type="number" class="form-input" id="agentPort" value="8001"></div>
+                                <div class="form-group">
+                                    <div class="form-label">Environment</div>
+                                    <select class="form-input" id="agentEnvironment">
+                                        <option value="DEV">DEV</option>
+                                        <option value="TEST">TEST</option>
+                                        <option value="PROD">PROD</option>
+                                    </select>
+                                </div>
                             </div>
                             <button class="btn btn-primary" onclick="registerAgent()">Register Agent</button>
                         </div>
@@ -942,7 +1002,8 @@
         const API_BASE = '/api';
         let currentUser = null, workflows = [], agents = [], scripts = [], selectedAgents = [], logs = [], logfiles = {}, selectedWorkflow = null, logsExpanded = true, loading = false;
         let currentTab = 'workflows';
-        let workflowFilter = 'all', agentFilter = 'all';
+        let workflowFilter = 'all', agentFilter = 'all', agentEnvFilter = 'all';
+        let userAllowedEnvironments = [];
         let refreshCountdown = 30;
         let countdownInterval = null;
         let activityFooterExpanded = true;
@@ -995,9 +1056,21 @@
 
         function filterAgents(status) {
             agentFilter = status;
-            document.querySelectorAll('#tab-agents .filter-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.textContent.toLowerCase() === status);
+            document.querySelectorAll('#tab-agents .filter-bar .filter-btn').forEach(btn => {
+                const btnText = btn.textContent.toLowerCase();
+                if (btnText === 'all' || btnText === 'online' || btnText === 'offline') {
+                    btn.classList.toggle('active', btnText === status);
+                }
             });
+            renderAgents();
+        }
+
+        function filterAgentsByEnv(env) {
+            agentEnvFilter = env;
+            document.getElementById('envFilterAll').classList.toggle('active', env === 'all');
+            document.getElementById('envFilterDev').classList.toggle('active', env === 'DEV');
+            document.getElementById('envFilterTest').classList.toggle('active', env === 'TEST');
+            document.getElementById('envFilterProd').classList.toggle('active', env === 'PROD');
             renderAgents();
         }
 
@@ -1055,6 +1128,27 @@
             
             document.getElementById('kpiScriptsTotal').textContent = total;
             document.getElementById('kpiScriptsTimeout').textContent = `${avgTimeout}s`;
+        }
+
+        // Update environment access display
+        function updateEnvAccessDisplay() {
+            const container = document.getElementById('userEnvBadges');
+            if (!container) return;
+            
+            if (userAllowedEnvironments.length === 0) {
+                container.innerHTML = '<span style="color: var(--rose-200);">No access configured</span>';
+                return;
+            }
+            
+            if (userAllowedEnvironments.includes('*')) {
+                container.innerHTML = '<span class="env-badge env-dev">DEV</span> <span class="env-badge env-test">TEST</span> <span class="env-badge env-prod">PROD</span> <span style="color: var(--emerald-200); margin-left: 4px;">(Full Access)</span>';
+                return;
+            }
+            
+            container.innerHTML = userAllowedEnvironments.map(env => {
+                const envLower = env.toLowerCase();
+                return `<span class="env-badge env-${envLower}">${env}</span>`;
+            }).join(' ');
         }
 
         document.addEventListener('DOMContentLoaded', () => { 
@@ -1298,6 +1392,13 @@
                 const [wfResp, agResp] = await Promise.all([apiCall('/workflows').catch(() => ({ workflows: [] })), apiCall('/agents/').catch(() => ({ agents: [] }))]);
                 workflows = Array.isArray(wfResp) ? wfResp : wfResp.workflows || [];
                 agents = Array.isArray(agResp) ? agResp : agResp.agents || [];
+                
+                // Store user's allowed environments from the agents response
+                if (agResp.allowed_environments) {
+                    userAllowedEnvironments = agResp.allowed_environments;
+                    updateEnvAccessDisplay();
+                }
+                
                 renderWorkflows(); renderAgents(); updateKPIs(); updateAgentsKPIs(); updateTabBadges();
                 // Refresh Reports tab agent dropdown
                 if (typeof ReportsModule !== 'undefined') ReportsModule.refreshAgents();
@@ -1338,22 +1439,50 @@
 
         function renderAgents() {
             const tbody = document.getElementById('agentsTable'), selector = document.getElementById('agentSelector');
-            const filtered = agentFilter === 'all' ? agents : agents.filter(a => a.status === agentFilter);
+            
+            // Apply both status and environment filters
+            let filtered = agents;
+            if (agentFilter !== 'all') {
+                filtered = filtered.filter(a => a.status === agentFilter);
+            }
+            if (agentEnvFilter !== 'all') {
+                filtered = filtered.filter(a => (a.environment || 'DEV').toUpperCase() === agentEnvFilter);
+            }
             
             if (agents.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-row">No agents registered</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-row">No agents registered</td></tr>';
                 selector.innerHTML = '<div style="padding: 0.25rem; text-align: center; color: var(--text-secondary); font-size: 11px;">No agents registered. Register an agent first →</div>';
                 return;
             }
             
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="empty-row">No ${agentFilter} agents</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-row">No matching agents</td></tr>`;
             } else {
-                tbody.innerHTML = filtered.map(a => `<tr><td>${escapeHtml(a.agent_name)}</td><td>${escapeHtml(a.host)}</td><td>${a.port}</td><td><span class="badge badge-${a.status === 'online' ? 'online' : 'offline'}">${a.status}</span></td><td style="font-size: 11px; color: var(--text-secondary);">${formatDate(a.last_seen)}</td></tr>`).join('');
+                tbody.innerHTML = filtered.map(a => {
+                    const env = (a.environment || 'DEV').toUpperCase();
+                    const envClass = env.toLowerCase();
+                    return `<tr>
+                        <td>${escapeHtml(a.agent_name)}</td>
+                        <td>${escapeHtml(a.host)}</td>
+                        <td>${a.port}</td>
+                        <td><span class="env-badge env-${envClass}">${env}</span></td>
+                        <td><span class="badge badge-${a.status === 'online' ? 'online' : 'offline'}">${a.status}</span></td>
+                        <td style="font-size: 11px; color: var(--text-secondary);">${formatDate(a.last_seen)}</td>
+                    </tr>`;
+                }).join('');
             }
             
-            // Selector always shows all agents for workflow creation
-            selector.innerHTML = agents.map(a => `<label class="agent-option"><input type="checkbox" value="${escapeHtml(a.agent_name)}" ${selectedAgents.includes(a.agent_name) ? 'checked' : ''} onchange="toggleAgentSelection('${escapeHtml(a.agent_name)}', this.checked)"><span class="agent-option-name">${escapeHtml(a.agent_name)}</span><span class="agent-option-status ${a.status}">${a.status}</span></label>`).join('');
+            // Selector always shows all agents for workflow creation (with environment info)
+            selector.innerHTML = agents.map(a => {
+                const env = (a.environment || 'DEV').toUpperCase();
+                const envClass = env.toLowerCase();
+                return `<label class="agent-option">
+                    <input type="checkbox" value="${escapeHtml(a.agent_name)}" ${selectedAgents.includes(a.agent_name) ? 'checked' : ''} onchange="toggleAgentSelection('${escapeHtml(a.agent_name)}', this.checked)">
+                    <span class="agent-option-name">${escapeHtml(a.agent_name)}</span>
+                    <span class="agent-option-env env-badge env-${envClass}">${env}</span>
+                    <span class="agent-option-status ${a.status}">${a.status}</span>
+                </label>`;
+            }).join('');
         }
 
         function updateKPIs() {
@@ -1500,10 +1629,32 @@
         function toggleAgentSelection(name, checked) { if (checked) { if (!selectedAgents.includes(name)) selectedAgents.push(name); } else { selectedAgents = selectedAgents.filter(a => a !== name); } document.getElementById('selectedCount').textContent = selectedAgents.length; }
 
         async function registerAgent() {
-            const name = document.getElementById('agentName').value.trim(), host = document.getElementById('agentHost').value.trim(), portStr = document.getElementById('agentPort').value.trim();
+            const name = document.getElementById('agentName').value.trim();
+            const host = document.getElementById('agentHost').value.trim();
+            const portStr = document.getElementById('agentPort').value.trim();
+            const environment = document.getElementById('agentEnvironment').value;
+            
             if (!name || !host || !portStr) { addLog('Please fill in all agent fields', 'error'); return; }
-            const port = parseInt(portStr, 10); if (isNaN(port) || port < 1 || port > 65535) { addLog('Port must be between 1-65535', 'error'); return; }
-            try { await apiCall('/agents/register', { method: 'POST', body: JSON.stringify({ agent_name: name, host, port }) }); addLog(`Agent ${name} registered`, 'success'); document.getElementById('agentName').value = ''; document.getElementById('agentHost').value = ''; document.getElementById('agentPort').value = '8001'; loadData(); }
+            const port = parseInt(portStr, 10); 
+            if (isNaN(port) || port < 1 || port > 65535) { addLog('Port must be between 1-65535', 'error'); return; }
+            
+            try { 
+                await apiCall('/agents/', { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        agent_name: name, 
+                        host, 
+                        port,
+                        environment: environment
+                    }) 
+                }); 
+                addLog(`Agent ${name} registered in ${environment} environment`, 'success'); 
+                document.getElementById('agentName').value = ''; 
+                document.getElementById('agentHost').value = ''; 
+                document.getElementById('agentPort').value = '8001'; 
+                document.getElementById('agentEnvironment').value = 'DEV';
+                loadData(); 
+            }
             catch (err) { addLog(`Failed to register agent: ${err.message}`, 'error'); }
         }
 
@@ -1687,7 +1838,8 @@
                     agentList.map(a => {
                         const disabled = a.status !== 'online' ? 'disabled' : '';
                         const status = a.status === 'online' ? '🟢' : '🔴';
-                        return '<option value="' + escapeHtml(a.agent_name) + '" ' + disabled + '>' + status + ' ' + escapeHtml(a.agent_name) + ' (' + escapeHtml(a.host) + ')</option>';
+                        const env = (a.environment || 'DEV').toUpperCase();
+                        return '<option value="' + escapeHtml(a.agent_name) + '" ' + disabled + '>' + status + ' ' + escapeHtml(a.agent_name) + ' [' + env + '] (' + escapeHtml(a.host) + ')</option>';
                     }).join('');
             }
 
