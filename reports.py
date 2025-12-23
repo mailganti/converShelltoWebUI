@@ -1,428 +1,573 @@
+# controller/routes/reports_api.py
 """
-Reports API - Backend for running read-only status reports on agents
-====================================================================
-Reports are registered similar to scripts but bypass the approval workflow.
-They execute on selected agents and stream output via WebSocket.
+Reports API - Run read-only status scripts without approval workflow
+Supports parameterized scripts and real-time output streaming
 """
 
-from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect, Depends
-from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
-from datetime import datetime
 import asyncio
-import uuid
 import json
+import logging
 import os
+import uuid
+from datetime import datetime
+from typing import Optional, List, Dict, Any
 
-router = APIRouter()
+from fastapi import APIRouter, HTTPException, Depends, WebSocket, WebSocketDisconnect
+from pydantic import BaseModel, Field
+import httpx
 
-# ============================================================================
-# Data Models
-# ============================================================================
+from controller.db.db import get_db
+from controller.deps import verify_token, require_admin
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter(prefix="/reports", tags=["reports"])
+
+# Store active report runs for WebSocket streaming
+active_runs: Dict[str, dict] = {}
+
+# SSL Configuration (same as agents)
+SSL_ENABLED = os.getenv("SSL_ENABLED", "true").lower() == "true"
+SSL_VERIFY = os.getenv("SSL_VERIFY", "false").lower() == "true"
+SSL_CA_CERTS = os.getenv("SSL_CA_CERTS", "./certs/certChain.pem")
+
+
+# =============================================================================
+# Pydantic Models
+# =============================================================================
 
 class ReportParameter(BaseModel):
-    """A parameter definition for a report"""
-    name: str = Field(..., description="Parameter name (used as key)")
-    label: str = Field(None, description="Display label")
-    type: str = Field("text", description="Input type: text, number, date, select, checkbox, textarea")
-    required: bool = Field(False, description="Whether parameter is required")
-    default: Any = Field(None, description="Default value")
-    placeholder: str = Field("", description="Placeholder text")
-    options: List[str] = Field(default_factory=list, description="Options for select type")
-    min: Optional[float] = Field(None, description="Min value for number type")
-    max: Optional[float] = Field(None, description="Max value for number type")
+    """Schema for a report parameter definition"""
+    name: str = Field(..., min_length=1, max_length=50)
+    label: Optional[str] = None
+    type: str = Field(default="text", pattern='^(text|number|date|select|checkbox|textarea)$')
+    required: bool = False
+    default: Optional[Any] = None
+    placeholder: Optional[str] = None
+    options: Optional[List[str]] = None  # For select type
+    min: Optional[float] = None  # For number type
+    max: Optional[float] = None  # For number type
 
-class ReportScript(BaseModel):
-    """Registered report script"""
-    script_id: str = Field(..., description="Unique report ID")
-    name: str = Field(..., description="Display name")
-    description: str = Field("", description="What this report does")
-    script_path: str = Field(..., description="Path to script on agent")
-    category: str = Field("General", description="Category for grouping")
-    timeout: int = Field(300, description="Timeout in seconds")
-    parameters: List[ReportParameter] = Field(default_factory=list, description="Parameter definitions")
 
-class ReportRegisterRequest(BaseModel):
-    """Request to register a new report script"""
-    script_id: str
-    name: Optional[str] = None
-    description: str = ""
-    script_path: str
-    category: str = "General"
-    timeout: int = 300
-    parameters: List[Dict[str, Any]] = Field(default_factory=list, description="Parameter definitions")
+class ReportScriptRegister(BaseModel):
+    """Schema for registering a report script"""
+    script_id: str = Field(..., min_length=1, max_length=100, pattern='^[a-zA-Z0-9_-]+$')
+    name: Optional[str] = Field(None, max_length=255)
+    script_path: str = Field(..., min_length=1, max_length=500)
+    category: str = Field(default="General", max_length=50)
+    description: Optional[str] = Field(None, max_length=500)
+    timeout: int = Field(default=300, ge=1, le=3600)
+    parameters: Optional[List[ReportParameter]] = None
+
 
 class ReportRunRequest(BaseModel):
-    """Request to run a report"""
-    target: str = Field(..., description="Agent name to run on")
-    parameters: Dict[str, Any] = Field(default_factory=dict)
+    """Schema for running a report"""
+    target: str = Field(..., min_length=1, max_length=255)
+    parameters: Optional[Dict[str, Any]] = None
 
-class ReportRun(BaseModel):
-    """A report execution record"""
-    run_id: str
-    script_id: str
-    target: str
-    status: str  # pending, running, completed, failed
-    started_at: datetime
-    completed_at: Optional[datetime] = None
-    exit_code: Optional[int] = None
-    output: str = ""
 
-# ============================================================================
-# In-Memory Storage (replace with DB in production)
-# ============================================================================
+# =============================================================================
+# Helper Functions
+# =============================================================================
 
-# Registered report scripts
-_report_scripts: Dict[str, ReportScript] = {}
+def get_ssl_verify_config():
+    """Get SSL verification config for httpx client"""
+    if not SSL_VERIFY:
+        return False
+    if SSL_CA_CERTS and os.path.exists(SSL_CA_CERTS):
+        return SSL_CA_CERTS
+    return False
 
-# Report execution history
-_report_runs: Dict[str, ReportRun] = {}
 
-# Active WebSocket connections for streaming output
-_ws_connections: Dict[str, List[WebSocket]] = {}
+def init_reports_table(db):
+    """Initialize the report_scripts table if it doesn't exist"""
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS report_scripts (
+            script_id VARCHAR(100) PRIMARY KEY,
+            name VARCHAR(255),
+            script_path VARCHAR(500) NOT NULL,
+            category VARCHAR(50) DEFAULT 'General',
+            description VARCHAR(500),
+            timeout INTEGER DEFAULT 300,
+            parameters TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now'))
+        )
+    """)
+    
+    # Create report_runs table for history
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS report_runs (
+            run_id VARCHAR(50) PRIMARY KEY,
+            script_id VARCHAR(100) NOT NULL,
+            target_agent VARCHAR(255) NOT NULL,
+            parameters TEXT,
+            status VARCHAR(20) DEFAULT 'pending',
+            started_at TEXT DEFAULT (datetime('now')),
+            completed_at TEXT,
+            exit_code INTEGER,
+            run_by VARCHAR(255),
+            FOREIGN KEY (script_id) REFERENCES report_scripts(script_id)
+        )
+    """)
 
-# ============================================================================
-# Report Script Registration Endpoints
-# ============================================================================
+
+# =============================================================================
+# Routes - Script Management
+# =============================================================================
 
 @router.get("/scripts")
-async def list_report_scripts() -> List[dict]:
+async def list_report_scripts(user: dict = Depends(verify_token)):
     """List all registered report scripts"""
-    return [
-        {
-            "id": s.script_id,
-            "script_id": s.script_id,
-            "name": s.name,
-            "description": s.description,
-            "script_path": s.script_path,
-            "category": s.category,
-            "timeout": s.timeout,
-            "parameters": [p.dict() for p in s.parameters]
-        }
-        for s in _report_scripts.values()
-    ]
-
-@router.post("/scripts/register")
-async def register_report_script(req: ReportRegisterRequest) -> dict:
-    """Register a new report script"""
-    # Convert parameter dicts to ReportParameter objects
-    params = []
-    for p in req.parameters:
-        params.append(ReportParameter(
-            name=p.get('name'),
-            label=p.get('label', p.get('name')),
-            type=p.get('type', 'text'),
-            required=p.get('required', False),
-            default=p.get('default'),
-            placeholder=p.get('placeholder', ''),
-            options=p.get('options', []),
-            min=p.get('min'),
-            max=p.get('max')
-        ))
+    db = get_db()
     
-    script = ReportScript(
-        script_id=req.script_id,
-        name=req.name or req.script_id,
-        description=req.description,
-        script_path=req.script_path,
-        category=req.category,
-        timeout=req.timeout,
-        parameters=params
-    )
-    _report_scripts[req.script_id] = script
-    return {"status": "registered", "script_id": req.script_id}
+    # Ensure table exists
+    init_reports_table(db)
+    
+    try:
+        rows = db.query("SELECT * FROM report_scripts ORDER BY category, name")
+        scripts = []
+        for row in rows:
+            script = dict(row)
+            # Parse parameters JSON
+            if script.get('parameters'):
+                try:
+                    script['parameters'] = json.loads(script['parameters'])
+                except json.JSONDecodeError:
+                    script['parameters'] = []
+            else:
+                script['parameters'] = []
+            scripts.append(script)
+        
+        return {"scripts": scripts, "count": len(scripts)}
+    except Exception as e:
+        logger.error(f"Error listing report scripts: {e}")
+        return {"scripts": [], "count": 0}
 
-@router.delete("/scripts/{script_id}")
-async def unregister_report_script(script_id: str) -> dict:
-    """Unregister a report script"""
-    if script_id not in _report_scripts:
-        raise HTTPException(status_code=404, detail="Report script not found")
-    del _report_scripts[script_id]
-    return {"status": "unregistered", "script_id": script_id}
 
-# ============================================================================
-# Report Execution Endpoints
-# ============================================================================
-
-@router.post("/run/{script_id}")
-async def run_report(script_id: str, req: ReportRunRequest) -> dict:
-    """
-    Start a report execution on the specified agent.
-    Returns a run_id for tracking and WebSocket connection.
-    """
-    if script_id not in _report_scripts:
+@router.get("/scripts/{script_id}")
+async def get_report_script(script_id: str, user: dict = Depends(verify_token)):
+    """Get a specific report script by ID"""
+    db = get_db()
+    init_reports_table(db)
+    
+    rows = db.query("SELECT * FROM report_scripts WHERE script_id = ?", (script_id,))
+    if not rows:
         raise HTTPException(status_code=404, detail=f"Report script '{script_id}' not found")
     
-    script = _report_scripts[script_id]
-    run_id = str(uuid.uuid4())[:8]
+    script = dict(rows[0])
+    if script.get('parameters'):
+        try:
+            script['parameters'] = json.loads(script['parameters'])
+        except json.JSONDecodeError:
+            script['parameters'] = []
     
-    # Create run record
-    run = ReportRun(
-        run_id=run_id,
-        script_id=script_id,
-        target=req.target,
-        status="pending",
-        started_at=datetime.utcnow()
-    )
-    _report_runs[run_id] = run
+    return script
+
+
+@router.post("/scripts/register")
+async def register_report_script(
+    script: ReportScriptRegister,
+    user: dict = Depends(require_admin)
+):
+    """Register a new report script (admin only)"""
+    db = get_db()
+    init_reports_table(db)
     
-    # Start async execution
-    asyncio.create_task(_execute_report(run_id, script, req.target, req.parameters))
+    # Check if script already exists
+    existing = db.query("SELECT script_id FROM report_scripts WHERE script_id = ?", (script.script_id,))
+    
+    # Serialize parameters to JSON
+    params_json = json.dumps([p.dict() for p in script.parameters]) if script.parameters else None
+    
+    if existing:
+        # Update existing
+        db.execute("""
+            UPDATE report_scripts 
+            SET name = ?, script_path = ?, category = ?, description = ?, 
+                timeout = ?, parameters = ?, updated_at = datetime('now')
+            WHERE script_id = ?
+        """, (
+            script.name or script.script_id,
+            script.script_path,
+            script.category,
+            script.description,
+            script.timeout,
+            params_json,
+            script.script_id
+        ))
+        logger.info(f"Updated report script: {script.script_id}")
+        return {"message": "Report script updated", "script_id": script.script_id}
+    else:
+        # Insert new
+        db.execute("""
+            INSERT INTO report_scripts (script_id, name, script_path, category, description, timeout, parameters)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            script.script_id,
+            script.name or script.script_id,
+            script.script_path,
+            script.category,
+            script.description,
+            script.timeout,
+            params_json
+        ))
+        logger.info(f"Registered report script: {script.script_id}")
+        return {"message": "Report script registered", "script_id": script.script_id}
+
+
+@router.delete("/scripts/{script_id}")
+async def delete_report_script(script_id: str, user: dict = Depends(require_admin)):
+    """Delete a report script (admin only)"""
+    db = get_db()
+    init_reports_table(db)
+    
+    existing = db.query("SELECT script_id FROM report_scripts WHERE script_id = ?", (script_id,))
+    if not existing:
+        raise HTTPException(status_code=404, detail=f"Report script '{script_id}' not found")
+    
+    db.execute("DELETE FROM report_scripts WHERE script_id = ?", (script_id,))
+    logger.info(f"Deleted report script: {script_id}")
+    
+    return {"message": "Report script deleted", "script_id": script_id}
+
+
+# =============================================================================
+# Routes - Report Execution
+# =============================================================================
+
+@router.post("/run/{script_id}")
+async def run_report(
+    script_id: str,
+    request: ReportRunRequest,
+    user: dict = Depends(verify_token)
+):
+    """Run a report script on a target agent"""
+    db = get_db()
+    init_reports_table(db)
+    
+    # Get the script
+    rows = db.query("SELECT * FROM report_scripts WHERE script_id = ?", (script_id,))
+    if not rows:
+        raise HTTPException(status_code=404, detail=f"Report script '{script_id}' not found")
+    
+    script = dict(rows[0])
+    
+    # Get the target agent
+    agent = db.get_agent(request.target)
+    if not agent:
+        raise HTTPException(status_code=404, detail=f"Agent '{request.target}' not found")
+    
+    if agent.get('status') != 'online':
+        raise HTTPException(status_code=400, detail=f"Agent '{request.target}' is not online")
+    
+    # Parse script parameters definition
+    param_defs = []
+    if script.get('parameters'):
+        try:
+            param_defs = json.loads(script['parameters']) if isinstance(script['parameters'], str) else script['parameters']
+        except json.JSONDecodeError:
+            param_defs = []
+    
+    # Validate required parameters
+    provided_params = request.parameters or {}
+    for param_def in param_defs:
+        if param_def.get('required') and param_def['name'] not in provided_params:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Required parameter '{param_def['name']}' is missing"
+            )
+    
+    # Generate run ID
+    run_id = f"run-{uuid.uuid4().hex[:12]}"
+    
+    # Record the run
+    db.execute("""
+        INSERT INTO report_runs (run_id, script_id, target_agent, parameters, status, run_by)
+        VALUES (?, ?, ?, ?, 'running', ?)
+    """, (
+        run_id,
+        script_id,
+        request.target,
+        json.dumps(provided_params) if provided_params else None,
+        user.get('username', 'unknown')
+    ))
+    
+    # Initialize active run for WebSocket streaming
+    active_runs[run_id] = {
+        'script_id': script_id,
+        'script_path': script['script_path'],
+        'target': request.target,
+        'agent': agent,
+        'parameters': provided_params,
+        'timeout': script.get('timeout', 300),
+        'status': 'running',
+        'output': [],
+        'subscribers': []
+    }
+    
+    # Start execution in background
+    asyncio.create_task(execute_report(run_id, db))
+    
+    logger.info(f"Started report run {run_id}: {script_id} on {request.target}")
     
     return {
         "run_id": run_id,
-        "status": "started",
-        "ws_url": f"/api/reports/ws/{run_id}"
+        "script_id": script_id,
+        "target": request.target,
+        "status": "running"
     }
 
-async def _execute_report(run_id: str, script: ReportScript, target: str, parameters: Dict):
-    """Execute the report on the target agent"""
-    run = _report_runs.get(run_id)
-    if not run:
+
+async def execute_report(run_id: str, db):
+    """Execute the report script on the agent"""
+    run_info = active_runs.get(run_id)
+    if not run_info:
         return
     
-    run.status = "running"
+    agent = run_info['agent']
+    script_path = run_info['script_path']
+    parameters = run_info['parameters']
+    timeout = run_info['timeout']
+    
+    # Build the agent URL
+    ssl_enabled = agent.get('ssl_enabled', SSL_ENABLED)
+    protocol = "https" if ssl_enabled else "http"
+    agent_url = f"{protocol}://{agent['host']}:{agent['port']}"
+    
+    verify_ssl = get_ssl_verify_config()
     
     try:
-        # Import agent communication module
-        # This should be your existing agent execution code
-        from agents import get_agent, execute_on_agent  # Adjust import as needed
+        # Build command with parameters
+        cmd = script_path
+        if parameters:
+            # Pass parameters as environment variables or command line args
+            # Option 1: As JSON env var
+            param_env = {"REPORT_PARAMS": json.dumps(parameters)}
+            # Option 2: As command line args (key=value format)
+            param_args = " ".join([f"{k}={v}" for k, v in parameters.items() if v is not None])
+            if param_args:
+                cmd = f"{script_path} {param_args}"
         
-        agent = get_agent(target)
-        if not agent:
-            raise Exception(f"Agent '{target}' not found or offline")
-        
-        # Execute script on agent
-        result = await execute_on_agent(
-            agent=agent,
-            script_path=script.script_path,
-            timeout=script.timeout,
-            parameters=parameters,
-            stream_callback=lambda data: _broadcast_output(run_id, data)
-        )
-        
-        run.status = "completed"
-        run.exit_code = result.get("exit_code", 0)
-        run.output = result.get("output", "")
-        
-        # Notify WebSocket clients
-        await _broadcast_complete(run_id, run.status, run.exit_code)
+        # Send to agent for execution
+        async with httpx.AsyncClient(timeout=timeout + 10, verify=verify_ssl) as client:
+            response = await client.post(
+                f"{agent_url}/execute",
+                json={
+                    "command": cmd,
+                    "timeout": timeout,
+                    "stream": True,
+                    "env": {"REPORT_PARAMS": json.dumps(parameters)} if parameters else {}
+                }
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                stdout = result.get('stdout', '')
+                stderr = result.get('stderr', '')
+                exit_code = result.get('exit_code', 0)
+                
+                # Send output to subscribers
+                if stdout:
+                    await broadcast_output(run_id, stdout)
+                if stderr:
+                    await broadcast_output(run_id, f"\n[STDERR]\n{stderr}")
+                
+                # Update status
+                status = 'completed' if exit_code == 0 else 'failed'
+                run_info['status'] = status
+                run_info['exit_code'] = exit_code
+                
+                # Notify completion
+                await broadcast_complete(run_id, status, exit_code)
+                
+                # Update database
+                db.execute("""
+                    UPDATE report_runs 
+                    SET status = ?, completed_at = datetime('now'), exit_code = ?
+                    WHERE run_id = ?
+                """, (status, exit_code, run_id))
+                
+            else:
+                error_msg = f"Agent returned status {response.status_code}"
+                await broadcast_output(run_id, f"\n[ERROR] {error_msg}\n")
+                await broadcast_complete(run_id, 'failed', -1)
+                
+                db.execute("""
+                    UPDATE report_runs 
+                    SET status = 'failed', completed_at = datetime('now'), exit_code = -1
+                    WHERE run_id = ?
+                """, (run_id,))
+                
+    except httpx.TimeoutException:
+        await broadcast_output(run_id, "\n[ERROR] Execution timeout\n")
+        await broadcast_complete(run_id, 'timeout', -1)
+        db.execute("""
+            UPDATE report_runs 
+            SET status = 'timeout', completed_at = datetime('now'), exit_code = -1
+            WHERE run_id = ?
+        """, (run_id,))
         
     except Exception as e:
-        run.status = "failed"
-        run.output = str(e)
-        await _broadcast_error(run_id, str(e))
+        logger.error(f"Report execution error: {e}")
+        await broadcast_output(run_id, f"\n[ERROR] {str(e)}\n")
+        await broadcast_complete(run_id, 'failed', -1)
+        db.execute("""
+            UPDATE report_runs 
+            SET status = 'failed', completed_at = datetime('now'), exit_code = -1
+            WHERE run_id = ?
+        """, (run_id,))
     
     finally:
-        run.completed_at = datetime.utcnow()
+        # Clean up after a delay
+        await asyncio.sleep(60)
+        active_runs.pop(run_id, None)
 
-def _broadcast_output(run_id: str, data: str):
-    """Broadcast output to all connected WebSocket clients"""
-    asyncio.create_task(_async_broadcast(run_id, {"type": "output", "data": data}))
 
-async def _broadcast_complete(run_id: str, status: str, exit_code: int):
-    """Broadcast completion to all connected WebSocket clients"""
-    await _async_broadcast(run_id, {
+async def broadcast_output(run_id: str, data: str):
+    """Broadcast output to all WebSocket subscribers"""
+    run_info = active_runs.get(run_id)
+    if not run_info:
+        return
+    
+    run_info['output'].append(data)
+    
+    message = json.dumps({"type": "output", "data": data})
+    
+    dead_sockets = []
+    for ws in run_info['subscribers']:
+        try:
+            await ws.send_text(message)
+        except Exception:
+            dead_sockets.append(ws)
+    
+    # Remove dead sockets
+    for ws in dead_sockets:
+        run_info['subscribers'].remove(ws)
+
+
+async def broadcast_complete(run_id: str, status: str, exit_code: int):
+    """Broadcast completion to all WebSocket subscribers"""
+    run_info = active_runs.get(run_id)
+    if not run_info:
+        return
+    
+    message = json.dumps({
         "type": "complete",
         "status": status,
         "exit_code": exit_code
     })
-
-async def _broadcast_error(run_id: str, message: str):
-    """Broadcast error to all connected WebSocket clients"""
-    await _async_broadcast(run_id, {"type": "error", "message": message})
-
-async def _async_broadcast(run_id: str, message: dict):
-    """Send message to all WebSocket connections for this run"""
-    if run_id not in _ws_connections:
-        return
     
-    dead_connections = []
-    for ws in _ws_connections[run_id]:
+    for ws in run_info['subscribers']:
         try:
-            await ws.send_text(json.dumps(message))
-        except:
-            dead_connections.append(ws)
-    
-    # Clean up dead connections
-    for ws in dead_connections:
-        _ws_connections[run_id].remove(ws)
+            await ws.send_text(message)
+        except Exception:
+            pass
 
-# ============================================================================
-# WebSocket for Streaming Output
-# ============================================================================
+
+# =============================================================================
+# WebSocket for Real-time Output
+# =============================================================================
 
 @router.websocket("/ws/{run_id}")
-async def report_output_stream(websocket: WebSocket, run_id: str):
+async def websocket_output(websocket: WebSocket, run_id: str):
     """WebSocket endpoint for streaming report output"""
     await websocket.accept()
     
-    # Register connection
-    if run_id not in _ws_connections:
-        _ws_connections[run_id] = []
-    _ws_connections[run_id].append(websocket)
+    run_info = active_runs.get(run_id)
+    if not run_info:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Run not found or already completed"
+        }))
+        await websocket.close()
+        return
+    
+    # Add to subscribers
+    run_info['subscribers'].append(websocket)
+    
+    # Send any existing output
+    for output in run_info['output']:
+        await websocket.send_text(json.dumps({"type": "output", "data": output}))
+    
+    # If already complete, send completion
+    if run_info['status'] in ['completed', 'failed', 'timeout']:
+        await websocket.send_text(json.dumps({
+            "type": "complete",
+            "status": run_info['status'],
+            "exit_code": run_info.get('exit_code', -1)
+        }))
     
     try:
-        # Send any existing output
-        run = _report_runs.get(run_id)
-        if run and run.output:
-            await websocket.send_text(json.dumps({"type": "output", "data": run.output}))
-        
-        # If already complete, send status
-        if run and run.status in ("completed", "failed"):
-            await websocket.send_text(json.dumps({
-                "type": "complete",
-                "status": run.status,
-                "exit_code": run.exit_code
-            }))
-        
         # Keep connection alive
         while True:
-            try:
-                data = await asyncio.wait_for(websocket.receive_text(), timeout=30)
-                if data == "ping":
-                    await websocket.send_text("pong")
-            except asyncio.TimeoutError:
-                # Send ping to keep alive
-                try:
-                    await websocket.send_text("ping")
-                except:
-                    break
-                    
+            data = await websocket.receive_text()
+            if data == "ping":
+                await websocket.send_text("pong")
     except WebSocketDisconnect:
         pass
     finally:
-        # Unregister connection
-        if run_id in _ws_connections and websocket in _ws_connections[run_id]:
-            _ws_connections[run_id].remove(websocket)
+        # Remove from subscribers
+        if run_id in active_runs and websocket in active_runs[run_id]['subscribers']:
+            active_runs[run_id]['subscribers'].remove(websocket)
 
-# ============================================================================
-# History & Results Endpoints
-# ============================================================================
+
+# =============================================================================
+# Routes - Run History
+# =============================================================================
 
 @router.get("/history")
-async def get_report_history(limit: int = 20) -> List[dict]:
-    """Get recent report execution history"""
-    runs = sorted(
-        _report_runs.values(),
-        key=lambda r: r.started_at,
-        reverse=True
-    )[:limit]
+async def get_report_history(
+    limit: int = 50,
+    script_id: Optional[str] = None,
+    user: dict = Depends(verify_token)
+):
+    """Get report run history"""
+    db = get_db()
+    init_reports_table(db)
     
-    return [
-        {
-            "run_id": r.run_id,
-            "script_id": r.script_id,
-            "target": r.target,
-            "status": r.status,
-            "started_at": r.started_at.isoformat(),
-            "completed_at": r.completed_at.isoformat() if r.completed_at else None,
-            "exit_code": r.exit_code
-        }
-        for r in runs
-    ]
-
-@router.get("/result/{run_id}")
-async def get_report_result(run_id: str) -> dict:
-    """Get the result of a specific report run"""
-    run = _report_runs.get(run_id)
-    if not run:
-        raise HTTPException(status_code=404, detail="Report run not found")
+    if script_id:
+        rows = db.query("""
+            SELECT * FROM report_runs 
+            WHERE script_id = ?
+            ORDER BY started_at DESC 
+            LIMIT ?
+        """, (script_id, limit))
+    else:
+        rows = db.query("""
+            SELECT * FROM report_runs 
+            ORDER BY started_at DESC 
+            LIMIT ?
+        """, (limit,))
     
-    return {
-        "run_id": run.run_id,
-        "script_id": run.script_id,
-        "target": run.target,
-        "status": run.status,
-        "started_at": run.started_at.isoformat(),
-        "completed_at": run.completed_at.isoformat() if run.completed_at else None,
-        "exit_code": run.exit_code,
-        "output": run.output
-    }
-
-@router.delete("/result/{run_id}")
-async def cancel_report(run_id: str) -> dict:
-    """Cancel a running report (best effort)"""
-    run = _report_runs.get(run_id)
-    if not run:
-        raise HTTPException(status_code=404, detail="Report run not found")
+    runs = []
+    for row in rows:
+        run = dict(row)
+        if run.get('parameters'):
+            try:
+                run['parameters'] = json.loads(run['parameters'])
+            except json.JSONDecodeError:
+                pass
+        runs.append(run)
     
-    if run.status == "running":
-        run.status = "cancelled"
-        run.completed_at = datetime.utcnow()
-        await _broadcast_complete(run_id, "cancelled", -1)
+    return {"runs": runs, "count": len(runs)}
+
+
+@router.get("/history/{run_id}")
+async def get_report_run(run_id: str, user: dict = Depends(verify_token)):
+    """Get details of a specific report run"""
+    db = get_db()
+    init_reports_table(db)
     
-    return {"status": "cancelled", "run_id": run_id}
-
-# ============================================================================
-# Integration Helper
-# ============================================================================
-
-def init_sample_reports():
-    """Initialize some sample report scripts for testing"""
-    samples = [
-        ReportScript(
-            script_id="db-status",
-            name="Database Status",
-            description="Check database connectivity and status",
-            script_path="/opt/scripts/reports/db_status.sh",
-            category="Database",
-            timeout=60,
-            parameters=[
-                ReportParameter(name="instance", label="Instance Name", type="text", required=True, placeholder="PROD"),
-                ReportParameter(name="verbose", label="Verbose Output", type="checkbox", default=False)
-            ]
-        ),
-        ReportScript(
-            script_id="disk-usage",
-            name="Disk Usage",
-            description="Report disk space usage across filesystems",
-            script_path="/opt/scripts/reports/disk_usage.sh",
-            category="System",
-            timeout=30,
-            parameters=[
-                ReportParameter(name="threshold", label="Alert Threshold (%)", type="number", default=80, min=1, max=100),
-                ReportParameter(name="filesystem", label="Filesystem", type="select", options=["/", "/home", "/var", "/opt", "all"], default="all")
-            ]
-        ),
-        ReportScript(
-            script_id="service-health",
-            name="Service Health Check",
-            description="Check status of critical services",
-            script_path="/opt/scripts/reports/service_health.sh",
-            category="System",
-            timeout=120,
-            parameters=[]
-        ),
-        ReportScript(
-            script_id="ebs-status",
-            name="EBS Instance Status",
-            description="Oracle EBS concurrent manager and listener status",
-            script_path="/opt/scripts/reports/ebs_status.sh",
-            category="Oracle",
-            timeout=180,
-            parameters=[
-                ReportParameter(name="environment", label="Environment", type="select", options=["PROD", "DEV", "QA", "UAT"], required=True),
-                ReportParameter(name="start_date", label="Start Date", type="date"),
-                ReportParameter(name="end_date", label="End Date", type="date"),
-                ReportParameter(name="include_logs", label="Include Logs", type="checkbox", default=True)
-            ]
-        ),
-        ReportScript(
-            script_id="backup-status",
-            name="Backup Status",
-            description="Check recent backup completion status",
-            script_path="/opt/scripts/reports/backup_status.sh",
-            category="Backup",
-            timeout=60,
-            parameters=[
-                ReportParameter(name="days", label="Days to Check", type="number", default=7, min=1, max=30)
-            ]
-        ),
-    ]
+    rows = db.query("SELECT * FROM report_runs WHERE run_id = ?", (run_id,))
+    if not rows:
+        raise HTTPException(status_code=404, detail=f"Run '{run_id}' not found")
     
-    for script in samples:
-        _report_scripts[script.script_id] = script
-
-# Uncomment to load samples on startup:
-# init_sample_reports()
+    run = dict(rows[0])
+    if run.get('parameters'):
+        try:
+            run['parameters'] = json.loads(run['parameters'])
+        except json.JSONDecodeError:
+            pass
+    
+    return run
