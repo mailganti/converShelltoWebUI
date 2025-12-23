@@ -40,7 +40,7 @@ class ReportParameter(BaseModel):
     """Schema for a report parameter definition"""
     name: str = Field(..., min_length=1, max_length=50)
     label: Optional[str] = None
-    type: str = Field(default="text", pattern='^(text|number|date|select|checkbox|textarea)$')
+    type: str = Field(default="text")  # text, number, date, select, checkbox, textarea
     required: bool = False
     default: Optional[Any] = None
     placeholder: Optional[str] = None
@@ -51,7 +51,7 @@ class ReportParameter(BaseModel):
 
 class ReportScriptRegister(BaseModel):
     """Schema for registering a report script"""
-    script_id: str = Field(..., min_length=1, max_length=100, pattern='^[a-zA-Z0-9_-]+$')
+    script_id: str = Field(..., min_length=1, max_length=100)
     name: Optional[str] = Field(None, max_length=255)
     script_path: str = Field(..., min_length=1, max_length=500)
     category: str = Field(default="General", max_length=50)
@@ -81,7 +81,9 @@ def get_ssl_verify_config():
 
 def init_reports_table(db):
     """Initialize the report_scripts table if it doesn't exist"""
-    db.execute("""
+    cursor = db.conn.cursor()
+    
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS report_scripts (
             script_id VARCHAR(100) PRIMARY KEY,
             name VARCHAR(255),
@@ -96,7 +98,7 @@ def init_reports_table(db):
     """)
     
     # Create report_runs table for history
-    db.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS report_runs (
             run_id VARCHAR(50) PRIMARY KEY,
             script_id VARCHAR(100) NOT NULL,
@@ -110,6 +112,31 @@ def init_reports_table(db):
             FOREIGN KEY (script_id) REFERENCES report_scripts(script_id)
         )
     """)
+    db.conn.commit()
+
+
+def db_query(db, sql, params=None):
+    """Execute a SELECT query and return results as list of dicts"""
+    cursor = db.conn.cursor()
+    if params:
+        cursor.execute(sql, params)
+    else:
+        cursor.execute(sql)
+    
+    columns = [description[0] for description in cursor.description] if cursor.description else []
+    rows = cursor.fetchall()
+    return [dict(zip(columns, row)) for row in rows]
+
+
+def db_execute(db, sql, params=None):
+    """Execute an INSERT/UPDATE/DELETE query"""
+    cursor = db.conn.cursor()
+    if params:
+        cursor.execute(sql, params)
+    else:
+        cursor.execute(sql)
+    db.conn.commit()
+    return cursor.lastrowid
 
 
 # =============================================================================
@@ -125,7 +152,7 @@ async def list_report_scripts(user: dict = Depends(verify_token)):
     init_reports_table(db)
     
     try:
-        rows = db.query("SELECT * FROM report_scripts ORDER BY category, name")
+        rows = db_query(db, "SELECT * FROM report_scripts ORDER BY category, name")
         scripts = []
         for row in rows:
             script = dict(row)
@@ -151,7 +178,7 @@ async def get_report_script(script_id: str, user: dict = Depends(verify_token)):
     db = get_db()
     init_reports_table(db)
     
-    rows = db.query("SELECT * FROM report_scripts WHERE script_id = ?", (script_id,))
+    rows = db_query(db, "SELECT * FROM report_scripts WHERE script_id = ?", (script_id,))
     if not rows:
         raise HTTPException(status_code=404, detail=f"Report script '{script_id}' not found")
     
@@ -175,14 +202,14 @@ async def register_report_script(
     init_reports_table(db)
     
     # Check if script already exists
-    existing = db.query("SELECT script_id FROM report_scripts WHERE script_id = ?", (script.script_id,))
+    existing = db_query(db, "SELECT script_id FROM report_scripts WHERE script_id = ?", (script.script_id,))
     
     # Serialize parameters to JSON
     params_json = json.dumps([p.dict() for p in script.parameters]) if script.parameters else None
     
     if existing:
         # Update existing
-        db.execute("""
+        db_execute(db, """
             UPDATE report_scripts 
             SET name = ?, script_path = ?, category = ?, description = ?, 
                 timeout = ?, parameters = ?, updated_at = datetime('now')
@@ -200,7 +227,7 @@ async def register_report_script(
         return {"message": "Report script updated", "script_id": script.script_id}
     else:
         # Insert new
-        db.execute("""
+        db_execute(db, """
             INSERT INTO report_scripts (script_id, name, script_path, category, description, timeout, parameters)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (
@@ -222,11 +249,11 @@ async def delete_report_script(script_id: str, user: dict = Depends(require_admi
     db = get_db()
     init_reports_table(db)
     
-    existing = db.query("SELECT script_id FROM report_scripts WHERE script_id = ?", (script_id,))
+    existing = db_query(db, "SELECT script_id FROM report_scripts WHERE script_id = ?", (script_id,))
     if not existing:
         raise HTTPException(status_code=404, detail=f"Report script '{script_id}' not found")
     
-    db.execute("DELETE FROM report_scripts WHERE script_id = ?", (script_id,))
+    db_execute(db, "DELETE FROM report_scripts WHERE script_id = ?", (script_id,))
     logger.info(f"Deleted report script: {script_id}")
     
     return {"message": "Report script deleted", "script_id": script_id}
@@ -247,7 +274,7 @@ async def run_report(
     init_reports_table(db)
     
     # Get the script
-    rows = db.query("SELECT * FROM report_scripts WHERE script_id = ?", (script_id,))
+    rows = db_query(db, "SELECT * FROM report_scripts WHERE script_id = ?", (script_id,))
     if not rows:
         raise HTTPException(status_code=404, detail=f"Report script '{script_id}' not found")
     
@@ -282,7 +309,7 @@ async def run_report(
     run_id = f"run-{uuid.uuid4().hex[:12]}"
     
     # Record the run
-    db.execute("""
+    db_execute(db, """
         INSERT INTO report_runs (run_id, script_id, target_agent, parameters, status, run_by)
         VALUES (?, ?, ?, ?, 'running', ?)
     """, (
@@ -307,7 +334,7 @@ async def run_report(
     }
     
     # Start execution in background
-    asyncio.create_task(execute_report(run_id, db))
+    asyncio.create_task(execute_report(run_id))
     
     logger.info(f"Started report run {run_id}: {script_id} on {request.target}")
     
@@ -319,7 +346,7 @@ async def run_report(
     }
 
 
-async def execute_report(run_id: str, db):
+async def execute_report(run_id: str):
     """Execute the report script on the agent"""
     run_info = active_runs.get(run_id)
     if not run_info:
@@ -337,14 +364,13 @@ async def execute_report(run_id: str, db):
     
     verify_ssl = get_ssl_verify_config()
     
+    db = get_db()
+    
     try:
         # Build command with parameters
         cmd = script_path
         if parameters:
-            # Pass parameters as environment variables or command line args
-            # Option 1: As JSON env var
-            param_env = {"REPORT_PARAMS": json.dumps(parameters)}
-            # Option 2: As command line args (key=value format)
+            # Pass parameters as command line args (key=value format)
             param_args = " ".join([f"{k}={v}" for k, v in parameters.items() if v is not None])
             if param_args:
                 cmd = f"{script_path} {param_args}"
@@ -382,7 +408,7 @@ async def execute_report(run_id: str, db):
                 await broadcast_complete(run_id, status, exit_code)
                 
                 # Update database
-                db.execute("""
+                db_execute(db, """
                     UPDATE report_runs 
                     SET status = ?, completed_at = datetime('now'), exit_code = ?
                     WHERE run_id = ?
@@ -393,7 +419,7 @@ async def execute_report(run_id: str, db):
                 await broadcast_output(run_id, f"\n[ERROR] {error_msg}\n")
                 await broadcast_complete(run_id, 'failed', -1)
                 
-                db.execute("""
+                db_execute(db, """
                     UPDATE report_runs 
                     SET status = 'failed', completed_at = datetime('now'), exit_code = -1
                     WHERE run_id = ?
@@ -402,7 +428,7 @@ async def execute_report(run_id: str, db):
     except httpx.TimeoutException:
         await broadcast_output(run_id, "\n[ERROR] Execution timeout\n")
         await broadcast_complete(run_id, 'timeout', -1)
-        db.execute("""
+        db_execute(db, """
             UPDATE report_runs 
             SET status = 'timeout', completed_at = datetime('now'), exit_code = -1
             WHERE run_id = ?
@@ -412,7 +438,7 @@ async def execute_report(run_id: str, db):
         logger.error(f"Report execution error: {e}")
         await broadcast_output(run_id, f"\n[ERROR] {str(e)}\n")
         await broadcast_complete(run_id, 'failed', -1)
-        db.execute("""
+        db_execute(db, """
             UPDATE report_runs 
             SET status = 'failed', completed_at = datetime('now'), exit_code = -1
             WHERE run_id = ?
@@ -527,14 +553,14 @@ async def get_report_history(
     init_reports_table(db)
     
     if script_id:
-        rows = db.query("""
+        rows = db_query(db, """
             SELECT * FROM report_runs 
             WHERE script_id = ?
             ORDER BY started_at DESC 
             LIMIT ?
         """, (script_id, limit))
     else:
-        rows = db.query("""
+        rows = db_query(db, """
             SELECT * FROM report_runs 
             ORDER BY started_at DESC 
             LIMIT ?
@@ -559,7 +585,7 @@ async def get_report_run(run_id: str, user: dict = Depends(verify_token)):
     db = get_db()
     init_reports_table(db)
     
-    rows = db.query("SELECT * FROM report_runs WHERE run_id = ?", (run_id,))
+    rows = db_query(db, "SELECT * FROM report_runs WHERE run_id = ?", (run_id,))
     if not rows:
         raise HTTPException(status_code=404, detail=f"Run '{run_id}' not found")
     
