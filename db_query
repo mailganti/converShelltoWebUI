@@ -1,0 +1,13 @@
+def query(self, sql: str, params: tuple = None) -> list:
+    """Execute a SELECT query and return results as list of dicts"""
+    cursor = self.conn.cursor()
+    if params:
+        cursor.execute(sql, params)
+    else:
+        cursor.execute(sql)
+    
+    if cursor.description:
+        columns = [description[0] for description in cursor.description]
+        rows = cursor.fetchall()
+        return [dict(zip(columns, row)) for row in rows]
+    return []
