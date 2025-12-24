@@ -367,23 +367,20 @@ async def execute_report(run_id: str):
     db = get_db()
     
     try:
-        # Build command with parameters
-        cmd = script_path
+        # Build args list from parameters
+        args = []
         if parameters:
-            # Pass parameters as command line args (key=value format)
-            param_args = " ".join([f"{k}={v}" for k, v in parameters.items() if v is not None])
-            if param_args:
-                cmd = f"{script_path} {param_args}"
+            for k, v in parameters.items():
+                if v is not None:
+                    args.append(f"{k}={v}")
         
-        # Send to agent for execution
+        # Send to agent for execution (script + args format)
         async with httpx.AsyncClient(timeout=timeout + 10, verify=verify_ssl) as client:
             response = await client.post(
                 f"{agent_url}/execute",
                 json={
-                    "command": cmd,
-                    "timeout": timeout,
-                    "stream": True,
-                    "env": {"REPORT_PARAMS": json.dumps(parameters)} if parameters else {}
+                    "script": script_path,
+                    "args": args
                 }
             )
             
