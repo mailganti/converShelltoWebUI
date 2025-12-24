@@ -1991,6 +1991,7 @@
                 } catch (error) {
                     appendOutput('\n[ERROR] ' + error.message + '\n', 'error');
                     addLog('Report failed: ' + error.message, 'error');
+                    currentRunId = null;  // Clear run state on error
                 }
             }
 
@@ -2009,7 +2010,7 @@
                         } catch (e) { if (event.data !== 'pong') appendOutput(event.data); }
                     };
                     outputSocket.onclose = () => { if (currentRunId) handleComplete({ status: 'disconnected' }); };
-                    outputSocket.onerror = () => { appendOutput('\n[WebSocket error]\n', 'error'); };
+                    outputSocket.onerror = () => { appendOutput('\n[WebSocket error]\n', 'error'); currentRunId = null; };
                     const pingInterval = setInterval(() => {
                         if (outputSocket && outputSocket.readyState === WebSocket.OPEN) outputSocket.send('ping');
                         else clearInterval(pingInterval);
@@ -2081,6 +2082,9 @@
             function clearOutput() {
                 const panel = document.getElementById('report-output');
                 if (panel) panel.innerHTML = '<span class="output-placeholder">Output will appear here...</span>';
+                // Reset run state in case it got stuck
+                currentRunId = null;
+                if (outputSocket) { outputSocket.close(); outputSocket = null; }
             }
 
             function copyOutput() {
