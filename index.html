@@ -1833,16 +1833,63 @@
 
             function renderAgentDropdown() {
                 const select = document.getElementById('reportAgentSelect');
-                if (!select) return;
-                
-                // Use the cached agents array from main data load
-                const agentList = (typeof agents !== 'undefined' ? agents : []);
-                
-                if (agentList.length === 0) {
-                    select.innerHTML = '<option value="">-- No agents available --</option>';
+                if (!select) {
+                    console.warn('[Reports] Agent select element not found');
                     return;
                 }
                 
+                // First try the global agents array (already loaded by main data call)
+                console.log('[Reports] renderAgentDropdown - cached agents:', agents ? agents.length : 'undefined');
+                
+                if (agents && agents.length > 0) {
+                    populateAgentSelect(select, agents);
+                    return;
+                }
+                
+                // Fallback: fetch from /api/agents/all (bypasses environment filtering)
+                console.log('[Reports] Cached agents empty, trying /api/agents/all...');
+                select.innerHTML = '<option value="">-- Loading agents... --</option>';
+                
+                fetch('/api/agents/all', { credentials: 'include' })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Status ' + res.status);
+                        return res.json();
+                    })
+                    .then(data => {
+                        const agentList = data.agents || [];
+                        console.log('[Reports] /api/agents/all returned:', agentList.length, 'agents');
+                        if (agentList.length === 0) {
+                            // Last fallback: try regular /api/agents/
+                            return fetch('/api/agents/', { credentials: 'include' })
+                                .then(res => res.json())
+                                .then(data2 => {
+                                    const list2 = data2.agents || [];
+                                    console.log('[Reports] /api/agents/ returned:', list2.length, 'agents');
+                                    populateAgentSelect(select, list2);
+                                });
+                        }
+                        populateAgentSelect(select, agentList);
+                    })
+                    .catch(err => {
+                        console.error('[Reports] Failed to fetch agents:', err);
+                        // Try regular endpoint as final fallback
+                        fetch('/api/agents/', { credentials: 'include' })
+                            .then(res => res.json())
+                            .then(data => {
+                                populateAgentSelect(select, data.agents || []);
+                            })
+                            .catch(err2 => {
+                                console.error('[Reports] All agent fetches failed:', err2);
+                                select.innerHTML = '<option value="">-- Failed to load agents --</option>';
+                            });
+                    });
+            }
+            
+            function populateAgentSelect(select, agentList) {
+                if (!agentList || agentList.length === 0) {
+                    select.innerHTML = '<option value="">-- No agents available --</option>';
+                    return;
+                }
                 select.innerHTML = '<option value="">-- Select agent --</option>' + 
                     agentList.map(a => {
                         const disabled = a.status !== 'online' ? 'disabled' : '';
@@ -1850,6 +1897,7 @@
                         const env = (a.environment || 'DEV').toUpperCase();
                         return '<option value="' + escapeHtml(a.agent_name) + '" ' + disabled + '>' + status + ' ' + escapeHtml(a.agent_name) + ' [' + env + '] (' + escapeHtml(a.host) + ')</option>';
                     }).join('');
+                console.log('[Reports] Agent dropdown populated with', agentList.length, 'agents');
             }
 
             function onReportSelect() {
