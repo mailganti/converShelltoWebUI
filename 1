@@ -1,3 +1,14 @@
+INSERT INTO user_agent_access (user_id, environment, granted_by)
+VALUES (USER_ID, '*', 'manual_fix');
+
+-- Verify
+SELECT u.username, u.role, uaa.environment 
+FROM users u 
+JOIN user_agent_access uaa ON u.user_id = uaa.user_id;
+
+
+
+
 SELECT user_id, username, role, created_at 
 FROM users 
 WHERE LOWER(username) LIKE LOWER('%mudiganti%')
