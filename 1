@@ -1,3 +1,25 @@
+SELECT user_id, username, role, created_at 
+FROM users 
+WHERE LOWER(username) LIKE LOWER('%mudiganti%')
+ORDER BY created_at;
+
+-- 2. Pick the ONE user_id you want to keep (probably the oldest/first one)
+--    Then update it to have admin role:
+UPDATE users SET role = 'admin' WHERE user_id = <YOUR_USER_ID>;
+
+-- 3. Delete the duplicate records (keep the one you updated)
+DELETE FROM users 
+WHERE LOWER(username) LIKE LOWER('%mudiganti%') 
+AND user_id != <YOUR_USER_ID>;
+
+-- 4. Also ensure you have admin in user_roles table
+INSERT OR IGNORE INTO user_roles (user_id, role_id, assigned_by)
+SELECT <YOUR_USER_ID>, role_id, 'manual_fix'
+FROM roles WHERE role_name = 'admin';
+
+-- 5. Clear any stale sessions (optional, forces re-login)
+DELETE FROM user_sessions WHERE user_id != <YOUR_USER_ID>;
+
 SELECT u.username, r.role_name, ur.assigned_at 
 FROM users u 
 LEFT JOIN user_roles ur ON u.user_id = ur.user_id 
