@@ -1835,27 +1835,21 @@
                 const select = document.getElementById('reportAgentSelect');
                 if (!select) return;
                 
-                // Fetch all agents (bypasses environment filtering for reports)
-                fetch('/api/agents/all', { credentials: 'include' })
-                    .then(res => res.json())
-                    .then(data => {
-                        const agentList = data.agents || [];
-                        if (agentList.length === 0) {
-                            select.innerHTML = '<option value="">-- No agents available --</option>';
-                            return;
-                        }
-                        select.innerHTML = '<option value="">-- Select agent --</option>' + 
-                            agentList.map(a => {
-                                const disabled = a.status !== 'online' ? 'disabled' : '';
-                                const status = a.status === 'online' ? '🟢' : '🔴';
-                                const env = (a.environment || 'DEV').toUpperCase();
-                                return '<option value="' + escapeHtml(a.agent_name) + '" ' + disabled + '>' + status + ' ' + escapeHtml(a.agent_name) + ' [' + env + '] (' + escapeHtml(a.host) + ')</option>';
-                            }).join('');
-                    })
-                    .catch(err => {
-                        console.error('Failed to fetch agents for reports:', err);
-                        select.innerHTML = '<option value="">-- Failed to load agents --</option>';
-                    });
+                // Use the cached agents array from main data load
+                const agentList = (typeof agents !== 'undefined' ? agents : []);
+                
+                if (agentList.length === 0) {
+                    select.innerHTML = '<option value="">-- No agents available --</option>';
+                    return;
+                }
+                
+                select.innerHTML = '<option value="">-- Select agent --</option>' + 
+                    agentList.map(a => {
+                        const disabled = a.status !== 'online' ? 'disabled' : '';
+                        const status = a.status === 'online' ? '🟢' : '🔴';
+                        const env = (a.environment || 'DEV').toUpperCase();
+                        return '<option value="' + escapeHtml(a.agent_name) + '" ' + disabled + '>' + status + ' ' + escapeHtml(a.agent_name) + ' [' + env + '] (' + escapeHtml(a.host) + ')</option>';
+                    }).join('');
             }
 
             function onReportSelect() {
