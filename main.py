@@ -98,11 +98,12 @@ async def cert_auto_login(request: Request, call_next):
     logger.info(f"[CERT] Client certificate detected: CN={cert_cn} DN={cert_dn}")
 
     cursor = db.conn.cursor()
+    # Case-insensitive lookup to prevent duplicate users from certificate CN variations
     cursor.execute(
         '''
         SELECT user_id, username, role, full_name, email
         FROM users
-        WHERE username = ? AND is_active = 1
+        WHERE LOWER(username) = LOWER(?) AND is_active = 1
         ''',
         (cert_cn,)
     )
