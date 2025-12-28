@@ -1,3 +1,59 @@
+
+# -------------------------------------------------------------
+# Token-based Authentication
+# -------------------------------------------------------------
+def verify_token(request: Request) -> Dict[str, Any]:
+    """
+    Verify authentication - supports both header-based and token-based auth.
+
+    Checks in order:
+    1. Proxy headers (X-Auth-User, X-Client-Cert-CN, etc.)
+    2. X-Admin-Token header
+    3. X-Agent-Token header
+    """
+    # First try proxy headers (Smart Card / WNA)
+    user = get_runtime_user_from_request(request)
+    if user and user.get("username"):
+        return user
+
+    # Try X-Admin-Token
+    admin_token = request.headers.get("X-Admin-Token")
+    if admin_token:
+        db = get_db()
+        token_row = db.get_token_by_value(admin_token)
+        if token_row and token_row.get("revoked") != 1:
+            return {
+                "username": token_row.get("token_name"),
+                "token_name": token_row.get("token_name"),
+                "role": token_row.get("role"),
+                "auth_method": "token",
+            }
+        raise HTTPException(status_code=401, detail="Invalid or revoked admin token")
+
+    # Try X-Agent-Token
+    agent_token = request.headers.get("X-Agent-Token")
+    if agent_token:
+        db = get_db()
+        token_row = db.get_token_by_value(agent_token)
+        if token_row and token_row.get("revoked") != 1:
+            if token_row.get("role") != "agent":
+                raise HTTPException(status_code=403, detail="Token is not an agent token")
+            return {
+                "username": token_row.get("token_name"),
+                "token_name": token_row.get("token_name"),
+                "role": "agent",
+                "auth_method": "agent_token",
+            }
+        raise HTTPException(status_code=401, detail="Invalid or revoked agent token")
+
+    raise HTTPException(status_code=401, detail="Authentication required")
+
+
+
+
+
+
+
 SELECT * FROM user_agent_access;
 
 -- 2. See your users
