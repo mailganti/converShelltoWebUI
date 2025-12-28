@@ -81,6 +81,12 @@ def get_runtime_user_from_request(request: Request) -> Optional[Dict[str, Any]]:
         return None
 
     normalized = normalize_identity(hdr_user)
+    raw_username = hdr_user.strip()
+    
+    # Remove quotes from raw if present
+    if (raw_username.startswith('"') and raw_username.endswith('"')) or \
+       (raw_username.startswith("'") and raw_username.endswith("'")):
+        raw_username = raw_username[1:-1].strip()
 
     runtime_user = {
         "username": normalized,
@@ -91,10 +97,17 @@ def get_runtime_user_from_request(request: Request) -> Optional[Dict[str, Any]]:
         "token_name": normalized,
     }
 
-    # Merge with DB user record
+    # Merge with DB user record - try normalized first, then raw
     try:
         db = get_db()
         user = db.get_user_by_username(normalized)
+        
+        # If normalized lookup fails, try raw username (e.g., "John Snow (affiliate)")
+        if not user and raw_username != normalized:
+            user = db.get_user_by_username(raw_username)
+            if user:
+                logger.debug(f"User found with raw username: {raw_username}")
+        
         if user:
             runtime_user["role"] = user.get("role")
             runtime_user["user_id"] = user.get("user_id") or user.get("id")
