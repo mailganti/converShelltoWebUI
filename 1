@@ -1,3 +1,35 @@
+SELECT * FROM user_agent_access;
+
+-- 2. See your users
+SELECT user_id, username, role FROM users;
+
+-- 3. Grant ALL access (*) to all admins
+INSERT OR IGNORE INTO user_agent_access (user_id, environment, granted_by)
+SELECT user_id, '*', 'system' FROM users WHERE role = 'admin';
+
+-- 4. Or grant to a specific user (replace USERNAME)
+INSERT OR IGNORE INTO user_agent_access (user_id, environment, granted_by)
+SELECT user_id, '*', 'system' FROM users WHERE username = 'John Snow';
+
+SELECT u.username, u.role, a.environment 
+FROM users u 
+LEFT JOIN user_agent_access a ON u.user_id = a.user_id;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 CREATE TABLE IF NOT EXISTS user_agent_access (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
