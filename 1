@@ -1,3 +1,18 @@
+CREATE TABLE IF NOT EXISTS user_agent_access (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    environment VARCHAR(10) NOT NULL,
+    granted_by VARCHAR(255),
+    granted_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(user_id, environment)
+);
+
+
+INSERT OR IGNORE INTO user_agent_access (user_id, environment, granted_by)
+SELECT user_id, '*', 'system' FROM users WHERE role = 'admin';
+
+
+
 INSERT INTO user_agent_access (user_id, environment, granted_by)
 VALUES (USER_ID, '*', 'manual_fix');
 sqlite3 orchestration.db
