@@ -374,12 +374,13 @@ async def execute_report(run_id: str):
                 if v is not None:
                     args.append(f"{k}={v}")
         
-        # Send to agent for execution (script + args format)
+        # Send to agent for execution
+        # FIXED: Use 'script_path' instead of 'script' to match agent's expected payload
         async with httpx.AsyncClient(timeout=timeout + 10, verify=verify_ssl) as client:
             response = await client.post(
                 f"{agent_url}/execute",
                 json={
-                    "script": script_path,
+                    "script_path": script_path,
                     "args": args
                 }
             )
@@ -413,6 +414,12 @@ async def execute_report(run_id: str):
                 
             else:
                 error_msg = f"Agent returned status {response.status_code}"
+                try:
+                    error_detail = response.json()
+                    if 'detail' in error_detail:
+                        error_msg = f"{error_msg}: {error_detail['detail']}"
+                except:
+                    pass
                 await broadcast_output(run_id, f"\n[ERROR] {error_msg}\n")
                 await broadcast_complete(run_id, 'failed', -1)
                 
