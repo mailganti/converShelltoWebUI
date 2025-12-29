@@ -1,303 +1,39 @@
-{"detail":[{"type":"missing","loc":["body","script_path"],"msg":"Field required","input":{"script":"test","args":[]},"url":"https://errors.pydantic.dev/2.5/v/missing"}]}
+EMAIL_DRY_RUN = "False"
+print(f"!!!!  Email DRY RUN is et to : {EMAIL_DRY_RUN} !!!!")
 
+# Path to sendmail (common locations)
+SENDMAIL_PATH = os.getenv("SENDMAIL_PATH", "/usr/sbin/sendmail")
 
 
-logger.error(
-    "RUNTIME USER RESOLVED: %s (roles=%s)",
-    user.get("username"),
-    user.get("roles")
-)
+def send_email(
+    to: Union[str, List[str]],
+    subject: str,
+    html_body: str,
+    text_body: Optional[str] = None,
+--
 
-UserWarning: resource_tracker: There appear to be 5 leaked semaphore objects to clean up at shutdown
+    EMAIL_DRY_RUN = "False"
+    print(f"!!!!  Email DRY RUN is et to : {EMAIL_DRY_RUN} !!!!")
+    # All recipients
+    all_recipients = to + cc
 
+    # Dry run mode
+    if EMAIL_DRY_RUN:
+        logger.info(f"[DRY RUN] Email would be sent:")
+        logger.info(f"  To: {', '.join(to)}")
+        logger.info(f"  Subject: {subject}")
+        logger.info(f"  From: {sender}")
+        return True
 
+    try:
+        # Try sendmail first
+        if os.path.exists(SENDMAIL_PATH):
+            cmd = [SENDMAIL_PATH, "-t", "-oi"]
+            proc = subprocess.Popen(
 
--- =============================================================================
--- Environment Access Migration
--- Allows any role to have access to multiple environments
--- =============================================================================
 
--- 1. Create user_agent_access table if it doesn't exist
-CREATE TABLE IF NOT EXISTS user_agent_access (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    environment VARCHAR(20) NOT NULL,  -- DEV, TEST, PROD, or * for all
-    granted_by VARCHAR(255),
-    granted_at TEXT DEFAULT (datetime('now')),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    UNIQUE(user_id, environment)
-);
 
--- 2. Create index for faster lookups
-CREATE INDEX IF NOT EXISTS idx_user_agent_access_user_id ON user_agent_access(user_id);
+ grep -n "if.*DRY\|if EMAIL" controller/emailer.py
+115:    if EMAIL_DRY_RUN:
 
--- 3. Grant ALL admins full access (*)
-INSERT OR IGNORE INTO user_agent_access (user_id, environment, granted_by)
-SELECT user_id, '*', 'migration_script'
-FROM users 
-WHERE LOWER(role) = 'admin';
 
--- 4. View current access assignments
--- Run this to see who has what access:
--- SELECT u.username, u.role, GROUP_CONCAT(uaa.environment) as environments
--- FROM users u
--- LEFT JOIN user_agent_access uaa ON u.user_id = uaa.user_id
--- GROUP BY u.user_id;
-
--- =============================================================================
--- Manual Commands for Managing Access
--- =============================================================================
-
--- Grant single environment to a user:
--- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
--- SELECT user_id, 'DEV', 'admin_name' FROM users WHERE username = 'target_user';
-
--- Grant multiple environments to a user:
--- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
--- SELECT user_id, 'DEV', 'admin_name' FROM users WHERE username = 'target_user';
--- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
--- SELECT user_id, 'TEST', 'admin_name' FROM users WHERE username = 'target_user';
-
--- Grant ALL environments (superadmin):
--- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
--- SELECT user_id, '*', 'admin_name' FROM users WHERE username = 'target_user';
-
--- Revoke an environment:
--- DELETE FROM user_agent_access 
--- WHERE user_id = (SELECT user_id FROM users WHERE username = 'target_user')
--- AND environment = 'PROD';
-
--- Revoke all access:
--- DELETE FROM user_agent_access 
--- WHERE user_id = (SELECT user_id FROM users WHERE username = 'target_user');
-
--- =============================================================================
--- Example: Setup for different roles
--- =============================================================================
-
--- Developers: DEV + TEST only
--- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
--- SELECT user_id, 'DEV', 'migration' FROM users WHERE LOWER(role) IN ('user', 'operator');
--- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
--- SELECT user_id, 'TEST', 'migration' FROM users WHERE LOWER(role) IN ('user', 'operator');
-
--- Approvers: DEV + TEST + PROD
--- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
--- SELECT user_id, 'DEV', 'migration' FROM users WHERE LOWER(role) = 'approver';
--- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
--- SELECT user_id, 'TEST', 'migration' FROM users WHERE LOWER(role) = 'approver';
--- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
--- SELECT user_id, 'PROD', 'migration' FROM users WHERE LOWER(role) = 'approver';
-
--- =============================================================================
--- Verify Setup
--- =============================================================================
-
--- Check all users and their environment access:
-SELECT 
-    u.user_id,
-    u.username, 
-    u.role,
-    COALESCE(GROUP_CONCAT(uaa.environment), 'NO ACCESS') as environments
-FROM users u
-LEFT JOIN user_agent_access uaa ON u.user_id = uaa.user_id
-WHERE u.is_active = 1
-GROUP BY u.user_id
-ORDER BY u.role, u.username;
-
-
-
-
-
-
-
-
-
-Traceback (most recent call last):
-  File "/u01/app/python/ssaAgent/orchestration-system/controller/deps.py", line 107, in get_runtime_user_from_request
-    user = db.get_user_by_username(raw_username)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/u01/app/python/ssaAgent/orchestration-system/controller/db/db.py", line 832, in get_user_by_username
-    cursor.execute(
-sqlite3.InterfaceError: bad parameter or other API misuse
-
-
-
-# -------------------------------------------------------------
-# Token-based Authentication
-# -------------------------------------------------------------
-def verify_token(request: Request) -> Dict[str, Any]:
-    """
-    Verify authentication - supports both header-based and token-based auth.
-
-    Checks in order:
-    1. Proxy headers (X-Auth-User, X-Client-Cert-CN, etc.)
-    2. X-Admin-Token header
-    3. X-Agent-Token header
-    """
-    # First try proxy headers (Smart Card / WNA)
-    user = get_runtime_user_from_request(request)
-    if user and user.get("username"):
-        return user
-
-    # Try X-Admin-Token
-    admin_token = request.headers.get("X-Admin-Token")
-    if admin_token:
-        db = get_db()
-        token_row = db.get_token_by_value(admin_token)
-        if token_row and token_row.get("revoked") != 1:
-            return {
-                "username": token_row.get("token_name"),
-                "token_name": token_row.get("token_name"),
-                "role": token_row.get("role"),
-                "auth_method": "token",
-            }
-        raise HTTPException(status_code=401, detail="Invalid or revoked admin token")
-
-    # Try X-Agent-Token
-    agent_token = request.headers.get("X-Agent-Token")
-    if agent_token:
-        db = get_db()
-        token_row = db.get_token_by_value(agent_token)
-        if token_row and token_row.get("revoked") != 1:
-            if token_row.get("role") != "agent":
-                raise HTTPException(status_code=403, detail="Token is not an agent token")
-            return {
-                "username": token_row.get("token_name"),
-                "token_name": token_row.get("token_name"),
-                "role": "agent",
-                "auth_method": "agent_token",
-            }
-        raise HTTPException(status_code=401, detail="Invalid or revoked agent token")
-
-    raise HTTPException(status_code=401, detail="Authentication required")
-
-
-
-
-
-
-
-SELECT * FROM user_agent_access;
-
--- 2. See your users
-SELECT user_id, username, role FROM users;
-
--- 3. Grant ALL access (*) to all admins
-INSERT OR IGNORE INTO user_agent_access (user_id, environment, granted_by)
-SELECT user_id, '*', 'system' FROM users WHERE role = 'admin';
-
--- 4. Or grant to a specific user (replace USERNAME)
-INSERT OR IGNORE INTO user_agent_access (user_id, environment, granted_by)
-SELECT user_id, '*', 'system' FROM users WHERE username = 'John Snow';
-
-SELECT u.username, u.role, a.environment 
-FROM users u 
-LEFT JOIN user_agent_access a ON u.user_id = a.user_id;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-CREATE TABLE IF NOT EXISTS user_agent_access (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    environment VARCHAR(10) NOT NULL,
-    granted_by VARCHAR(255),
-    granted_at TEXT DEFAULT (datetime('now')),
-    UNIQUE(user_id, environment)
-);
-
-
-INSERT OR IGNORE INTO user_agent_access (user_id, environment, granted_by)
-SELECT user_id, '*', 'system' FROM users WHERE role = 'admin';
-
-
-
-INSERT INTO user_agent_access (user_id, environment, granted_by)
-VALUES (USER_ID, '*', 'manual_fix');
-sqlite3 orchestration.db
-
--- List recent sessions
-SELECT session_token, user_id, expires_at, created_at 
-FROM user_sessions 
-ORDER BY created_at DESC LIMIT 5;
-
-
-
-SELECT session_token, expires_at, datetime('now') as now_time
-FROM user_sessions 
-ORDER BY created_at DESC LIMIT 3;
-
--- Does that user_id actually exist and is active?
-SELECT s.session_token, s.user_id, u.username, u.role, u.is_active
-FROM user_sessions s
-LEFT JOIN users u ON s.user_id = u.user_id
-ORDER BY s.created_at DESC LIMIT 5;
-
-
-
-
-
-
-
-
-
-
-
-
-
--- Verify
-SELECT u.username, u.role, uaa.environment 
-FROM users u 
-JOIN user_agent_access uaa ON u.user_id = uaa.user_id;
-
-
-
-
-SELECT user_id, username, role, created_at 
-FROM users 
-WHERE LOWER(username) LIKE LOWER('%mudiganti%')
-ORDER BY created_at;
-
--- 2. Pick the ONE user_id you want to keep (probably the oldest/first one)
---    Then update it to have admin role:
-UPDATE users SET role = 'admin' WHERE user_id = <YOUR_USER_ID>;
-
--- 3. Delete the duplicate records (keep the one you updated)
-DELETE FROM users 
-WHERE LOWER(username) LIKE LOWER('%mudiganti%') 
-AND user_id != <YOUR_USER_ID>;
-
--- 4. Also ensure you have admin in user_roles table
-INSERT OR IGNORE INTO user_roles (user_id, role_id, assigned_by)
-SELECT <YOUR_USER_ID>, role_id, 'manual_fix'
-FROM roles WHERE role_name = 'admin';
-
--- 5. Clear any stale sessions (optional, forces re-login)
-DELETE FROM user_sessions WHERE user_id != <YOUR_USER_ID>;
-
-SELECT u.username, r.role_name, ur.assigned_at 
-FROM users u 
-LEFT JOIN user_roles ur ON u.user_id = ur.user_id 
-LEFT JOIN roles r ON ur.role_id = r.role_id 
-WHERE u.username LIKE '%Mudiganti%' OR u.username LIKE '%Raj%';
-
-UPDATE users SET role = 'admin' WHERE username = 'YOUR_USERNAME';
-
--- Option B: Add admin role to user_roles table
-INSERT INTO user_roles (user_id, role_id, assigned_by)
-SELECT u.user_id, r.role_id, 'manual_fix'
-FROM users u, roles r
-WHERE u.username = 'YOUR_USERNAME' AND r.role_name = 'admin';
