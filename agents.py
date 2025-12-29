@@ -32,6 +32,26 @@ SSL_CA_CERTS = os.getenv("SSL_CA_CERTS", "./certs/certChain.pem")
 # Valid environments
 VALID_ENVIRONMENTS = ['DEV', 'TEST', 'PROD']
 
+# Reusable HTTP client to prevent memory leaks
+_http_client: Optional[httpx.AsyncClient] = None
+
+
+async def get_http_client() -> httpx.AsyncClient:
+    """Get or create a reusable httpx AsyncClient"""
+    global _http_client
+    if _http_client is None or _http_client.is_closed:
+        verify_ssl = get_ssl_verify_config()
+        _http_client = httpx.AsyncClient(timeout=5.0, verify=verify_ssl)
+    return _http_client
+
+
+async def close_http_client():
+    """Close the HTTP client (call on shutdown)"""
+    global _http_client
+    if _http_client is not None and not _http_client.is_closed:
+        await _http_client.aclose()
+        _http_client = None
+
 
 # =============================================================================
 # Pydantic Models
@@ -113,16 +133,14 @@ async def check_agent_health(host: str, port: int, ssl_enabled: bool = False) ->
     protocol = "https" if ssl_enabled else "http"
     url = f"{protocol}://{host}:{port}/health"
     
-    verify_ssl = get_ssl_verify_config()
-    
     try:
-        async with httpx.AsyncClient(timeout=5.0, verify=verify_ssl) as client:
-            response = await client.get(url)
-            if response.status_code == 200:
-                data = response.json()
-                return True, f"Agent is healthy: {data.get('status', 'ok')}"
-            else:
-                return False, f"Agent returned status {response.status_code}"
+        client = await get_http_client()
+        response = await client.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            return True, f"Agent is healthy: {data.get('status', 'ok')}"
+        else:
+            return False, f"Agent returned status {response.status_code}"
     except httpx.ConnectError:
         return False, "Cannot connect to agent"
     except httpx.TimeoutException:
@@ -137,20 +155,59 @@ def get_user_allowed_environments(db, user: dict) -> List[str]:
     """
     Get list of environments a user can access.
     Returns ['*'] if user has access to all environments.
-    Returns empty list if no access configured.
+    Returns empty list if no access configured (unless admin - admins get all by default).
+    
+    Environment access is role-independent - any role can have any environment access.
     """
     user_id = user.get('user_id')
     username = user.get('username') or user.get('token_name')
+    role = user.get('role', '').lower()
     
-    # If we have user_id, use it directly
-    if user_id:
-        environments = db.get_user_environments(user_id)
-    else:
-        # Look up user_id by username
-        user_record = db.get_user_by_username(username)
-        if not user_record:
-            return []
-        environments = db.get_user_environments(user_record['user_id'])
+    environments = []
+    
+    try:
+        # If we have user_id, use it directly
+        if user_id:
+            try:
+                environments = db.get_user_environments(user_id)
+            except (AttributeError, Exception) as e:
+                logger.debug(f"get_user_environments failed: {e}, trying direct query")
+                # Fallback: direct query
+                cursor = db.conn.cursor()
+                cursor.execute(
+                    "SELECT environment FROM user_agent_access WHERE user_id = ?",
+                    (user_id,)
+                )
+                environments = [row[0] if isinstance(row, tuple) else row['environment'] for row in cursor.fetchall()]
+        else:
+            # Look up user_id by username
+            try:
+                user_record = db.get_user_by_username(username)
+            except (AttributeError, Exception):
+                cursor = db.conn.cursor()
+                cursor.execute("SELECT user_id FROM users WHERE LOWER(username) = LOWER(?)", (username,))
+                row = cursor.fetchone()
+                user_record = {'user_id': row[0]} if row else None
+            
+            if user_record:
+                uid = user_record.get('user_id') or user_record[0]
+                try:
+                    environments = db.get_user_environments(uid)
+                except (AttributeError, Exception):
+                    cursor = db.conn.cursor()
+                    cursor.execute(
+                        "SELECT environment FROM user_agent_access WHERE user_id = ?",
+                        (uid,)
+                    )
+                    environments = [row[0] if isinstance(row, tuple) else row['environment'] for row in cursor.fetchall()]
+    except Exception as e:
+        logger.error(f"Error getting user environments: {e}")
+        environments = []
+    
+    # Fallback: if admin role and no environments configured, give full access
+    if not environments and role == 'admin':
+        logger.info(f"Admin user {username} has no explicit environment access - granting full access")
+        return ['*']
     
     return environments
 
@@ -199,22 +256,15 @@ async def list_all_agents(
     
     # Get all agents without filtering
     try:
-        agents = db.list_agents_with_status(limit=limit, status=status)
+        agents_list = db.list_agents_with_status(limit=limit, status=status)
     except AttributeError:
-        agents = db.list_agents(limit=limit)
-    
-    # Update status for each agent via health check
-
-   # updated_agents = []
-   # for agent in agents:
-   #     ssl_enabled = agent.get('ssl_enabled', SSL_ENABLED)
-   #     is_healthy, _ = await check_agent_health(agent['host'], agent['port'], ssl_enabled)
-   #     agent['status'] = 'online' if is_healthy else 'offline'
-   #     updated_agents.append(agent)
+        agents_list = db.list_agents(limit=limit)
     
     # Apply status filter if provided
     if status:
-        agents_list = [a for a in updated_agents if a.get('status') == status]
+        agents_list = [a for a in agents_list if a.get('status') == status]
+    
+    logger.debug(f"Listed {len(agents_list)} agents (unfiltered) for reports")
     
     return {
         "agents": agents_list,
