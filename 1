@@ -6,6 +6,98 @@ logger.error(
 
 
 
+-- =============================================================================
+-- Environment Access Migration
+-- Allows any role to have access to multiple environments
+-- =============================================================================
+
+-- 1. Create user_agent_access table if it doesn't exist
+CREATE TABLE IF NOT EXISTS user_agent_access (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    environment VARCHAR(20) NOT NULL,  -- DEV, TEST, PROD, or * for all
+    granted_by VARCHAR(255),
+    granted_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    UNIQUE(user_id, environment)
+);
+
+-- 2. Create index for faster lookups
+CREATE INDEX IF NOT EXISTS idx_user_agent_access_user_id ON user_agent_access(user_id);
+
+-- 3. Grant ALL admins full access (*)
+INSERT OR IGNORE INTO user_agent_access (user_id, environment, granted_by)
+SELECT user_id, '*', 'migration_script'
+FROM users 
+WHERE LOWER(role) = 'admin';
+
+-- 4. View current access assignments
+-- Run this to see who has what access:
+-- SELECT u.username, u.role, GROUP_CONCAT(uaa.environment) as environments
+-- FROM users u
+-- LEFT JOIN user_agent_access uaa ON u.user_id = uaa.user_id
+-- GROUP BY u.user_id;
+
+-- =============================================================================
+-- Manual Commands for Managing Access
+-- =============================================================================
+
+-- Grant single environment to a user:
+-- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
+-- SELECT user_id, 'DEV', 'admin_name' FROM users WHERE username = 'target_user';
+
+-- Grant multiple environments to a user:
+-- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
+-- SELECT user_id, 'DEV', 'admin_name' FROM users WHERE username = 'target_user';
+-- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
+-- SELECT user_id, 'TEST', 'admin_name' FROM users WHERE username = 'target_user';
+
+-- Grant ALL environments (superadmin):
+-- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
+-- SELECT user_id, '*', 'admin_name' FROM users WHERE username = 'target_user';
+
+-- Revoke an environment:
+-- DELETE FROM user_agent_access 
+-- WHERE user_id = (SELECT user_id FROM users WHERE username = 'target_user')
+-- AND environment = 'PROD';
+
+-- Revoke all access:
+-- DELETE FROM user_agent_access 
+-- WHERE user_id = (SELECT user_id FROM users WHERE username = 'target_user');
+
+-- =============================================================================
+-- Example: Setup for different roles
+-- =============================================================================
+
+-- Developers: DEV + TEST only
+-- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
+-- SELECT user_id, 'DEV', 'migration' FROM users WHERE LOWER(role) IN ('user', 'operator');
+-- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
+-- SELECT user_id, 'TEST', 'migration' FROM users WHERE LOWER(role) IN ('user', 'operator');
+
+-- Approvers: DEV + TEST + PROD
+-- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
+-- SELECT user_id, 'DEV', 'migration' FROM users WHERE LOWER(role) = 'approver';
+-- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
+-- SELECT user_id, 'TEST', 'migration' FROM users WHERE LOWER(role) = 'approver';
+-- INSERT OR REPLACE INTO user_agent_access (user_id, environment, granted_by)
+-- SELECT user_id, 'PROD', 'migration' FROM users WHERE LOWER(role) = 'approver';
+
+-- =============================================================================
+-- Verify Setup
+-- =============================================================================
+
+-- Check all users and their environment access:
+SELECT 
+    u.user_id,
+    u.username, 
+    u.role,
+    COALESCE(GROUP_CONCAT(uaa.environment), 'NO ACCESS') as environments
+FROM users u
+LEFT JOIN user_agent_access uaa ON u.user_id = uaa.user_id
+WHERE u.is_active = 1
+GROUP BY u.user_id
+ORDER BY u.role, u.username;
 
 
 
