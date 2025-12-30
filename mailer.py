@@ -83,23 +83,48 @@ def build_email_html(
             </table>
         '''
     
-    # Build button - matches dashboard .btn-primary style
+    # Build button - email-client compatible (no gradients, table-based)
     button_html = ""
     if button_text and button_url:
+        # Use table-based button for maximum email client compatibility
+        # Solid color since gradients don't work in most email clients
+        btn_bg = "#0ea5e9"  # sky-500
+        if "Deny" in button_text or "denied" in title.lower():
+            btn_bg = "#f43f5e"  # rose
+        elif "Approve" in button_text or "approved" in title.lower():
+            btn_bg = "#10b981"  # emerald
+            
         button_html = f'''
             <div style="margin: 24px 0; text-align: center;">
-                <a href="{button_url}" style="
-                    background: linear-gradient(to top right, #38bdf8, #0ea5e9);
-                    color: #020617;
-                    padding: 10px 24px;
-                    text-decoration: none;
-                    border-radius: 9999px;
-                    display: inline-block;
-                    font-weight: 500;
-                    font-size: 12px;
-                    box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
-                    border: none;
-                ">{button_text}</a>
+                <!--[if mso]>
+                <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{button_url}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="50%" strokecolor="{btn_bg}" fillcolor="{btn_bg}">
+                <w:anchorlock/>
+                <center style="color:#020617;font-family:sans-serif;font-size:12px;font-weight:bold;">{button_text}</center>
+                </v:roundrect>
+                <![endif]-->
+                <!--[if !mso]><!-->
+                <table border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto;">
+                    <tr>
+                        <td align="center" bgcolor="{btn_bg}" style="
+                            background-color: {btn_bg};
+                            border-radius: 50px;
+                            padding: 0;
+                        ">
+                            <a href="{button_url}" target="_blank" style="
+                                display: inline-block;
+                                padding: 12px 28px;
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                                font-size: 13px;
+                                font-weight: 600;
+                                color: #020617;
+                                text-decoration: none;
+                                border-radius: 50px;
+                                background-color: {btn_bg};
+                            ">{button_text}</a>
+                        </td>
+                    </tr>
+                </table>
+                <!--<![endif]-->
             </div>
         '''
     
