@@ -1,40 +1,3 @@
-# controller/emailer.py
-"""
-Email sending module for the Orchestration System.
-Styled to match the dark dashboard theme.
-Supports SMTP and sendmail.
-"""
-
-import os
-import subprocess
-import logging
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from typing import Optional, List, Union
-
-logger = logging.getLogger(__name__)
-
-# SMTP Configuration from environment
-SMTP_HOST = os.getenv("SMTP_HOST", "localhost")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "25"))
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
-SMTP_FROM = os.getenv("SMTP_FROM", "orchestration@localhost")
-SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "false").lower() == "true"
-SMTP_USE_SSL = os.getenv("SMTP_USE_SSL", "false").lower() == "true"
-SMTP_TIMEOUT = int(os.getenv("SMTP_TIMEOUT", "30"))
-
-# Path to sendmail (common locations)
-SENDMAIL_PATH = os.getenv("SENDMAIL_PATH", "/usr/sbin/sendmail")
-
-# For testing/development - log emails instead of sending
-EMAIL_DRY_RUN = os.getenv("EMAIL_DRY_RUN", "true").lower() == "true"
-
-# Log configuration at startup
-logger.info(f"[EMAILER CONFIG] SMTP_HOST={SMTP_HOST}, SMTP_PORT={SMTP_PORT}, SMTP_FROM={SMTP_FROM}")
-logger.info(f"[EMAILER CONFIG] EMAIL_DRY_RUN={EMAIL_DRY_RUN}, SENDMAIL_PATH={SENDMAIL_PATH}")
-
-
 # =============================================================================
 # Email Template - Dark Theme (matches dashboard CSS)
 # =============================================================================
@@ -46,7 +9,6 @@ def build_email_html(
     details: dict = None,
     button_text: str = None,
     button_url: str = None,
-    button_color: str = "#0ea5e9",  # sky-500
     footer: str = None
 ) -> str:
     """
@@ -70,62 +32,45 @@ def build_email_html(
     if details:
         rows = []
         for i, (label, value) in enumerate(details.items()):
-            bg = "#0f172a" if i % 2 == 0 else "#020617"
+            bg = "#0f172a" if i % 2 == 0 else "#1e293b"
             rows.append(f'''
-                <tr style="background: {bg};">
-                    <td style="padding: 12px 16px; border: 1px solid #334155; color: #94a3b8; font-weight: 600; width: 140px;">{label}</td>
-                    <td style="padding: 12px 16px; border: 1px solid #334155; color: #f1f5f9;">{value}</td>
+                <tr>
+                    <td bgcolor="{bg}" style="background-color: {bg}; padding: 12px 16px; border: 1px solid #334155; color: #94a3b8; font-weight: bold; width: 140px; font-size: 13px;">{label}</td>
+                    <td bgcolor="{bg}" style="background-color: {bg}; padding: 12px 16px; border: 1px solid #334155; color: #f1f5f9; font-size: 13px;">{value}</td>
                 </tr>
             ''')
         details_html = f'''
-            <table style="width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 8px; overflow: hidden;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 20px 0; border-collapse: collapse;">
                 {''.join(rows)}
             </table>
         '''
     
-    # Build button - email-client compatible (no gradients, table-based)
+    # Build button - bulletproof email-client compatible
     button_html = ""
     if button_text and button_url:
-        # Use table-based button for maximum email client compatibility
-        # Solid color since gradients don't work in most email clients
-        btn_bg = "#0ea5e9"  # sky-500
+        # Solid colors - no gradients work in email
+        btn_bg = "#0ea5e9"  # sky-500 default
+        btn_text = "#ffffff"  # white text for contrast
+        
         if "Deny" in button_text or "denied" in title.lower():
-            btn_bg = "#f43f5e"  # rose
+            btn_bg = "#e11d48"  # rose-600
         elif "Approve" in button_text or "approved" in title.lower():
-            btn_bg = "#10b981"  # emerald
+            btn_bg = "#059669"  # emerald-600
             
         button_html = f'''
-            <div style="margin: 24px 0; text-align: center;">
-                <!--[if mso]>
-                <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{button_url}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="50%" strokecolor="{btn_bg}" fillcolor="{btn_bg}">
-                <w:anchorlock/>
-                <center style="color:#020617;font-family:sans-serif;font-size:12px;font-weight:bold;">{button_text}</center>
-                </v:roundrect>
-                <![endif]-->
-                <!--[if !mso]><!-->
-                <table border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto;">
-                    <tr>
-                        <td align="center" bgcolor="{btn_bg}" style="
-                            background-color: {btn_bg};
-                            border-radius: 50px;
-                            padding: 0;
-                        ">
-                            <a href="{button_url}" target="_blank" style="
-                                display: inline-block;
-                                padding: 12px 28px;
-                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                                font-size: 13px;
-                                font-weight: 600;
-                                color: #020617;
-                                text-decoration: none;
-                                border-radius: 50px;
-                                background-color: {btn_bg};
-                            ">{button_text}</a>
-                        </td>
-                    </tr>
-                </table>
-                <!--<![endif]-->
-            </div>
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0;">
+                <tr>
+                    <td align="center">
+                        <table border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td align="center" bgcolor="{btn_bg}" style="border-radius: 50px;">
+                                    <a href="{button_url}" target="_blank" style="display: inline-block; padding: 14px 32px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: {btn_text}; text-decoration: none; border-radius: 50px;">{button_text}</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         '''
     
     # Build footer
@@ -144,65 +89,58 @@ def build_email_html(
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body style="margin: 0; padding: 0; background: #020617; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <!-- Header -->
-            <div style="text-align: center; margin-bottom: 24px;">
-                <div style="
-                    display: inline-block;
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 50%;
-                    background: radial-gradient(circle at 25% 25%, #38bdf8, #0f172a 60%, #020617 100%);
-                    box-shadow: 0 0 0 1px rgba(56,189,248,0.6), 0 14px 30px rgba(8,47,73,0.8);
-                    line-height: 48px;
-                    font-size: 14px;
-                    font-weight: 700;
-                    letter-spacing: 0.1em;
-                    color: white;
-                ">ORC</div>
-                <div style="margin-top: 12px; font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.15em;">
-                    Orchestration System
-                </div>
-            </div>
-            
-            <!-- Main Panel -->
-            <div style="
-                background: radial-gradient(circle at 0 0, rgba(148,163,184,0.06), transparent 50%), #0f172a;
-                border: 1px solid #334155;
-                border-radius: 16px;
-                padding: 28px;
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            ">
-                <!-- Title -->
-                <h1 style="
-                    margin: 0 0 16px 0;
-                    font-size: 22px;
-                    font-weight: 600;
-                    color: {title_color};
-                ">{title}</h1>
-                
-                <!-- Message -->
-                <p style="margin: 0 0 20px 0; color: #94a3b8; font-size: 14px; line-height: 1.6;">
-                    {message}
-                </p>
-                
-                <!-- Details Table -->
-                {details_html}
-                
-                <!-- Button -->
-                {button_html}
-                
-                <!-- Footer -->
-                {footer_html}
-            </div>
-            
-            <!-- Email Footer -->
-            <div style="text-align: center; margin-top: 20px; color: #475569; font-size: 10px;">
-                This is an automated message from the Orchestration System.<br>
-                Please do not reply to this email.
-            </div>
-        </div>
+    <body style="margin: 0; padding: 0; background-color: #020617; font-family: Arial, Helvetica, sans-serif;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#020617">
+            <tr>
+                <td align="center" style="padding: 20px;">
+                    <table border="0" cellpadding="0" cellspacing="0" width="600" style="max-width: 600px;">
+                        <!-- Header with Logo -->
+                        <tr>
+                            <td align="center" style="padding: 20px 0;">
+                                <table border="0" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td align="center" bgcolor="#0f172a" style="width: 50px; height: 50px; border-radius: 25px; border: 1px solid #38bdf8;">
+                                            <span style="color: #ffffff; font-size: 14px; font-weight: bold; letter-spacing: 2px;">ORC</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <p style="margin: 10px 0 0 0; font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 2px;">Orchestration System</p>
+                            </td>
+                        </tr>
+                        
+                        <!-- Main Panel -->
+                        <tr>
+                            <td bgcolor="#0f172a" style="background-color: #0f172a; border: 1px solid #334155; border-radius: 16px; padding: 28px;">
+                                <!-- Title -->
+                                <h1 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 600; color: {title_color};">{title}</h1>
+                                
+                                <!-- Message -->
+                                <p style="margin: 0 0 20px 0; color: #94a3b8; font-size: 14px; line-height: 1.6;">{message}</p>
+                                
+                                <!-- Details Table -->
+                                {details_html}
+                                
+                                <!-- Button -->
+                                {button_html}
+                                
+                                <!-- Footer -->
+                                {footer_html}
+                            </td>
+                        </tr>
+                        
+                        <!-- Email Footer -->
+                        <tr>
+                            <td align="center" style="padding: 20px;">
+                                <p style="margin: 0; color: #475569; font-size: 10px;">
+                                    This is an automated message from the Orchestration System.<br>
+                                    Please do not reply to this email.
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
     </body>
     </html>
     '''
@@ -223,23 +161,22 @@ def build_approval_request_email(
     dashboard_url: str
 ) -> str:
     """Build approval request email"""
-    requestor_display = f'<a href="mailto:{requestor_email}" style="color: #38bdf8;">{requestor}</a>' if requestor_email else requestor
+    requestor_display = f'{requestor} ({requestor_email})' if requestor_email else requestor
     
     return build_email_html(
         title="⏳ Workflow Approval Required",
         title_color="#fde68a",  # amber for pending/action required
         message="A new workflow has been submitted and requires your approval.",
         details={
-            "Workflow ID": f'<code style="background: #1e293b; padding: 2px 6px; border-radius: 4px; color: #38bdf8; font-family: monospace;">{workflow_id}</code>',
+            "Workflow ID": f'<span style="font-family: monospace; color: #38bdf8;">{workflow_id}</span>',
             "Requestor": requestor_display,
-            "Script": f'<code style="background: #1e293b; padding: 2px 6px; border-radius: 4px; color: #f1f5f9; font-family: monospace;">{script_id}</code>',
+            "Script": f'<span style="font-family: monospace;">{script_id}</span>',
             "Target Agents": ', '.join(targets),
             "Reason": reason or "No reason provided",
             "Expires In": f'<span style="color: #fde68a;">{ttl_minutes} minutes</span>'
         },
         button_text="Open Dashboard to Review",
         button_url=dashboard_url,
-        button_color="#0ea5e9",  # sky blue
         footer=f"Requested by: {requestor}"
     )
 
@@ -260,15 +197,14 @@ def build_workflow_approved_email(
         title_color="#a7f3d0",  # emerald for success
         message="Your workflow request has been approved and is ready for execution.",
         details={
-            "Workflow ID": f'<code style="background: #1e293b; padding: 2px 6px; border-radius: 4px; color: #38bdf8; font-family: monospace;">{workflow_id}</code>',
-            "Script": f'<code style="background: #1e293b; padding: 2px 6px; border-radius: 4px; color: #f1f5f9; font-family: monospace;">{script_id}</code>',
+            "Workflow ID": f'<span style="font-family: monospace; color: #38bdf8;">{workflow_id}</span>',
+            "Script": f'<span style="font-family: monospace;">{script_id}</span>',
             "Target Agents": ', '.join(targets),
             "Approved By": f'<span style="color: #a7f3d0;">{approved_by}</span>',
             "Notes": notes
         },
         button_text="View in Dashboard" if dashboard_url else None,
         button_url=dashboard_url,
-        button_color="#10b981",  # emerald
         footer="You can now execute this workflow from the dashboard."
     )
 
@@ -289,15 +225,14 @@ def build_workflow_denied_email(
         title_color="#fecaca",  # rose for error/denial
         message="Your workflow request has been denied.",
         details={
-            "Workflow ID": f'<code style="background: #1e293b; padding: 2px 6px; border-radius: 4px; color: #38bdf8; font-family: monospace;">{workflow_id}</code>',
-            "Script": f'<code style="background: #1e293b; padding: 2px 6px; border-radius: 4px; color: #f1f5f9; font-family: monospace;">{script_id}</code>',
+            "Workflow ID": f'<span style="font-family: monospace; color: #38bdf8;">{workflow_id}</span>',
+            "Script": f'<span style="font-family: monospace;">{script_id}</span>',
             "Target Agents": ', '.join(targets),
             "Denied By": f'<span style="color: #fecaca;">{denied_by}</span>',
             "Reason": f'<span style="color: #fecaca;">{reason}</span>'
         },
         button_text="View in Dashboard" if dashboard_url else None,
         button_url=dashboard_url,
-        button_color="#f43f5e",  # rose
         footer="Please contact the approver if you have questions about this decision."
     )
 
@@ -327,15 +262,14 @@ def build_workflow_executed_email(
         title_color="#38bdf8",  # sky blue
         message="Your approved workflow has been executed.",
         details={
-            "Workflow ID": f'<code style="background: #1e293b; padding: 2px 6px; border-radius: 4px; color: #38bdf8; font-family: monospace;">{workflow_id}</code>',
-            "Script": f'<code style="background: #1e293b; padding: 2px 6px; border-radius: 4px; color: #f1f5f9; font-family: monospace;">{script_id}</code>',
+            "Workflow ID": f'<span style="font-family: monospace; color: #38bdf8;">{workflow_id}</span>',
+            "Script": f'<span style="font-family: monospace;">{script_id}</span>',
             "Target Agents": ', '.join(targets),
             "Executed By": executed_by,
             "Results": results_html
         },
         button_text="View Details" if dashboard_url else None,
         button_url=dashboard_url,
-        button_color="#0ea5e9",
         footer="Check the dashboard for full execution logs."
     )
 
