@@ -1,0 +1,71 @@
+<!DOCTYPE html><html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; background: linear-gradient(180deg, #0f172a 0%, #020617 100%); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+            <!-- Header with logo -->
+            <div style="text-align: center; margin-bottom: 32px;">
+                <div style="display: inline-block; width: 48px; height: 48px; background: radial-gradient(circle at 25% 25%, #38bdf8, #0f172a 60%, #020617 100%); border-radius: 12px; margin-bottom: 12px;"></div>
+                <div style="color: white; font-size: 13px; font-weight: 700; letter-spacing: 0.14em;">ORCHESTRATION</div>
+            </div>
+            
+            <!-- Main card -->
+            <div style="background: rgba(2, 6, 23, 0.95); border: 1px solid rgba(100, 116, 139, 0.4); border-radius: 12px; overflow: hidden;">
+                <!-- Title bar -->
+                <div style="background: rgba(30, 41, 59, 0.6); padding: 20px 24px; border-bottom: 1px solid rgba(100, 116, 139, 0.3);">
+                    <h1 style="margin: 0; color: #fde68a; font-size: 18px; font-weight: 600;">⏳ Workflow Approval Required</h1>
+                </div>
+                
+                <!-- Content -->
+                <div style="padding: 24px;">
+                    <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">A new workflow has been submitted and requires your approval.</p>
+                    
+                    <!-- Details table -->
+                    <table style="width: 100%; border-collapse: collapse; background: rgba(15, 23, 42, 0.5); border-radius: 8px; overflow: hidden;">
+                        
+            <tr style="background: rgba(30, 41, 59, 0.5);">
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; font-size: 13px; width: 140px;">Workflow ID</td>
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #f1f5f9; font-size: 13px;"><span style="font-family: monospace; color: #38bdf8;">wf_4a8828851bcc</span></td>
+            </tr>
+            <tr style="">
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; font-size: 13px; width: 140px;">Requestor</td>
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #f1f5f9; font-size: 13px;">Rajesh Mudiganti (affiliate)</td>
+            </tr>
+            <tr style="background: rgba(30, 41, 59, 0.5);">
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; font-size: 13px; width: 140px;">Requestor Email</td>
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #f1f5f9; font-size: 13px;"><a href="mailto:rajesh.mudiganti@deplogic.com" style="color: #38bdf8;">rajesh.mudiganti@deplogic.com</a></td>
+            </tr>
+            <tr style="">
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; font-size: 13px; width: 140px;">Script</td>
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #f1f5f9; font-size: 13px;"><span style="font-family: monospace; color: #38bdf8;">ibyValidate</span></td>
+            </tr>
+            <tr style="background: rgba(30, 41, 59, 0.5);">
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; font-size: 13px; width: 140px;">Target Agents</td>
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #f1f5f9; font-size: 13px;">ds-d1-ebs-01</td>
+            </tr>
+            <tr style="">
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; font-size: 13px; width: 140px;">Reason</td>
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #f1f5f9; font-size: 13px;">Test SERS Validate</td>
+            </tr>
+            <tr style="background: rgba(30, 41, 59, 0.5);">
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; font-size: 13px; width: 140px;">Expires In</td>
+                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #f1f5f9; font-size: 13px;">60 minutes</td>
+            </tr>
+                    </table>
+                    
+                    
+            <p style="margin: 28px 0; text-align: center;">
+                <a href="https://ds-d1-01.deplogic.com:7585/dashboard" style="background: #0ea5e9; color: white; padding: 12px 32px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px;">
+                    Open Dashboard to Approve
+                </a>
+            </p>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <p style="color: #64748b; font-size: 11px; margin-top: 24px; text-align: center;">This is an automated message from the Orchestration System.<br>Requested by: Rajesh Mudiganti (affiliate)</p>
+        </div>
+    </body>
+    </html>
+    
