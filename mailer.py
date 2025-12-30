@@ -1,3 +1,7 @@
+# =============================================================================
+# Styled HTML Attachment (opens in browser with full CSS)
+# =============================================================================
+
 def build_styled_html_attachment(
     title: str,
     title_color: str,
