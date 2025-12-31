@@ -79,13 +79,25 @@ def get_ssl_verify_config():
     return False
 
 
-def build_email_html(title: str, title_color: str, message: str, details: list, button_text: str = None, button_url: str = None, button_color: str = "#0ea5e9", footer: str = None) -> str:
+def build_email_html(
+    title: str,
+    title_color: str,
+    accent_color: str,
+    message: str,
+    details: list,
+    button_text: str = None,
+    button_url: str = None,
+    button_color: str = "#0284c7",
+    footer: str = None
+) -> str:
     """
-    Build styled HTML email matching dashboard theme.
+    Build styled HTML email - LIGHT THEME that works in Outlook.
+    Uses bgcolor on every cell for maximum compatibility.
     
     Args:
         title: Email header title
-        title_color: Color for title (hex)
+        title_color: Color for title text (hex)
+        accent_color: Color for accent bar and logo (hex)
         message: Main message paragraph
         details: List of tuples [(label, value), ...]
         button_text: Optional CTA button text
@@ -93,70 +105,120 @@ def build_email_html(title: str, title_color: str, message: str, details: list, 
         button_color: Button background color
         footer: Optional footer text
     """
-    # Build details rows
+    from datetime import datetime
+    
+    # Build details rows with alternating backgrounds
     rows_html = ""
     for i, (label, value) in enumerate(details):
-        bg = "background: rgba(30, 41, 59, 0.5);" if i % 2 == 0 else ""
-        rows_html += f'''
-            <tr style="{bg}">
-                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; font-size: 13px; width: 140px;">{label}</td>
-                <td style="padding: 12px 16px; border-bottom: 1px solid rgba(100, 116, 139, 0.3); color: #f1f5f9; font-size: 13px;">{value}</td>
-            </tr>'''
+        row_bg = "#f8fafc" if i % 2 == 0 else "#ffffff"
+        rows_html += f"""
+        <tr>
+            <td bgcolor="{row_bg}" style="padding:12px 16px;border-bottom:1px solid #e2e8f0;color:#64748b;font-weight:600;width:160px;font-family:Arial,sans-serif;font-size:14px;">
+                {label}
+            </td>
+            <td bgcolor="{row_bg}" style="padding:12px 16px;border-bottom:1px solid #e2e8f0;color:#1e293b;font-family:Arial,sans-serif;font-size:14px;">
+                {value}
+            </td>
+        </tr>"""
     
     # Build button if provided
     button_html = ""
     if button_text and button_url:
-        button_html = f'''
-            <p style="margin: 28px 0; text-align: center;">
-                <a href="{button_url}" style="background: {button_color}; color: white; padding: 12px 32px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px;">
-                    {button_text}
-                </a>
-            </p>'''
+        button_html = f"""
+        <tr>
+            <td colspan="2" bgcolor="#ffffff" align="center" style="padding:28px 0 8px 0;">
+                <table cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <td bgcolor="{button_color}" style="border-radius:6px;">
+                            <a href="{button_url}" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;font-family:Arial,sans-serif;">
+                                {button_text}
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>"""
     
-    # Build footer
-    footer_html = f'<p style="color: #64748b; font-size: 11px; margin-top: 24px; text-align: center;">{footer}</p>' if footer else ""
-    
-    return f'''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body style="margin: 0; padding: 0; background: linear-gradient(180deg, #0f172a 0%, #020617 100%); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-        <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-            <!-- Header with logo -->
-            <div style="text-align: center; margin-bottom: 32px;">
-                <div style="display: inline-block; width: 48px; height: 48px; background: radial-gradient(circle at 25% 25%, #38bdf8, #0f172a 60%, #020617 100%); border-radius: 12px; margin-bottom: 12px;"></div>
-                <div style="color: white; font-size: 13px; font-weight: 700; letter-spacing: 0.14em;">ORCHESTRATION</div>
-            </div>
-            
-            <!-- Main card -->
-            <div style="background: rgba(2, 6, 23, 0.95); border: 1px solid rgba(100, 116, 139, 0.4); border-radius: 12px; overflow: hidden;">
-                <!-- Title bar -->
-                <div style="background: rgba(30, 41, 59, 0.6); padding: 20px 24px; border-bottom: 1px solid rgba(100, 116, 139, 0.3);">
-                    <h1 style="margin: 0; color: {title_color}; font-size: 18px; font-weight: 600;">{title}</h1>
-                </div>
-                
-                <!-- Content -->
-                <div style="padding: 24px;">
-                    <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">{message}</p>
-                    
-                    <!-- Details table -->
-                    <table style="width: 100%; border-collapse: collapse; background: rgba(15, 23, 42, 0.5); border-radius: 8px; overflow: hidden;">
-                        {rows_html}
-                    </table>
-                    
-                    {button_html}
-                </div>
-            </div>
-            
-            <!-- Footer -->
-            {footer_html}
-        </div>
-    </body>
-    </html>
-    '''
+    # Build footer row
+    footer_html = ""
+    if footer:
+        footer_html = f"""
+        <tr>
+            <td colspan="2" bgcolor="#ffffff" style="padding:16px 0 0 0;font-size:13px;color:#64748b;font-family:Arial,sans-serif;">
+                {footer}
+            </td>
+        </tr>"""
+
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{title}</title>
+</head>
+<body bgcolor="#f1f5f9" style="margin:0;padding:0;background-color:#f1f5f9;font-family:Arial,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f1f5f9">
+<tr>
+<td bgcolor="#f1f5f9" align="center" style="padding:32px 16px;">
+
+<table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border:1px solid #e2e8f0;border-radius:8px;">
+
+<!-- Accent Bar -->
+<tr>
+<td bgcolor="{accent_color}" height="4" style="font-size:1px;line-height:1px;">&nbsp;</td>
+</tr>
+
+<!-- Header -->
+<tr>
+<td bgcolor="#ffffff" style="padding:24px 32px 16px 32px;">
+    <table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+    <td bgcolor="{accent_color}" width="44" height="44" align="center" valign="middle" style="border-radius:8px;">
+        <span style="color:#ffffff;font-size:16px;font-weight:bold;font-family:Arial,sans-serif;">O</span>
+    </td>
+    <td bgcolor="#ffffff" style="padding-left:16px;">
+        <div style="font-size:20px;font-weight:700;color:{title_color};font-family:Arial,sans-serif;">{title}</div>
+    </td>
+    </tr>
+    </table>
+</td>
+</tr>
+
+<!-- Message -->
+<tr>
+<td bgcolor="#ffffff" style="padding:0 32px 24px 32px;color:#475569;font-size:15px;line-height:1.6;font-family:Arial,sans-serif;">
+    {message}
+</td>
+</tr>
+
+<!-- Details Table -->
+<tr>
+<td bgcolor="#ffffff" style="padding:0 32px 24px 32px;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e2e8f0;border-radius:6px;">
+        {rows_html}
+        {button_html}
+        {footer_html}
+    </table>
+</td>
+</tr>
+
+<!-- Footer -->
+<tr>
+<td bgcolor="#f8fafc" style="padding:16px 32px;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;font-family:Arial,sans-serif;">
+    Orchestration System &bull; {timestamp}
+</td>
+</tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+</body>
+</html>"""
 
 
 async def notify_agent_of_workflow(
@@ -278,14 +340,13 @@ async def create_workflow(
             try:
                 api_host = os.getenv("API_HOST", "https://localhost:7585")
                 dashboard_url = f"{api_host}/dashboard"
-                requestor_contact = f'<a href="mailto:{request.requestor_email}" style="color: #38bdf8;">{request.requestor_email}</a>' if request.requestor_email else request.requestor
                 
                 # Build details list
                 details = [
-                    ("Workflow ID", f'<span style="font-family: monospace; color: #38bdf8;">{workflow_id}</span>'),
+                    ("Workflow ID", workflow_id),
                     ("Requestor", request.requestor),
-                    ("Requestor Email", requestor_contact),
-                    ("Script", f'<span style="font-family: monospace; color: #38bdf8;">{request.script_id}</span>'),
+                    ("Requestor Email", request.requestor_email or "N/A"),
+                    ("Script", request.script_id),
                     ("Target Agents", ', '.join(request.targets)),
                     ("Reason", request.reason),
                     ("Expires In", f"{request.ttl_minutes} minutes"),
@@ -293,18 +354,19 @@ async def create_workflow(
                 
                 # Add script parameters if present
                 if request.script_params:
-                    params_display = '<br>'.join([f'<span style="color: #94a3b8;">{k}:</span> {v}' for k, v in request.script_params.items()])
+                    params_display = ', '.join([f'{k}: {v}' for k, v in request.script_params.items()])
                     details.append(("Parameters", params_display))
                 
                 html_content = build_email_html(
-                    title="⏳ Workflow Approval Required",
-                    title_color="#fde68a",  # amber
+                    title="Workflow Approval Required",
+                    title_color="#b45309",  # Amber-700
+                    accent_color="#f59e0b",  # Amber-500
                     message="A new workflow has been submitted and requires your approval.",
                     details=details,
                     button_text="Open Dashboard to Approve",
                     button_url=dashboard_url,
-                    button_color="#0ea5e9",
-                    footer=f"This is an automated message from the Orchestration System.<br>Requested by: {request.requestor}"
+                    button_color="#0284c7",  # Sky-600
+                    footer=f"Requested by: {request.requestor}"
                 )
                 
                 result = send_email(
@@ -362,19 +424,20 @@ async def approve_workflow(
                 dashboard_url = f"{api_host}/dashboard"
                 
                 html_content = build_email_html(
-                    title="✅ Workflow Approved",
-                    title_color="#a7f3d0",  # emerald
+                    title="Workflow Approved",
+                    title_color="#047857",  # Emerald-700
+                    accent_color="#10b981",  # Emerald-500
                     message="Your workflow has been approved and is ready for execution.",
                     details=[
-                        ("Workflow ID", f'<span style="font-family: monospace; color: #38bdf8;">{workflow_id}</span>'),
-                        ("Script", f'<span style="font-family: monospace; color: #38bdf8;">{workflow.get("script_id", "N/A")}</span>'),
+                        ("Workflow ID", workflow_id),
+                        ("Script", workflow.get("script_id", "N/A")),
                         ("Approved By", request.approver),
-                        ("Status", '<span style="color: #a7f3d0; font-weight: bold;">APPROVED</span>'),
+                        ("Status", "APPROVED"),
                     ],
                     button_text="Open Dashboard to Execute",
                     button_url=dashboard_url,
-                    button_color="#10b981",
-                    footer="This is an automated message from the Orchestration System."
+                    button_color="#059669",  # Emerald-600
+                    footer="You can now execute this workflow from the dashboard."
                 )
                 
                 send_email(
@@ -530,15 +593,16 @@ async def deny_workflow(
     if requestor_email:
         try:
             html_content = build_email_html(
-                title="❌ Workflow Denied",
-                title_color="#fecaca",  # rose
+                title="Workflow Denied",
+                title_color="#be123c",  # Rose-700
+                accent_color="#f43f5e",  # Rose-500
                 message="Your workflow request has been denied.",
                 details=[
-                    ("Workflow ID", f'<span style="font-family: monospace; color: #38bdf8;">{workflow_id}</span>'),
-                    ("Script", f'<span style="font-family: monospace; color: #38bdf8;">{workflow.get("script_id", "N/A")}</span>'),
+                    ("Workflow ID", workflow_id),
+                    ("Script", workflow.get("script_id", "N/A")),
                     ("Denied By", denier),
                     ("Reason", reason),
-                    ("Status", '<span style="color: #fecaca; font-weight: bold;">DENIED</span>'),
+                    ("Status", "DENIED"),
                 ],
                 footer="If you believe this was in error, please contact the approver or submit a new workflow request."
             )
@@ -611,13 +675,21 @@ async def request_reexecution(
     api_host = os.getenv("API_HOST", "http://localhost:8000")
     approve_url = f"{api_host}/api/workflows/{workflow_id}/reexec/approve?request_id={req['id']}"
 
-    html = f"""
-    <p>A request to execute workflow <strong>{workflow_id}</strong> was created by {requester}.</p>
-    <p>Note: {payload.note or '(none)'}</p>
-    <p>To approve: <code>POST {approve_url}</code></p>
-    """
+    html_content = build_email_html(
+        title="Re-execution Approval Required",
+        title_color="#b45309",  # Amber-700
+        accent_color="#f59e0b",  # Amber-500
+        message=f"A request to re-execute workflow has been submitted by {requester}.",
+        details=[
+            ("Workflow ID", workflow_id),
+            ("Requester", requester),
+            ("Note", payload.note or "(none)"),
+            ("Approve URL", approve_url),
+        ],
+        footer="POST to the Approve URL to approve this request."
+    )
 
-    send_email(approver_target, f"Execution approval required for {workflow_id}", html)
+    send_email(approver_target, f"[Action Required] Re-execution approval for {workflow_id}", html_content)
     return {"message": "Approval request created and approver notified", "request": req}
 
 
@@ -644,11 +716,18 @@ async def approve_reexecution(
 
     requester_email = req.get('requester_email') or (db.get_workflow(workflow_id) or {}).get('notify_email')
     if requester_email:
-        html = f"""
-        <p>Your execution request for workflow <strong>{workflow_id}</strong> has been approved.</p>
-        <p>Token expires: {token_row.get('expires_at')}</p>
-        <pre>{token_row.get('token')}</pre>
-        """
-        send_email(requester_email, f"Execution token for {workflow_id}", html)
+        html_content = build_email_html(
+            title="Re-execution Approved",
+            title_color="#047857",  # Emerald-700
+            accent_color="#10b981",  # Emerald-500
+            message=f"Your re-execution request for workflow {workflow_id} has been approved.",
+            details=[
+                ("Workflow ID", workflow_id),
+                ("Token Expires", str(token_row.get('expires_at', 'N/A'))),
+                ("Token", token_row.get('token', 'N/A')),
+            ],
+            footer="Use this token to execute the workflow."
+        )
+        send_email(requester_email, f"[Approved] Execution token for {workflow_id}", html_content)
 
     return {"message": "Approved and token issued", "token_id": token_row.get('id')}
