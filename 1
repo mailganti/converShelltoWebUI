@@ -1,3 +1,31 @@
+# Configuration
+SMTP_FROM = os.getenv("SMTP_FROM", "facti@ds-d1-ebs-01.ba.ssa.gov")
+EMAIL_DRY_RUN = False
+SMTP_HOST = os.getenv("SMTP_HOST", "localhost")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "25"))
+SMTP_USER = os.getenv("SMTP_USER", "")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "false").lower() == "true"
+SMTP_USE_SSL = os.getenv("SMTP_USE_SSL", "false").lower() == "true"
+SMTP_TIMEOUT = int(os.getenv("SMTP_TIMEOUT", "30"))
+
+# Path to sendmail (common locations)
+SENDMAIL_PATH = os.getenv("SENDMAIL_PATH", "/usr/sbin/sendmail")
+
+# For testing/development - log emails instead of sending
+#EMAIL_DRY_RUN = os.getenv("EMAIL_DRY_RUN", "true").lower() == "true"
+
+# Log configuration at startup
+logger.info(f"[EMAILER CONFIG] SMTP_HOST={SMTP_HOST}, SMTP_PORT={SMTP_PORT}, SMTP_FROM={SMTP_FROM}")
+logger.info(f"[EMAILER CONFIG] EMAIL_DRY_RUN={EMAIL_DRY_RUN}, SENDMAIL_PATH={SENDMAIL_PATH}")
+
+export EMAIL_DRY_RUN = False
+
+
+
+
+
+
 EMAIL_DRY_RUN = "False"
 print(f"!!!!  Email DRY RUN is et to : {EMAIL_DRY_RUN} !!!!")
 
