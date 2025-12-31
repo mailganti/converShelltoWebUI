@@ -1,3 +1,5 @@
+
+
 def build_email_html(
     title: str,
     title_color: str,
