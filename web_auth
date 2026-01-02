@@ -30,7 +30,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 # Session configuration
 SESSION_COOKIE_NAME = "orchestration_session"
-SESSION_EXPIRY_HOURS = 24
+SESSION_EXPIRY_MINUTES = 15  # 15-minute session timeout
 
 
 class SessionManager:
@@ -51,8 +51,8 @@ class SessionManager:
         # Generate secure session ID
         session_id = secrets.token_urlsafe(32)
         
-        # Calculate expiry
-        expires_at = datetime.utcnow() + timedelta(hours=SESSION_EXPIRY_HOURS)
+        # Calculate expiry (15 minutes)
+        expires_at = datetime.utcnow() + timedelta(minutes=SESSION_EXPIRY_MINUTES)
         
         # Store in database
         cursor = self.db.conn.cursor()
@@ -69,11 +69,11 @@ class SessionManager:
             httponly=True,  # Not accessible via JavaScript (XSS protection)
             secure=True,    # Only send over HTTPS (SSL always on)
             samesite="lax", # CSRF protection
-            max_age=SESSION_EXPIRY_HOURS * 3600,
+            max_age=SESSION_EXPIRY_MINUTES * 60,  # 15 minutes in seconds
             path="/"
         )
         
-        logger.info(f"Session created for user {user_id} (secure cookie)")
+        logger.info(f"Session created for user {user_id} (expires in {SESSION_EXPIRY_MINUTES} min)")
         
         return session_id
     
@@ -95,6 +95,43 @@ class SessionManager:
         
         row = cursor.fetchone()
         return dict(row) if row else None
+    
+    def refresh_session(self, session_id: str, response: Response) -> bool:
+        """
+        Refresh session expiry time (sliding expiration).
+        Call this on each authenticated request to keep session alive.
+        """
+        if not session_id:
+            return False
+        
+        # Calculate new expiry
+        new_expires_at = datetime.utcnow() + timedelta(minutes=SESSION_EXPIRY_MINUTES)
+        
+        cursor = self.db.conn.cursor()
+        cursor.execute('''
+            UPDATE sessions 
+            SET expires_at = ?
+            WHERE session_id = ?
+            AND datetime(expires_at) > datetime('now')
+        ''', (new_expires_at.isoformat(), session_id))
+        
+        updated = cursor.rowcount > 0
+        self.db.conn.commit()
+        
+        if updated:
+            # Also refresh cookie expiry
+            response.set_cookie(
+                key=SESSION_COOKIE_NAME,
+                value=session_id,
+                httponly=True,
+                secure=True,
+                samesite="lax",
+                max_age=SESSION_EXPIRY_MINUTES * 60,
+                path="/"
+            )
+            logger.debug(f"Session refreshed: {session_id[:8]}...")
+        
+        return updated
     
     def delete_session(self, session_id: str, response: Response):
         """Delete session and clear cookie"""
