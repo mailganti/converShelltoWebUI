@@ -81,12 +81,16 @@ async def cert_auto_login(request: Request, call_next):
     from controller.db.db import get_db
     db = get_db()
 
-    # 1) Existing valid session?
+    # 1) Existing valid session? Refresh expiry (sliding expiration)
     session_cookie = request.cookies.get(SESSION_COOKIE_NAME)
     if session_cookie:
         sm = SessionManager(db)
         if sm.get_session(session_cookie):
-            return await call_next(request)
+            # Process request first
+            response = await call_next(request)
+            # Refresh session expiry on activity (sliding expiration)
+            sm.refresh_session(session_cookie, response)
+            return response
 
     # 2) Certificate headers forwarded by proxy?
     cert_cn = request.headers.get("x-client-cert-cn")
@@ -98,12 +102,11 @@ async def cert_auto_login(request: Request, call_next):
     logger.info(f"[CERT] Client certificate detected: CN={cert_cn} DN={cert_dn}")
 
     cursor = db.conn.cursor()
-    # Case-insensitive lookup to prevent duplicate users from certificate CN variations
     cursor.execute(
         '''
         SELECT user_id, username, role, full_name, email
         FROM users
-        WHERE LOWER(username) = LOWER(?) AND is_active = 1
+        WHERE username = ? AND is_active = 1
         ''',
         (cert_cn,)
     )
@@ -189,56 +192,9 @@ def debug_headers(request: Request):
 
 @app.get("/whoami")
 def whoami(request: Request):
-    from controller.db.db import get_db
-    
     user = get_current_user_from_session(
         request, request.cookies.get(SESSION_COOKIE_NAME)
     )
-    
-    if not user:
-        return {"user": None, "logged_in": False}
-    
-    # Get complete user info from database including role
-    try:
-        db = get_db()
-        cursor = db.conn.cursor()
-        
-        username = user.get('username') if isinstance(user, dict) else getattr(user, 'username', None)
-        
-        if username:
-            # Case-insensitive lookup
-            cursor.execute("""
-                SELECT user_id, username, role, full_name, email, auth_method 
-                FROM users 
-                WHERE LOWER(username) = LOWER(?) AND is_active = 1
-            """, (username,))
-            row = cursor.fetchone()
-            
-            if row:
-                user_data = {
-                    "user_id": row[0],
-                    "username": row[1],
-                    "role": row[2] or "user",
-                    "full_name": row[3] or row[1],
-                    "email": row[4],
-                    "auth_method": row[5] or "cert"
-                }
-                
-                # Also get environment access
-                cursor.execute("""
-                    SELECT environment FROM user_agent_access WHERE user_id = ?
-                """, (row[0],))
-                env_rows = cursor.fetchall()
-                user_data["allowed_environments"] = [r[0] for r in env_rows] if env_rows else []
-                
-                return {
-                    "user": user_data,
-                    "logged_in": True
-                }
-    except Exception as e:
-        logger.warning(f"Error fetching user details: {e}")
-    
-    # Fallback to original user data
     return {
         "user": user,
         "logged_in": user is not None,
@@ -254,6 +210,12 @@ app.include_router(executions_router, prefix="/api")
 app.include_router(logs_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(reports_router, prefix="/api")
+
+@app.get("/whoami")
+async def whoami_root(request: Request):
+    from controller.routes.auth import whoami, get_current_user
+    user = await get_current_user(request)
+    return await whoami(request, user)
 
 
 @app.get("/")
@@ -383,22 +345,6 @@ async def startup_event():
     logger.info("Authentication: Client Certificate (Smartcard)")
     logger.info("Server: Hypercorn with TLS")
     logger.info("=" * 60)
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Clean up resources on shutdown to prevent memory leaks"""
-    logger.info("Orchestration System API Shutting Down")
-    
-    # Close the reusable HTTP client from agents module
-    try:
-        from controller.routes.agents import close_http_client
-        await close_http_client()
-        logger.info("HTTP client closed successfully")
-    except Exception as e:
-        logger.warning(f"Error closing HTTP client: {e}")
-    
-    logger.info("Shutdown complete")
 
 
 if __name__ == "__main__":
