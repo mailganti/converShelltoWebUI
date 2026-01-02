@@ -1,0 +1,94 @@
+Option 1: Use Smart Card Directly via PKCS#11 (Recommended)
+The smart card is still in the reader after sudo. Access it directly:
+
+
+#!/bin/bash
+# cyberark_smartcard.sh - Uses your physical smart card for auth
+
+# PKCS#11 module path (adjust for your smart card type)
+PKCS11_MODULE="/usr/lib64/opensc-pkcs11.so"  # OpenSC
+# PKCS11_MODULE="/usr/lib64/libcoolkeypk11.so"  # CoolKey
+# PKCS11_MODULE="/opt/safenet/lunaclient/lib/libCryptoki2_64.so"  # SafeNet
+
+CYBERARK_HOST="cyberark.company.com"
+CYBERARK_SAFE="EBS_Automation_Safe"
+
+get_password_smartcard() {
+    local object_name="$1"
+    
+    # curl with PKCS#11 engine - will prompt for PIN
+    curl --silent \
+        --engine pkcs11 \
+        --cert "pkcs11:token=YOUR_TOKEN_LABEL;object=YOUR_CERT_LABEL" \
+        --key "pkcs11:token=YOUR_TOKEN_LABEL;object=YOUR_KEY_LABEL" \
+        "https://${CYBERARK_HOST}/AIMWebService/api/Accounts?Safe=${CYBERARK_SAFE}&Object=${object_name}" \
+        | jq -r '.Content'
+}
+
+# Usage - will prompt for smart card PIN
+db_pass=$(get_password_smartcard "PROD_DB_ACCOUNT")
+
+Option 2: Preserve Kerberos Ticket Across Sudo
+
+
+
+If your smart card login creates a Kerberos ticket (pkinit), preserve it:
+bash# When you login with smart card, a ticket is created
+# Check with: klist
+
+# Allow sudo to preserve Kerberos credentials
+# Add to /etc/sudoers:
+#   Defaults env_keep += "KRB5CCNAME"
+
+# Then after sudo, your ticket is still valid
+sudo -u svc_oracle bash
+
+# CyberArk can use Kerberos auth
+curl --negotiate -u : \
+    "https://cyberark.company.com/PasswordVault/API/Auth/Windows/Logon"
+
+
+
+Option 3: Export Cert at Login, Use After Sudo
+Extract your cert during login, store temporarily, use after sudo:
+bash# In your .bash_profile (runs at smart card login)
+export CYBERARK_USER=$(whoami)
+export CYBERARK_USER_CERT="/tmp/.cyberark_${CYBERARK_USER}_cert.pem"
+
+# Extract cert from smart card (one-time at login, requires PIN)
+pkcs11-tool --module /usr/lib64/opensc-pkcs11.so \
+    --read-object --type cert --label "Certificate" \
+    -o "$CYBERARK_USER_CERT"
+
+# Set restrictive permissions
+chmod 600 "$CYBERARK_USER_CERT"
+bash# After sudo, the cert is still available
+sudo -u svc_oracle bash
+
+# Use the preserved cert
+source /home/original_user/cyberark_shell.sh
+# CYBERARK_CERT points to the extracted cert
+
+
+Option 4: Use SUDO_USER for Audit, App ID for Auth
+Most practical approach - use an App ID for authentication, but audit who actually ran it:
+bash#!/bin/bash
+# The script authenticates with App ID, but logs the real user
+
+REAL_USER="${SUDO_USER:-$USER}"
+
+# Log who's accessing what
+logger -t cyberark "User ${REAL_USER} requesting secret via sudo as $(whoami)"
+
+# Use App ID authentication (configured in CyberArk)
+source cyberark_shell.sh  # Uses App ID + server cert
+
+cyberark_get_password "PROD_DB_ACCOUNT" db_pass
+
+# Audit trail shows: REAL_USER accessed PROD_DB_ACCOUNT
+In CyberArk, configure the App ID to:
+
+Require the server certificate
+Log the X-Requesting-User header you pass
+
+    
